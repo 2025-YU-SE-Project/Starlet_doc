@@ -15,8 +15,29 @@
 | FE | FE | FE | BE | BE |
 | [GitHub](https://github.com/Limtaehyeon) | [GitHub](https://github.com/chominseo0723) | [GitHub](https://github.com/eveveev) | [GitHub](https://github.com/lnahyun) | [GitHub](https://github.com/chlwjd0803) |
 
+---
 
-<br><br><br>
+### 📌 문서 저장소 브랜치 전략
+
+우리 팀은 **Gitflow** 워크플로우를 도입하여 효과적인 협업과 안정적인 코드 관리를 지향합니다. 아래의 브랜치 규칙을 준수하여 개발을 진행해주세요.
+
+* **`main`**: 프로젝트를 볼 수 있는 방문자들이 해당 문서를 읽을 수 있도록 하는 기본 브랜치입니다.
+* **`document/`**: 문서에 대한 작업을 할때 생성하는 브랜치 입니다.
+
+---
+
+### 📚 커밋 메시지 컨벤션
+
+아래의 커밋 메시지 컨벤션을 준수하여 커밋 이력을 명확하게 관리합니다.
+
+| 메시지         | 설명 |
+|:------------| :--- |
+| **`add`**  | 🥥 문서 추가, 문서 내용 추가 |
+| **`fix`**   | 🐛 문서 수정, 문서 이름 수정 |
+| **`rmv`**  | 문서 삭제, 문서 내용 삭제 |
+
+
+---
 
 ## **1. 요구사항 정의 (Requirements description)**
 
