@@ -258,5 +258,143 @@
 7. **정상 응답** : `200 OK`
 <br>
 
+### SD-4.2.4 비밀번호 재설정 요청  
+<img width="1691" height="1386" alt="image" src="https://github.com/user-attachments/assets/090e8df3-54be-4767-b6a2-ac656d4626e9" />
+
+
+사용자가 비밀번호를 잊은 경우, 가입된 이메일로 비밀번호 재설정 링크를 전송하는 기능이다.  
+`EmailController.requestPasswordReset()`이 `EmailService.requestPasswordReset(dto)`를 호출하며,  
+서비스는 (1) 가입 사용자 존재 여부를 `UserRepository.findByEmailAddress()`로 확인하고,  
+(2) 이메일 엔티티를 `findEmailByAddress()`로 조회한다.  
+이후 `VerifyService.passwordResetRequestStatus(email)`에서 인증 상태를  
+`REQUEST_PASSWORD_RESET`으로 전환하고(토큰 재발급 + 24시간 만료 설정),  
+`sendPasswordResetEmail(email, token)`으로 메일을 발송한다.  
+가입 사용자가 없으면 `USER_NOT_FOUND`, Email 엔티티가 없으면 `EMAIL_NOT_FOUND`,  
+인증 상태가 가입 미완(EMAIL_VERIFICATION)일 경우 `VERIFY_TYPE_NOT_MATCHED` 예외가 발생한다.  
+정상 처리 시 `200 OK`를 반환한다.
+
+**흐름요약**  
+1. **Client → EmailController** : `POST /api/v1/email/password-reset/request` (EmailAddressDto{ email })  
+2. **EmailController → EmailService** : `requestPasswordReset(dto)` 호출  
+3. **EmailService → UserRepository** : `findByEmailAddress(email)` → 없으면 `USER_NOT_FOUND`  
+4. **EmailService → EmailRepository** : `findByAddress(email)` → 없으면 `EMAIL_NOT_FOUND`  
+5. **EmailService → VerifyService** : `passwordResetRequestStatus(email)`  
+   - 상태 검증 (가입 미완이면 `VERIFY_TYPE_NOT_MATCHED`)  
+   - `token=UUID`, `type=REQUEST_PASSWORD_RESET`, `expire=now+24h` 로 업데이트 및 저장  
+6. **EmailService → JavaMailSender** : `sendPasswordResetEmail(email, token)` 실행  
+7. **정상 응답** : `200 OK`  
+<br>
+
+### SD-4.2.5 비밀번호 재설정 완료  
+<img width="1602" height="1110" alt="image" src="https://github.com/user-attachments/assets/8295e1b7-6308-4814-9aaf-5a9110c9fe6f" />
+
+
+사용자가 비밀번호 재설정 허용 링크를 통해 페이지에 진입한 뒤,  
+새로운 비밀번호를 입력하면 서버는 해당 계정의 비밀번호를 암호화하여 저장하고  
+인증 상태를 정상(`VERIFY`)으로 되돌린다.  
+
+`VerifyController.confirmChangePassword()`가  
+`VerifyService.updatePassword(dto)`를 호출하며,  
+서비스는 다음 순서로 로직을 수행한다.  
+1. `EmailRepository.findByAddress()`로 이메일 존재 여부 확인  
+2. `email.verify.type == CHANGING_PASSWORD` 검증  
+3. `UserRepository.findByEmailAddress()`로 사용자 존재 여부 확인  
+4. `PasswordEncoder`로 새 비밀번호 암호화 후 저장  
+5. 인증정보(`Verify`)를 `VERIFY` 상태로 복원  
+모든 절차가 완료되면 `200 OK`를 반환한다.  
+
+예외 상황:
+- 이메일이 없으면 `EMAIL_NOT_FOUND`  
+- 인증 상태가 `CHANGING_PASSWORD`가 아니면 `VERIFY_TYPE_NOT_MATCHED`  
+- 사용자가 없으면 `USER_NOT_FOUND`
+
+**흐름요약**  
+1. **Client → VerifyController** : `POST /api/v1/verify/password-reset/new-password` (PasswordResetConfirmDto{ email, newPassword })  
+2. **VerifyController → VerifyService** : `updatePassword(dto)` 호출  
+3. **VerifyService → EmailRepository** : `findByAddress(dto.email)` → 없으면 `EMAIL_NOT_FOUND`  
+4. **VerifyService** : `email.verify.type == CHANGING_PASSWORD` 검증 → 아니면 `VERIFY_TYPE_NOT_MATCHED`  
+5. **VerifyService → UserRepository** : `findByEmailAddress(dto.email)` → 없으면 `USER_NOT_FOUND`  
+6. **VerifyService** : `PasswordEncoder.encode(newPassword)` → `user.changePassword(encoded)` → 저장  
+7. **VerifyService** : `verify.updateStatus(null, VERIFY, null)` → 저장  
+8. **정상 응답** : `200 OK`  
+<br>
+
+---
+
+## 4.3 Verify Sequence diagram
+### SD-4.3.1 인증 링크 확인  
+<img width="925" height="856" alt="image" src="https://github.com/user-attachments/assets/7c5e8378-ef94-4e0b-8617-b002266bc2a7" />
+
+회원가입 시 사용자에게 발송된 인증 링크(`GET /view/v1/verify/init?token={token}`)를 사용자가 클릭하면,  
+`VerifyViewController.emailVerification(token)`이 `VerifyService.emailVerification(token)`을 호출하여  
+해당 **토큰의 존재 여부와 타입 일치 여부**를 검증한다.  
+
+인증 객체가 존재하고 타입이 `EMAIL_VERIFICATION`일 경우,  
+인증 상태를 `VERIFY`로 전환하여 최종 인증 완료 처리를 수행한다.  
+
+성공 시 `verification-success` 템플릿을 반환하고,  
+예외(`VERIFY_NOT_FOUND`, `VERIFY_TYPE_NOT_MATCHED`) 발생 시  
+에러 메시지를 담아 `verification-error` 템플릿을 반환한다.  
+
+**흐름요약**  
+1. **Client → VerifyViewController** : `GET /view/v1/verify/init?token={token}`  
+2. **VerifyViewController → VerifyService** : `emailVerification(token)` 호출  
+3. **VerifyService → VerifyRepository** : `findByToken(token)` → 없으면 `VERIFY_NOT_FOUND`  
+4. **VerifyService** : `verify.type == EMAIL_VERIFICATION` 검증 → 아니면 `VERIFY_TYPE_NOT_MATCHED`  
+5. **VerifyService** : `verify.updateStatus(null, VERIFY, null)` → `verifyRepository.save(verify)`  
+6. **성공 시** : `model.addAttribute(title, message)` → `verification-success.html` 반환  
+7. **실패 시** : `CustomException` catch → `model.addAttribute(message)` → `verification-error.html` 반환  
+<br>
+
+### SD-4.3.2 인증 성공 처리  
+<img width="1184" height="788" alt="image" src="https://github.com/user-attachments/assets/85b722f1-fcb3-41e4-982d-6e9b750d8daa" />
+
+이 기능은 이메일 인증 완료 후 내부적으로 인증 객체(`Verify`)의 상태를  
+최종적으로 `VERIFY`로 업데이트하는 과정이다.  
+
+`VerifyService.emailVerification(token)`이 호출되면  
+`validateToken(token, EMAIL_VERIFICATION)`을 통해 토큰 유효성 검증을 수행하고,  
+성공 시 `verify.updateStatus(null, VERIFY, null)`로 상태를 갱신한 뒤 DB에 반영한다.  
+
+컨트롤러 단에서 JSON 응답 대신 **200 OK**만 반환하며,  
+이 로직은 뷰 렌더링(`SD-4.3.1`)에서도 동일하게 내부적으로 호출되어  
+인증 완료 처리를 담당한다.  
+
+**흐름요약**  
+1. **Client → VerifyController** : `POST /api/v1/verify/email-confirm?token={token}` (가정 경로)  
+2. **VerifyController → VerifyService** : `emailVerification(token)` 호출  
+3. **VerifyService → VerifyRepository** : `findByToken(token)`  
+4. **VerifyService** : `verify.type == EMAIL_VERIFICATION` 검증  
+5. **VerifyService** : `verify.updateStatus(null, VERIFY, null)`  
+6. **VerifyRepository → DB** : `save(verify)`  
+7. **성공 시** : `ResponseEntity.ok().build()` (200 OK)  
+8. **실패 시** : `CustomException` → GlobalExceptionHandler 변환 후 404/400 응답  
+<br>
+
+### SD-4.3.3 비밀번호 재설정 링크 검증  
+<img width="1165" height="856" alt="image" src="https://github.com/user-attachments/assets/3fbe3e63-6e33-4ca3-86e8-20d7dcaafeeb" />
+
+
+비밀번호 재설정 이메일을 받은 사용자가 링크(`GET /view/v1/verify/password-reset/confirm?token={token}`)를 클릭하면,  
+`VerifyViewController.passwordResetVerification(token)`이 호출되어  
+`VerifyService.passwordResetVerification(token)`을 통해 토큰의 유효성을 검증하고,  
+정상적인 요청일 경우 인증 상태를 `CHANGING_PASSWORD`로 변경한다.  
+
+이 과정을 통해 사용자는 새 비밀번호를 입력할 수 있는 상태로 전환되며,  
+성공 시 `password-reset-success` 뷰가 렌더링되고  
+토큰이 유효하지 않거나 만료된 경우 `verification-error` 페이지로 이동한다.  
+
+**흐름요약**  
+1. **Client → VerifyViewController** : `GET /view/v1/verify/password-reset/confirm?token={token}`  
+2. **VerifyViewController → VerifyService** : `passwordResetVerification(token)` 호출  
+3. **VerifyService → VerifyRepository** : `findByToken(token)` 수행  
+4. **토큰 없음** → `VERIFY_NOT_FOUND` 예외 발생  
+5. **타입 불일치 (`type != REQUEST_PASSWORD_RESET`)** → `VERIFY_TYPE_NOT_MATCHED` 예외 발생  
+6. **정상 토큰** → `verify.updateStatus(null, CHANGING_PASSWORD, null)`  
+7. **VerifyRepository → DB** : `save(verify)`  
+8. **성공 시** : `password-reset-success.html` 반환  
+9. **실패 시** : `verification-error.html` 반환  
+<br>
+
 
 
