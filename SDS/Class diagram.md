@@ -5,33 +5,45 @@
 
 이번 장은 Class diagram과 각각에 대한 설명을 기술한다.
 
-본 프로젝트의 클래스 다이어그램은 '엔티티', '공통 모듈', '기능별' 관점으로 나누어 기술합니다.
+본 프로젝트의 클래스 다이어그램은 '엔티티', '공통 인프라', '기능별' 관점으로 나누어 기술한다.
 
 ### 3.1. 엔티티 클래스 다이어그램 (Entity Diagram)
 
 프로젝트의 핵심 데이터 모델인 엔티티 간의 관계를 나타낸다.
 
 
+### 3.2. 공통 인프라 다이어그램 (Common Infrastructure Diagram)
 
-### 3.2. 공통 단일 클래스 다이어그램 (Common Classes)
+특정 도메인에 종속되지 않고 프로젝트 전반에서 사용되는 공통 설정 및 인프라 클래스들을 묶은 다이어그램이다.
 
-프로젝트 전반에서 사용되는 Enum, 공통 DTO, 유틸리티 클래스 등을 정의한다.
+애플리케이션의 기반 설정(보안, 예외 처리, 외부 연동 설정 등)을 분리하여 관리하는 것이 목적이다.
 
-- 열거형
-- 예외처리
+포함 클래스 (Infrastructure & Config)
 
-### 3.3. 공유 모듈 클래스 다이어그램 (Shared Modules)
+- Security: SecurityConfig, JwtUtil, CustomUserDetailService, JwtAuthenticationFilter, CorsConfig
 
-여러 도메인(기능)에서 공통으로 의존하는 서비스 모듈입니다.
+- Exception: GlobalExceptionHandler, CustomException, ErrorCode, ErrorDto, CustomAccessDeniedHandler, CustomAuthenticationEntryPoint
 
-- security 패키지
-- S3 패키지
-- 예외처리 패키지
+- External Config: S3Config (domains.S3.Config)
+
+- API Docs: SwaggerConfig (swagger)
 
 
-### 3.4. 기능별 클래스 다이어그램 (Functional Diagrams)
 
-주요 도메인(기능)별로 Controller, Service, Repository, Command(DTO) 간의 관계를 상세히 기술합니다.
+### 3.3. 기능별 클래스 다이어그램 (Functional Diagrams)
+
+주요 도메인(기능)별로 Controller, Service, Repository, Command(DTO) 간의 관계를 상세히 기술한다.
+
+1. 사용자 & 이메일 & 검증 기능 (User & Email & Verify)
+
+2. 일기 기능 (Diary)
+
+3. 별 기능 (Star)
+
+4. 별자리 & 연결 기능 (Constellation & Connection)
+
+5. 외부 서비스 (External Services: S3)
+
 
 
 클래스들을 정의할때 다음과 같은 규칙을 따른다.
