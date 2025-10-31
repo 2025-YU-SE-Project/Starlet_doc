@@ -1,0 +1,183 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.constellation" {
+
+    ' External Entities & DTOs (타 도메인에서 참조) '
+    class User << (E,Gray) External Entity >>
+    class Star << (E,Gray) External Entity >>
+    class Connection << (E,Gray) External Entity >>
+    enum Color << (E,Gray) External Enum >>
+
+    class StarPositionDto << (D,Gray) External Req DTO >>
+    class ConnectionDto << (D,Gray) External Req DTO >>
+    class StarryNightStarDto << (D,Gray) External Res DTO >>
+    class StarryNightConnectionDto << (D,Gray) External Res DTO >>
+    class StarArchiveDto << (D,Gray) External Res DTO >>
+    class StarArchiveDetailDto << (D,Gray) External Res DTO >>
+
+    ' DTO (Request) '
+    class CreateConstellationDto << (D,#FFEEEE) Req DTO >> {
+        - name: String
+        - description: String
+        - stars: List<StarPositionDto>
+        - connections: List<ConnectionDto>
+        --
+        + getName(): String
+        ...
+    }
+    CreateConstellationDto o-- StarPositionDto
+    CreateConstellationDto o-- ConnectionDto
+
+    class ConstellationPositionDto << (D,#FFEEEE) Req DTO >> {
+        - x: Double
+        - y: Double
+        --
+        + getX(): Double
+        + getY(): Double
+    }
+
+    class UpdateConstellationInfo << (D,#FFEEEE) Req DTO >> {
+        - name: String
+        - description: String
+        --
+        + getName(): String
+        + getDescription(): String
+    }
+
+    ' DTO (Response) '
+    class StarryNightConstellationDto << (D,#EEFFFF) Res DTO >> {
+        - constellationId: Long
+        - userId: Long
+        - x: Double
+        - y: Double
+        - belongDate: LocalDate
+        - stars: List<StarryNightStarDto>
+        - connections: List<StarryNightConnectionDto>
+        --
+        + StarryNightConstellationDto(...) (Builder)
+        + getConstellationId(): Long
+        ...
+    }
+    StarryNightConstellationDto o-- StarryNightStarDto
+    StarryNightConstellationDto o-- StarryNightConnectionDto
+
+    class ArchiveDto << (D,#EEFFFF) Res DTO >> {
+        - constellationId: Long
+        - name: String
+        - description: String
+        - date: LocalDate
+        - isRepresentative: Boolean
+        - stars: List<StarArchiveDto>
+        - connections: List<ConnectionDto>
+        --
+        + ArchiveDto(...) (Builder)
+    }
+    ArchiveDto o-- StarArchiveDto
+    ArchiveDto o-- ConnectionDto
+
+    class ArchiveDetailDto << (D,#EEFFFF) Res DTO >> {
+        - constellationId: Long
+        - name: String
+        - description: String
+        - date: LocalDate
+        - isRepresentative: Boolean
+        - stars: List<StarArchiveDetailDto>
+        - connections: List<ConnectionDto>
+        - happynessCount: Integer
+        - funnyCount: Integer
+        - neutralCount: Integer
+        - surprisingCount: Integer
+        - angerCount: Integer
+        - sadnessCount: Integer
+        --
+        + ArchiveDetailDto(...) (Builder)
+    }
+    ArchiveDetailDto o-- StarArchiveDetailDto
+    ArchiveDetailDto o-- ConnectionDto
+
+    ' Entity '
+    class Constellation << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - user: User (ManyToOne)
+        - name: String
+        - description: String
+        - createAt: LocalDate
+        - belongDate: LocalDate
+        - isRepresentative: boolean
+        - x: Double
+        - y: Double
+        - stars: List<Star> (OneToMany)
+        - connections: List<Connection> (OneToMany)
+        --
+        + Constellation(...) (Builder)
+        + changeRepresentative()
+        + changePosition(x: Double, y: Double)
+        + updateInfo(name: String, description: String)
+        + setBelongDate(belongDate: LocalDate)
+    }
+    Constellation "1" o-- "0..*" Star : <<OneToMany>> contains
+    Constellation "1" o-- "0..*" Connection : <<OneToMany>> contains
+
+    ' Repository '
+    interface ConstellationRepository << (R,#CCFFCC) JpaRepository >> {
+        + findByUserAndBelongDateBetween(User user, startDate, endDate): List<Constellation>
+        + findByUser(User user): List<Constellation>
+        + findByUserAndIsRepresentative(User user, isRepresentative: boolean): Optional<Constellation>
+    }
+    ConstellationRepository --> Constellation : manages
+
+    ' Service '
+    class ConstellationService << (S,#AADDFF) Service >> {
+        - constellationRepository: ConstellationRepository
+        - starRepository: StarRepository
+        - connectionRepository: ConnectionRepository
+        - userRepository: UserRepository
+        --
+        + getStarryNightConstellation(userDetails, year, month): List<StarryNightConstellationDto>
+        + createConstellation(userDetails, dto: CreateConstellationDto)
+        + repositionConstellation(id: Long, dto: ConstellationPositionDto)
+        + getArchiveList(userDetails): List<ArchiveDto>
+        + getArchiveDetail(id: Long): ArchiveDetailDto
+        + updateConstellationInfo(id: Long, dto: UpdateConstellationInfo)
+        + changeRepresentativeConstellation(id: Long, userDetails)
+        - calculateConstellationInfo(con: Constellation): Map<String, Integer>
+    }
+    ConstellationService --> ConstellationRepository : injects/uses
+    ConstellationService ..> CreateConstellationDto : uses
+    ConstellationService ..> ConstellationPositionDto : uses
+    ConstellationService ..> UpdateConstellationInfo : uses
+    ConstellationService ..> StarryNightConstellationDto : returns List
+    ConstellationService ..> ArchiveDto : returns List
+    ConstellationService ..> ArchiveDetailDto : returns
+
+    ' Controller Interface (API Spec) '
+    interface ConstellationApi << (I,#CCCCCC) Tag/Interface >> {
+        + getStarryNightConstellation(...): ResponseEntity<?>
+        + createConstellation(...): ResponseEntity<?>
+        + repositionConstellation(...): ResponseEntity<?>
+        + getArchiveList(...): ResponseEntity<?>
+        + getArchiveDetail(...): ResponseEntity<?>
+        + updateConstellationInfo(...): ResponseEntity<?>
+        + changeRepresentativeConstellation(...): ResponseEntity<?>
+    }
+
+    ' Controller Implementation '
+    class ConstellationController << (C,#FFCCAA) RestController >> {
+        - constellationService: ConstellationService
+        --
+        + getStarryNightConstellation(...): ResponseEntity<?>
+        + createConstellation(...): ResponseEntity<?>
+        + repositionConstellation(...): ResponseEntity<?>
+        + getArchiveList(...): ResponseEntity<?>
+        + getArchiveDetail(...): ResponseEntity<?>
+        + updateConstellationInfo(...): ResponseEntity<?>
+        + changeRepresentativeConstellation(...): ResponseEntity<?>
+    }
+
+    ' 관계 (Controller -> API Interface) '
+    ConstellationController .up.|> ConstellationApi : implements
+    ConstellationController --> ConstellationService : injects/uses
+}
+@enduml

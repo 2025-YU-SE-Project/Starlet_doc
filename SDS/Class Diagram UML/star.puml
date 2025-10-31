@@ -1,0 +1,139 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.star" {
+
+    ' Enums / External References '
+    enum Color << (E,#FFDDCC) Enum >> {
+        // RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, GRAY
+        // ... (상수 생략)
+        --
+        + values()
+        + valueOf()
+    }
+
+    class User << (E,Gray) External Entity >>
+    class Diary << (E,Gray) External Entity >>
+    class Constellation << (E,Gray) External Entity >>
+    class Connection << (E,Gray) External Entity >>
+
+    ' DTO (Request) '
+    class DiaryToStarReqDto << (D,#FFEEEE) Req DTO >> {
+        - date: String
+        --
+        + getDate(): String
+    }
+
+    class StarPositionDto << (D,#FFEEEE) Req DTO >> {
+        - starId: Long
+        - x: Double
+        - y: Double
+        --
+        + getStarId(): Long
+        + getX(): Double
+        + getY(): Double
+    }
+
+    ' DTO (Response) '
+    class StarInfoDto << (D,#EEFFFF) Res DTO >> {
+        - starId: Long
+        - userId: Long
+        - diaryId: Long
+        --
+        + StarInfoDto(...) (Builder)
+    }
+
+    class StarryNightStarDto << (D,#EEFFFF) Res DTO >> {
+        - starId: Long
+        - userId: Long
+        - color: String
+        - date: String
+        - x: Double
+        - y: Double
+        --
+        + StarryNightStarDto(...) (Builder)
+    }
+
+    class StarArchiveDto << (D,#EEFFFF) Res DTO >> {
+        - starId: Long
+        - x: Double
+        - y: Double
+        - color: String
+        --
+        + StarArchiveDto(...) (Builder)
+    }
+    StarArchiveDto ..> Color
+
+    class StarArchiveDetailDto << (D,#EEFFFF) Res DTO >> {
+        - starId: Long
+        - x: Double
+        - y: Double
+        - color: String
+        - date: LocalDate
+        --
+        + StarArchiveDetailDto(...) (Builder)
+    }
+    StarArchiveDetailDto ..> Color
+
+    ' Entity '
+    class Star << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - color: Color
+        - x: Double
+        - y: Double
+        - constellation: Constellation (ManyToOne)
+        - diary: Diary (OneToOne)
+        - user: User (ManyToOne)
+        - connectionsAsStart: List<Connection> (OneToMany)
+        - connectionsAsEnd: List<Connection> (OneToMany)
+        --
+        + Star(...) (Builder)
+        + joinConstellation(constellation: Constellation)
+        + changePosition(x: Double, y: Double)
+        + leaveConstellation()
+    }
+    Star o-- Color : <<uses>>
+
+    ' Repository '
+    interface StarRepository << (R,#CCFFCC) JpaRepository >> {
+        + existsByUserAndDiary(user: User, diary: Diary): boolean
+        + findByConstellation(constellation: Constellation): List<Star>
+        + findByUserAndDiary_CreateAtBetweenAndConstellationIsNull(user: User, startDate: LocalDate, endDate: LocalDate): List<Star>
+        + countByConstellationAndColor(constellation: Constellation, color: Color): Integer
+    }
+    StarRepository --> Star : manages
+
+    ' Service '
+    class StarService << (S,#AADDFF) Service >> {
+        - userRepository: UserRepository
+        - starRepository: StarRepository
+        --
+        + getStar(id: Long): StarInfoDto
+        + getStarryNightStar(userDetails: UserDetails, year: int, month: int): List<StarryNightStarDto>
+        + repositionStar(id: Long, dto: StarPositionDto)
+    }
+    StarService --> StarRepository : injects/uses
+    StarService ..> StarPositionDto : uses
+    StarService ..> StarryNightStarDto : returns List
+
+    ' Controller '
+    interface StarApi << (I,#CCCCCC) Tag/Interface >> {
+        + getStar(id: Long): ResponseEntity<?>
+        + getStarryNightStar(userDetails, year, month): ResponseEntity<?>
+        + repositionStar(id: Long, dto: StarPositionDto): ResponseEntity<?>
+    }
+
+    class StarController << (C,#FFCCAA) RestController >> {
+        - starService: StarService
+        --
+        + getStar(id: Long): ResponseEntity<?>
+        + getStarryNightStar(userDetails, year, month): ResponseEntity<?>
+        + repositionStar(id: Long, dto: StarPositionDto): ResponseEntity<?>
+    }
+
+    StarController .up.|> StarApi : implements
+    StarController --> StarService : injects/uses
+    StarController ..> StarPositionDto : uses
+}
+@enduml

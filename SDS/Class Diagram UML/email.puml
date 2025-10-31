@@ -1,0 +1,96 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.email" {
+
+    ' DTO '
+    class EmailAddressDto << (D,#FFEEEE) Req DTO >> {
+        - email: String
+        --
+        + getEmail(): String
+    }
+
+    class EmailInfoDto << (D,#EEFFFF) Res DTO >> {
+        - emailId: Long
+        - emailAddress: String
+        - verifyType: String
+        - verifyExpireAt: String
+        --
+        + EmailInfoDto(...) (Builder)
+        + getEmailId(): Long
+        + getEmailAddress(): String
+        + getVerifyType(): String
+        + getVerifyExpireAt(): String
+    }
+
+    ' Entity '
+    class Email << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - address: String
+        - verify: Verify (OneToOne)
+        - user: User (OneToOne, mappedBy)
+        --
+        + Email(...) (Builder)
+        + getAddress(): String
+        + getVerify(): Verify
+    }
+
+    ' Repository '
+    interface EmailRepository << (R,#CCFFCC) JpaRepository >> {
+        + findByAddress(email: String): Optional<Email>
+        + existsByAddress(address: String): boolean
+    }
+
+    ' Service '
+    class EmailService << (S,#AADDFF) Service >> {
+        - emailRepository: EmailRepository
+        - verifyRepository: VerifyRepository
+        - userService: UserService
+        - verifyService: VerifyService
+        - javaMailSender: JavaMailSender
+        - frontendUrl: String (@Value)
+        - emailIconPath: String (@Value)
+        --
+        + existsEmailAddress(address: String): boolean
+        + getVerificationStatus(address: String): EmailInfoDto
+        + findByAddress(email: String): Email
+        + initEmail(dto: EmailAddressDto)
+        + requestPasswordReset(dto: EmailAddressDto)
+        + updateEmailVerify(email: Email, verifyType: VerifyType)
+        + sendEmail(to: String, subject: String, content: String)
+        - createHtmlContent(token: String, subject: String, message: String, buttonText: String, urlPath: String): String
+        - setMimeMessageHelper(message: MimeMessage, content: String): MimeMessageHelper
+    }
+
+    ' Controller '
+    interface EmailAPI << (I,#CCCCCC) Tag/Interface >> {
+        + checkDuplication(address: String): ResponseEntity<?>
+        + getVerificationStatus(address: String): ResponseEntity<?>
+        + initEmail(dto: EmailAddressDto): ResponseEntity<?>
+        + requestPasswordReset(dto: EmailAddressDto): ResponseEntity<?>
+    }
+
+    class EmailController << (C,#FFCCAA) RestController >> {
+        - userService: UserService
+        - emailService: EmailService
+        - verifyService: VerifyService
+        --
+        + checkDuplication(address: String): ResponseEntity<?>
+        + getVerificationStatus(address: String): ResponseEntity<?>
+        + initEmail(dto: EmailAddressDto): ResponseEntity<?>
+        + requestPasswordReset(dto: EmailAddressDto): ResponseEntity<?>
+    }
+
+    ' 관계 '
+    EmailRepository --> Email : manages
+    Email "1" *-- "1" Verify : <<OneToOne>> uses
+
+    EmailService --> EmailRepository : injects/uses
+    EmailService ..> EmailAddressDto : uses (Req DTO)
+    EmailService ..> EmailInfoDto : returns (Res DTO)
+
+    EmailController .up.|> EmailAPI : implements
+    EmailController --> EmailService : injects/uses
+}
+@enduml

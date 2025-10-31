@@ -32,15 +32,21 @@
 
 주요 도메인(기능)별로 Controller, Service, Repository, Command(DTO) 간의 관계를 상세히 기술한다.
 
-1. 사용자 & 이메일 & 검증 기능 (User & Email & Verify)
+1. 사용자 - User
 
-2. 일기 기능 (Diary)
+2. 이메일 - Email
 
-3. 별 기능 (Star)
+3. 검증 - Verify
 
-4. 별자리 & 연결 기능 (Constellation & Connection)
+4. 일기 - Diary
 
-5. 외부 서비스 (External Services: S3)
+5. 별 - Star
+
+6. 별자리 - Constellation
+
+7. 별자리선 - Connection
+
+8. 외부 서비스 - S3
 
 
 
@@ -52,7 +58,7 @@
 
 ---
 
-## 3.1 엔티티 클래스 다이어그램
+## 3.1. 엔티티 클래스 다이어그램
 
 ### Entity Relation Diagram
 ![alt text](Class%20Diagram%20UML/erd.png)
@@ -192,28 +198,82 @@ Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 
 ---
 
-## 3.2 공통 인프라 다이어그램
+## 3.2. 공통 인프라 다이어그램
 
 ### Common Infrastructure Diagram
 
 ---
 
-### 3.2.1 Security
+### 3.2.1. Security
 ![security.png](Class%20Diagram%20UML/security.png)
 
 ---
 
-### 3.2.2 Exception
+### 3.2.2. Exception
 ![exception.png](Class%20Diagram%20UML/exception.png)
 
 ---
 
-### 3.2.3 External Config
+### 3.2.3. External Config
 ![external.png](Class%20Diagram%20UML/external.png)
 
 ---
 
-### 3.2.4 API Docs
+### 3.2.4. API Docs
 ![apidocs.png](Class%20Diagram%20UML/apidocs.png)
+
+---
+
+## 3.3 기능별 클래스 다이어그램
+
+### Functional Diagrams
+
+---
+
+### 3.3.1. User
+![user.png](Class%20Diagram%20UML/user.png)
+
+
+---
+
+### 3.3.2. Email
+![email.png](Class%20Diagram%20UML/email.png)
+
+
+---
+
+### 3.3.3. Verify
+![verify.png](Class%20Diagram%20UML/verify.png)
+
+
+---
+
+### 3.3.4. Diary
+![diary.png](Class%20Diagram%20UML/diary.png)
+
+
+---
+
+### 3.3.5. Star
+![star.png](Class%20Diagram%20UML/star.png)
+
+
+---
+
+### 3.3.6. Constellation
+![constellation.png](Class%20Diagram%20UML/constellation.png)
+
+
+---
+
+### 3.3.7. Connection
+![connection.png](Class%20Diagram%20UML/connection.png)
+
+
+---
+
+### 3.3.8. External Services : S3
+![s3.png](Class%20Diagram%20UML/s3.png)
+
 
 ---

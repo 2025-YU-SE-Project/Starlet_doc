@@ -1,0 +1,68 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.S3" {
+
+    ' External Entities (외부 참조, 필드/메소드 생략) '
+    class S3Presigner << (I,Gray) AWS SDK >>
+    class S3Client << (I,Gray) AWS SDK >>
+    class UserRepository << (R,Gray) Repository >>
+    class User << (E,Gray) Entity >>
+    class UserDetails << (I,Gray) Spring Security >>
+    class URL << (C,Gray) Java Util >>
+
+    ' DTO (Response) '
+    class S3tempResDto << (D,#EEFFFF) Res DTO >> {
+        - presignedUrl: String
+        - tempKey: String
+        --
+        + S3tempResDto(presignedUrl: String, tempKey: String) (Builder)
+        + of(url: URL, key: String): S3tempResDto << Static Factory >>
+        + getPresignedUrl(): String
+        + getTempKey(): String
+    }
+
+    class S3uploadResDto << (D,#EEFFFF) Res DTO >> {
+        - imageUrl: String
+        --
+        + S3uploadResDto(imageUrl: String) (Builder)
+        + of(url: String): S3uploadResDto << Static Factory >>
+        + getImageUrl(): String
+    }
+
+    ' Service '
+    class S3StorageService << (S,#AADDFF) Service >> {
+        - presigner: S3Presigner
+        - s3Client: S3Client
+        - bucket: String (@Value)
+        - region: String (@Value)
+        --
+        + createUploadUrl(key: String, contentType: String): URL
+        + publishProfile(userId: Long, tempKey: String): String
+    }
+    S3StorageService --> S3Presigner : injects/uses
+    S3StorageService --> S3Client : injects/uses
+    S3StorageService ..> URL : returns/uses
+
+    ' Controller '
+    class S3Controller << (C,#FFCCAA) RestController >> {
+        - s3StorageService: S3StorageService
+        - userRepository: UserRepository
+        --
+        + tempUrl(principal: UserDetails, contentType: String): S3tempResDto
+        + uploadImage(principal: UserDetails, tempKey: String): S3uploadResDto
+        - resolveUserId(principal: UserDetails): Long
+    }
+
+    ' 관계 (Controller -> Service / DTO) '
+    S3Controller --> S3StorageService : injects/uses
+    S3Controller --> UserRepository : injects/uses
+    S3Controller ..> S3tempResDto : returns
+    S3Controller ..> S3uploadResDto : returns
+    S3Controller ..> UserDetails : uses
+
+    ' 관계 (Service -> DTO) '
+    S3StorageService --> S3tempResDto : used by Factory
+}
+@enduml
