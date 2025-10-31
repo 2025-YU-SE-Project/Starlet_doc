@@ -1,5 +1,6 @@
 # Starlet_BE: 소프트웨어 설계 명세서 (SDS)
 
+---
 
 ## Class Diagram (클래스 다이어그램)
 
@@ -18,16 +19,13 @@
 
 애플리케이션의 기반 설정(보안, 예외 처리, 외부 연동 설정 등)을 분리하여 관리하는 것이 목적이다.
 
-포함 클래스 (Infrastructure & Config)
+- Security
 
-- Security: SecurityConfig, JwtUtil, CustomUserDetailService, JwtAuthenticationFilter, CorsConfig
+- Exception
 
-- Exception: GlobalExceptionHandler, CustomException, ErrorCode, ErrorDto, CustomAccessDeniedHandler, CustomAuthenticationEntryPoint
+- External Config
 
-- External Config: S3Config (domains.S3.Config)
-
-- API Docs: SwaggerConfig (swagger)
-
+- API Docs
 
 
 ### 3.3. 기능별 클래스 다이어그램 (Functional Diagrams)
@@ -47,10 +45,12 @@
 
 
 클래스들을 정의할때 다음과 같은 규칙을 따른다.
-1. 한번 정의된 클래스는 다시 출현 시 Attribute와 Operation 정보를 생략하고 클래스 이름만을 표기한다.
-2. Getter, Setter, Constructor(Builder 패턴 제외)는 시각적 편의를 위해 생략한다.
+1. 구현한 클래스는 해당 문서에서 1회만 Attribute와 Operation 정보를 기술한다.
+2. 한번 정의된 클래스는 다시 출현 시 Attribute와 Operation 정보를 생략하고 클래스 이름만을 표기한다.
+3. Getter, Setter, Constructor(Builder 패턴 제외)는 시각적 편의를 위해 생략한다.
+4. 라이브러리로 존재하는 클래스 및 인터페이스들은 다이어그램에 표기하나, 설명을 적거나 Attribute, Operation 정보에 대해 필수로 기술하지 않는다.
 
-
+---
 
 ## 3.1 엔티티 클래스 다이어그램
 
@@ -61,22 +61,7 @@
 ### Entity Class Diagram
 ![entity.png](Class%20Diagram%20UML/entity.png)
 
-
-[//]: # (템플릿)
-### Class Diagram #번호 : 클래스 이름
-Class Description :
-
-| 구분            | 이름                      | 설명             | 타입             | 접근 제한자 (Visibility)            |
-|:--------------|:------------------------|:---------------|:---------------|:-------------------------------|
-| **Attribute** | `attribute1`            | 속성 1에 대한 설명    | `Type1`        | `Private`/`Public`/`Protected` |
-| **Attribute** | `attribute2`            | 속성 2에 대한 설명    | `Type2`        | `Private`/`Public`/`Protected` |
-| **(생략 가능)**   | ...                     | ...            | ...            | ...                            |
-| **Operation** | `operation1()`          | 오퍼레이션 1에 대한 설명 | `Return Type1` | `Public`/`Private`/`Protected` |
-| **Operation** | `operation2(arg: Type)` | 오퍼레이션 2에 대한 설명 | `Return Type2` | `Public`/`Private`/`Protected` |
-| **(생략 가능)**   | ...                     | ...            | ...            | ...                            |
-
-
-
+---
 
 ### Class Diagram #1 : User
 Class Description : 플랫폼의 사용자 Entity
@@ -96,6 +81,8 @@ Class Description : 플랫폼의 사용자 Entity
 | **Operation** | `toResDto()`       | 오퍼레이션 2에 대한 설명 | `UserResDto`          | `Public`                      |
 | **Operation** | `changePassword()` | 오퍼레이션 2에 대한 설명 | `void`                | `Public`                      |
 
+---
+
 ### Class Diagram #2: Email
 Class Description: 사용자의 이메일 정보를 관리하는 Entity
 
@@ -107,6 +94,8 @@ Class Description: 사용자의 이메일 정보를 관리하는 Entity
 | **Attribute** | `user`      | 연관된 사용자 정보     | `User`   | `Private`           |
 | ...           | ...         | ...            | ...      | ...                 |
 | **Operation** | `builder()` | Email 객체 빌더 생성 | `Email`  | `Public`            |
+
+---
 
 ### Class Diagram #3: Verify
 Class Description: 이메일 인증에 사용되는 인증 토큰 및 만료 정보 Entity
@@ -121,6 +110,8 @@ Class Description: 이메일 인증에 사용되는 인증 토큰 및 만료 정
 | ...           | ...                                                                     | ...             | ...             | ...                 |
 | **Operation** | `builder()`                                                             | Verify 객체 빌더 생성 | `Verify`        | `Public`            |
 | **Operation** | `updateStatus(String token, VerifyType type, LocalDateTime expireTime)` | 토큰 상태 업데이트      | `void`          | `Public`            |
+
+---
 
 ### Class Diagram #4: Diary
 Class Description: 사용자가 작성하는 일기 Entity
@@ -138,6 +129,8 @@ Class Description: 사용자가 작성하는 일기 Entity
 | ...           | ...                                | ...            | ...            | ...                 |
 | **Operation** | `builder()`                        | Diary 객체 빌더 생성 | `Diary`        | `Public`            |
 | **Operation** | `updateContent(String newContent)` | 일기 내용 업데이트     | `void`         | `Public`            |
+
+---
 
 ### Class Diagram #5: Star
 Class Description: 사용자의 일기를 기반으로 생성되는 별 Entity
@@ -157,6 +150,8 @@ Class Description: 사용자의 일기를 기반으로 생성되는 별 Entity
 | **Operation** | `builder()`                                      | Star 객체 빌더 생성  | `Star`             | `Public`            |
 | **Operation** | `joinConstellation(Constellation constellation)` | 별자리에 포함시키기     | `void`             | `Public`            |
 | **Operation** | `changePosition(Double x, Double y)`             | 별 위치 변경        | `void`             | `Public`            |
+
+---
 
 ### Class Diagram #6: Constellation
 Class Description: 사용자가 만드는 별자리 Entity
@@ -181,6 +176,8 @@ Class Description: 사용자가 만드는 별자리 Entity
 | **Operation** | `updateInfo(String name, String description)` | 별자리 정보 업데이트            | `void`             | `Public`            |
 | **Operation** | `setBelongDate(LocalDate belongDate)`         | 대표 별자리 지정 날짜 설정        | `void`             | `Public`            |
 
+---
+
 ### Class Diagram #7: Connection
 Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 
@@ -193,6 +190,30 @@ Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 | ...           | ...             | ...                 | ...             | ...                 |
 | **Operation** | `builder()`     | Connection 객체 빌더 생성 | `Connection`    | `Public`            |
 
+---
 
+## 3.2 공통 인프라 다이어그램
 
+### Common Infrastructure Diagram
 
+---
+
+### 3.2.1 Security
+![security.png](Class%20Diagram%20UML/security.png)
+
+---
+
+### 3.2.2 Exception
+![exception.png](Class%20Diagram%20UML/exception.png)
+
+---
+
+### 3.2.3 External Config
+![external.png](Class%20Diagram%20UML/external.png)
+
+---
+
+### 3.2.4 API Docs
+![apidocs.png](Class%20Diagram%20UML/apidocs.png)
+
+---

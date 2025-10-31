@@ -1,0 +1,34 @@
+@startuml
+!theme toy
+
+' 수직 배열(세로 그림)을 위해 명시적으로 방향을 지정합니다.
+top to bottom direction
+
+package "com.example.starlet_be.domains.S3.Config" {
+
+    class S3Config << (C,#FFDDAA) Configuration >> {
+        - region: String (@Value)
+        - accessKey: String (@Value)
+        - secretKey: String (@Value)
+        --
+        + s3Presigner(): S3Presigner (@Bean)
+        + s3Client(): S3Client (@Bean)
+    }
+
+    ' 외부 의존성 (AWS SDK) '
+    interface S3Presigner
+    interface S3Client
+    class AwsBasicCredentials
+    class StaticCredentialsProvider
+    class Region
+
+    ' 관계 (S3Config는 S3Presigner와 S3Client를 Bean으로 생성합니다) '
+    S3Config .down.> S3Presigner : creates/returns Bean
+    S3Config .down.> S3Client : creates/returns Bean
+
+    ' S3Client 및 S3Presigner 생성을 위한 내부 의존성 '
+    S3Config ..> AwsBasicCredentials : uses
+    S3Config ..> StaticCredentialsProvider : uses
+    S3Config ..> Region : uses
+}
+@enduml
