@@ -396,5 +396,30 @@
 9. **실패 시** : `verification-error.html` 반환  
 <br>
 
+### SD-4.3.4 비밀번호 변경 완료  
+<img width="1602" height="1110" alt="image" src="https://github.com/user-attachments/assets/548c7f5e-bb89-471d-b6f4-a087211ad2cf" />
+
+
+사용자가 새 비밀번호를 제출하면  
+`VerifyController.confirmChangePassword()`가 `VerifyService.updatePassword(dto)`를 호출하여  
+해당 이메일의 인증 상태가 `CHANGING_PASSWORD`인지 확인한 뒤,  
+`PasswordEncoder`로 새 비밀번호를 암호화해 저장하고 인증 상태를 `VERIFY`로 복원한다.  
+
+예외 상황:  
+- `EMAIL_NOT_FOUND` : 이메일 엔티티가 없음  
+- `VERIFY_TYPE_NOT_MATCHED` : 인증 상태가 `CHANGING_PASSWORD`가 아님  
+- `USER_NOT_FOUND` : 이메일에 해당하는 사용자가 없음  
+
+**흐름요약**  
+1. **Client → VerifyController** : `POST /api/v1/verify/password-reset/new-password` (PasswordResetConfirmDto{ email, newPassword })  
+2. **VerifyController → VerifyService** : `updatePassword(dto)` 호출  
+3. **VerifyService → EmailRepository** : `findByAddress(dto.email)` → 없으면 `EMAIL_NOT_FOUND`  
+4. **VerifyService** : `email.verify.type == CHANGING_PASSWORD` 검증 → 아니면 `VERIFY_TYPE_NOT_MATCHED`  
+5. **VerifyService → UserRepository** : `findByEmailAddress(dto.email)` → 없으면 `USER_NOT_FOUND`  
+6. **VerifyService** : `PasswordEncoder.encode(newPassword)` → `user.changePassword(encoded)` → `userRepository.save(user)`  
+7. **VerifyService** : `verify.updateStatus(null, VERIFY, null)` → `verifyRepository.save(verify)`  
+8. **정상 응답** : `200 OK`  
+<br>
+
 
 
