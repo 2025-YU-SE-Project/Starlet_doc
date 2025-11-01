@@ -2,7 +2,7 @@
 
 ---
 
-## Class Diagram (클래스 다이어그램)
+## 3. Class Diagram (클래스 다이어그램)
 
 이번 장은 Class diagram과 각각에 대한 설명을 기술한다.
 
