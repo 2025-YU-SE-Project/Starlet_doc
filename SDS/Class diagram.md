@@ -30,7 +30,7 @@
 
 ### 3.3. 기능별 클래스 다이어그램 (Functional Diagrams)
 
-주요 도메인(기능)별로 Controller, Service, Repository, Command(DTO) 간의 관계를 상세히 기술한다.
+주요 도메인(기능)별로 Controller, Service, Repository, Command(DTO), Api(Interface) 간의 관계를 상세히 기술한다.
 
 1. 사용자 - User
 
@@ -44,7 +44,7 @@
 
 6. 별자리 - Constellation
 
-7. 별자리선 - Connection
+7. 별자리 선 - Connection
 
 8. 외부 서비스 - S3
 
@@ -95,7 +95,7 @@ Class Description: 사용자의 이메일 정보를 관리하는 Entity
 |:--------------|:------------|:---------------|:---------|:--------------------|
 | **Attribute** | `id`        | 이메일의 고유 식별자    | `Long`   | `Private`           |
 | **Attribute** | `address`   | 이메일 주소         | `String` | `Private`           |
-| **Attribute** | `verify`    | 이메일 인증 정보      | `Verify` | `Private`           |
+| **Attribute** | `verify`    | 인증 정보          | `Verify` | `Private`           |
 | **Attribute** | `user`      | 연관된 사용자 정보     | `User`   | `Private`           |
 | **Operation** | `builder()` | Email 객체 빌더 생성 | `Email`  | `Public`            |
 
@@ -119,18 +119,18 @@ Class Description: 이메일 인증에 사용되는 인증 토큰 및 만료 정
 ### Class Diagram #4: Diary
 Class Description: 사용자가 작성하는 일기 Entity
 
-| 구분            | 이름                                 | 설명             | 타입             | 접근 제한자 (Visibility) |
-|:--------------|:-----------------------------------|:---------------|:---------------|:--------------------|
-| **Attribute** | `id`                               | 일기의 고유 식별자     | `Long`         | `Private`           |
-| **Attribute** | `user`                             | 일기 작성자         | `User`         | `Private`           |
-| **Attribute** | `emotion`                          | 일기의 감정         | `Emotion`      | `Private`           |
-| **Attribute** | `factors`                          | 일기의 요소/키워드 목록  | `List<Factor>` | `Private`           |
-| **Attribute** | `content`                          | 일기 내용          | `String`       | `Private`           |
-| **Attribute** | `createAt`                         | 일기 작성 날짜       | `LocalDate`    | `Private`           |
-| **Attribute** | `star`                             | 연관된 별 정보       | `Star`         | `Private`           |
-| **Attribute** | `version`                          | 낙관적 락을 위한 버전   | `Long`         | `Private`           |
-| **Operation** | `builder()`                        | Diary 객체 빌더 생성 | `Diary`        | `Public`            |
-| **Operation** | `updateContent(String newContent)` | 일기 내용 업데이트     | `void`         | `Public`            |
+| 구분            | 이름                                 | 설명                | 타입             | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------|:------------------|:---------------|:--------------------|
+| **Attribute** | `id`                               | 일기의 고유 식별자        | `Long`         | `Private`           |
+| **Attribute** | `user`                             | 일기 작성자            | `User`         | `Private`           |
+| **Attribute** | `emotion`                          | 일기의 감정            | `Emotion`      | `Private`           |
+| **Attribute** | `factors`                          | 일기의 키워드 목록        | `List<Factor>` | `Private`           |
+| **Attribute** | `content`                          | 일기 내용             | `String`       | `Private`           |
+| **Attribute** | `createAt`                         | 일기 작성 날짜          | `LocalDate`    | `Private`           |
+| **Attribute** | `star`                             | 연관된 별 정보          | `Star`         | `Private`           |
+| **Attribute** | `version`                          | 레이스 컨디션 방지를 위한 버전 | `Long`         | `Private`           |
+| **Operation** | `builder()`                        | Diary 객체 빌더 생성    | `Diary`        | `Public`            |
+| **Operation** | `updateContent(String newContent)` | 일기 내용 업데이트        | `void`         | `Public`            |
 
 ---
 
@@ -164,7 +164,7 @@ Class Description: 사용자가 만드는 별자리 Entity
 | **Attribute** | `name`                                        | 별자리 이름                 | `String`           | `Private`           |
 | **Attribute** | `description`                                 | 별자리 설명                 | `String`           | `Private`           |
 | **Attribute** | `createAt`                                    | 별자리 생성일                | `LocalDate`        | `Private`           |
-| **Attribute** | `belongDate`                                  | 대표 별자리로 지정된 날짜         | `LocalDate`        | `Private`           |
+| **Attribute** | `belongDate`                                  | 별자리가 속한 분기(2달 단위)      | `LocalDate`        | `Private`           |
 | **Attribute** | `isRepresentative`                            | 대표 별자리 여부              | `boolean`          | `Private`           |
 | **Attribute** | `x`                                           | 별자리의 X 좌표              | `Double`           | `Private`           |
 | **Attribute** | `y`                                           | 별자리의 Y 좌표              | `Double`           | `Private`           |
@@ -174,7 +174,7 @@ Class Description: 사용자가 만드는 별자리 Entity
 | **Operation** | `changeRepresentative()`                      | 대표 별자리 상태 변경           | `void`             | `Public`            |
 | **Operation** | `changePosition(Double x, Double y)`          | 별자리 위치 변경              | `void`             | `Public`            |
 | **Operation** | `updateInfo(String name, String description)` | 별자리 정보 업데이트            | `void`             | `Public`            |
-| **Operation** | `setBelongDate(LocalDate belongDate)`         | 대표 별자리 지정 날짜 설정        | `void`             | `Public`            |
+| **Operation** | `setBelongDate(LocalDate belongDate)`         | 별자리 소속 분기 설정           | `void`             | `Public`            |
 
 ---
 
@@ -187,7 +187,6 @@ Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 | **Attribute** | `constellation` | 속한 별자리 정보           | `Constellation` | `Private`           |
 | **Attribute** | `start`         | 시작 별                | `Star`          | `Private`           |
 | **Attribute** | `end`           | 끝 별                 | `Star`          | `Private`           |
-| ...           | ...             | ...                 | ...             | ...                 |
 | **Operation** | `builder()`     | Connection 객체 빌더 생성 | `Connection`    | `Public`            |
 
 ---
@@ -202,54 +201,54 @@ Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 ![security.png](Class%20Diagram%20UML/security.png)
 
 ### Class Diagram #8: SecurityConfig
-Class Description: Spring Security 설정을 정의하는 클래스. JWT 필터 및 인증/권한 관련 빈을 설정합니다.
+Class Description: Spring Security 설정을 정의하는 클래스. JWT 필터 및 인증/권한 관련 빈을 설정한다.
 
-| 구분            | 이름                                                                 | 설명                   | 타입                               | 접근 제한자 (Visibility) |
-|:--------------|:-------------------------------------------------------------------|:---------------------|:---------------------------------|:--------------------|
-| **Attribute** | `customUserDetailService`                                          | 사용자 상세 정보 서비스        | `CustomUserDetailService`        | `Private`           |
-| **Attribute** | `jwtAuthenticationFilter`                                          | JWT 인증 필터            | `JwtAuthenticationFilter`        | `Private`           |
-| **Attribute** | `customAccessDeniedHandler`                                        | 접근 거부 처리 핸들러         | `CustomAccessDeniedHandler`      | `Private`           |
-| **Attribute** | `customAuthenticationEntryPoint`                                   | 인증되지 않은 사용자 접근 처리    | `CustomAuthenticationEntryPoint` | `Private`           |
-| **Attribute** | `corsConfigurationSource`                                          | CORS 설정 소스           | `CorsConfigurationSource`        | `Private`           |
-| **Operation** | `passwordEncoder()`                                                | 비밀번호 인코더 빈 생성        | `PasswordEncoder`                | `Public`            |
-| **Operation** | `authenticationManager(AuthenticationConfiguration configuration)` | 인증 매니저 빈 생성          | `AuthenticationManager`          | `Public`            |
-| **Operation** | `authenticationProvider()`                                         | 인증 제공자 빈 생성 (Dao 방식) | `AuthenticationProvider`         | `Public`            |
-| **Operation** | `securityFilterChain(HttpSecurity http)`                           | 보안 필터 체인 설정          | `SecurityFilterChain`            | `Public`            |
+| 구분            | 이름                                                                 | 설명                | 타입                               | 접근 제한자 (Visibility) |
+|:--------------|:-------------------------------------------------------------------|:------------------|:---------------------------------|:--------------------|
+| **Attribute** | `customUserDetailService`                                          | 사용자 상세 정보 서비스     | `CustomUserDetailService`        | `Private`           |
+| **Attribute** | `jwtAuthenticationFilter`                                          | JWT 인증 필터         | `JwtAuthenticationFilter`        | `Private`           |
+| **Attribute** | `customAccessDeniedHandler`                                        | 접근 거부 처리 핸들러      | `CustomAccessDeniedHandler`      | `Private`           |
+| **Attribute** | `customAuthenticationEntryPoint`                                   | 인증되지 않은 사용자 접근 처리 | `CustomAuthenticationEntryPoint` | `Private`           |
+| **Attribute** | `corsConfigurationSource`                                          | CORS 설정 소스        | `CorsConfigurationSource`        | `Private`           |
+| **Operation** | `passwordEncoder()`                                                | 비밀번호 인코더 빈 생성     | `PasswordEncoder`                | `Public`            |
+| **Operation** | `authenticationManager(AuthenticationConfiguration configuration)` | 인증 매니저 빈 생성       | `AuthenticationManager`          | `Public`            |
+| **Operation** | `authenticationProvider()`                                         | 인증 제공자 빈 생성       | `AuthenticationProvider`         | `Public`            |
+| **Operation** | `securityFilterChain(HttpSecurity http)`                           | 보안 필터 체인 설정       | `SecurityFilterChain`            | `Public`            |
 
 ---
 
 ### Class Diagram #9: JwtUtil
-Class Description: JWT 토큰의 생성, 유효성 검증 및 정보 추출을 담당하는 유틸리티 클래스입니다.
+Class Description: JWT 토큰의 생성, 유효성 검증 및 정보 추출을 담당하는 유틸리티 클래스이다.
 
-| 구분            | 이름                                                          | 설명                                | 타입        | 접근 제한자 (Visibility) |
-|:--------------|:------------------------------------------------------------|:----------------------------------|:----------|:--------------------|
-| **Attribute** | `secretKey`                                                 | JWT 서명에 사용할 시크릿 키                 | `String`  | `Private`           |
-| **Attribute** | `accessValid`                                               | Access Token 유효 시간 (1시간)          | `long`    | `Private`           |
-| **Attribute** | `refreshValid`                                              | Refresh Token 유효 시간 (7일)          | `long`    | `Private`           |
-| **Operation** | `createAccessToken(String email)`                           | Access Token 발급                   | `String`  | `Public`            |
-| **Operation** | `createRefreshToken(String email)`                          | Refresh Token 발급                  | `String`  | `Public`            |
-| **Operation** | `generateToken(String email, long validTime)`               | 토큰 발급 종합 로직                       | `String`  | `Private`           |
-| **Operation** | `getSigningKey()`                                           | 서명에 사용할 키 반환                      | `Key`     | `Private`           |
-| **Operation** | `getEmailFromToken(String token)`                           | 토큰에서 이메일(Subject) 추출              | `String`  | `Public`            |
-| **Operation** | `validateToken(String token)`                               | 토큰 유효성 검증                         | `boolean` | `Public`            |
-| **Operation** | `resolveToken(HttpServletRequest request)`                  | HTTP 요청 헤더에서 토큰 추출 ("Bearer " 제거) | `String`  | `Public`            |
-| **Operation** | `extractRefreshTokenFromCookie(HttpServletRequest request)` | 쿠키에서 Refresh Token 추출             | `String`  | `Public`            |
+| 구분            | 이름                                                          | 설명                               | 타입        | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------|:---------------------------------|:----------|:--------------------|
+| **Attribute** | `secretKey`                                                 | JWT 서명에 사용할 시크릿 키                | `String`  | `Private`           |
+| **Attribute** | `accessValid`                                               | Access Token 유효 시간               | `long`    | `Private`           |
+| **Attribute** | `refreshValid`                                              | Refresh Token 유효 시간              | `long`    | `Private`           |
+| **Operation** | `createAccessToken(String email)`                           | Access Token 발급                  | `String`  | `Public`            |
+| **Operation** | `createRefreshToken(String email)`                          | Refresh Token 발급                 | `String`  | `Public`            |
+| **Operation** | `generateToken(String email, long validTime)`               | 토큰 발급 종합 로직                      | `String`  | `Private`           |
+| **Operation** | `getSigningKey()`                                           | 서명에 사용할 키 반환                     | `Key`     | `Private`           |
+| **Operation** | `getEmailFromToken(String token)`                           | 토큰에서 이메일 추출                      | `String`  | `Public`            |
+| **Operation** | `validateToken(String token)`                               | 토큰 유효성 검증                        | `boolean` | `Public`            |
+| **Operation** | `resolveToken(HttpServletRequest request)`                  | HTTP 요청 헤더에서 토큰 추출               | `String`  | `Public`            |
+| **Operation** | `extractRefreshTokenFromCookie(HttpServletRequest request)` | 쿠키에서 Refresh Token 추출            | `String`  | `Public`            |
 
 ---
 
 ### Class Diagram #10: JwtAuthenticationFilter
-Class Description: 모든 요청에 대해 JWT 토큰의 유효성을 검사하고, 유효한 경우 Security Context에 인증 정보를 설정하는 필터입니다.
+Class Description: 모든 요청에 대해 JWT 토큰의 유효성을 검사하고 유효한 경우 Security Context에 인증 정보를 설정하는 필터이다.
 
 | 구분            | 이름                                                                                                    | 설명             | 타입                        | 접근 제한자 (Visibility) |
 |:--------------|:------------------------------------------------------------------------------------------------------|:---------------|:--------------------------|:--------------------|
 | **Attribute** | `jwtUtil`                                                                                             | JWT 관련 유틸리티    | `JwtUtil`                 | `Private`           |
-| **Attribute** | `customUserDetailService`                                                                             | 사용자 상세 정보 서비스  | `CustomUserDetailService` | `Private`           |
+| **Attribute** | `customUserDetailService`                                                                             | 사용자 상세 정보      | `CustomUserDetailService` | `Private`           |
 | **Operation** | `doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)` | 필터 체인 내부 동작 정의 | `void`                    | `Protected`         |
 
 ---
 
 ### Class Diagram #11: CustomUserDetailService
-Class Description: Spring Security의 UserDetailsService 인터페이스를 구현하여, 이메일을 기반으로 사용자 인증 정보를 로드하는 서비스입니다.
+Class Description: Spring Security의 UserDetailsService 인터페이스를 구현하여 이메일을 기반으로 사용자 인증 정보를 로드하는 서비스이다.
 
 | 구분            | 이름                                 | 설명                | 타입               | 접근 제한자 (Visibility) |
 |:--------------|:-----------------------------------|:------------------|:-----------------|:--------------------|
@@ -259,7 +258,7 @@ Class Description: Spring Security의 UserDetailsService 인터페이스를 구�
 ---
 
 ### Class Diagram #12: CorsConfig
-Class Description: 애플리케이션의 Cross-Origin Resource Sharing (CORS) 설정을 정의하는 클래스입니다.
+Class Description: 애플리케이션의 Cross-Origin Resource Sharing (CORS) 설정을 정의하는 클래스이다. FE 서버와 연결하기 위해 필수로 정의되어야 한다.
 
 | 구분            | 이름                          | 설명                   | 타입                        | 접근 제한자 (Visibility) |
 |:--------------|:----------------------------|:---------------------|:--------------------------|:--------------------|
@@ -273,7 +272,7 @@ Class Description: 애플리케이션의 Cross-Origin Resource Sharing (CORS) �
 ---
 
 ### Class Diagram #13: CustomAccessDeniedHandler
-Class Description: 접근이 거부되었을 때(403 Forbidden) 사용자에게 커스텀된 JSON 응답을 반환하도록 처리하는 클래스입니다.
+Class Description: 접근이 거부되었을 때(403 Forbidden) 사용자에게 커스텀된 JSON 응답을 반환하도록 처리하는 클래스이다.
 
 | 구분            | 이름                                                                                                              | 설명                            | 타입     | 접근 제한자 (Visibility) |
 |:--------------|:----------------------------------------------------------------------------------------------------------------|:------------------------------|:-------|:--------------------|
@@ -282,7 +281,7 @@ Class Description: 접근이 거부되었을 때(403 Forbidden) 사용자에게 
 ---
 
 ### Class Diagram #14: CustomAuthenticationEntryPoint
-Class Description: 인증되지 않은 사용자 접근 시(토큰이 없거나 만료된 경우, 401 Unauthorized) 커스텀된 JSON 응답을 반환하도록 처리하는 클래스입니다.
+Class Description: 인증되지 않은 사용자 접근 시(토큰이 없거나 만료된 경우, 401 Unauthorized) 커스텀된 JSON 응답을 반환하도록 처리하는 클래스이다.
 
 | 구분            | 이름                                                                                                          | 설명                         | 타입     | 접근 제한자 (Visibility) |
 |:--------------|:------------------------------------------------------------------------------------------------------------|:---------------------------|:-------|:--------------------|
@@ -291,7 +290,7 @@ Class Description: 인증되지 않은 사용자 접근 시(토큰이 없거나 
 ---
 
 ### Class Diagram #15: GlobalExceptionHandler
-Class Description: 애플리케이션 전반에서 발생하는 다양한 예외(CustomException, 서버 오류, 유효성 검사 오류 등)를 중앙 집중식으로 처리하는 클래스입니다.
+Class Description: 애플리케이션 전반에서 발생하는 다양한 예외(CustomException, 서버 오류, 유효성 검사 오류 등)를 중앙 집중식으로 처리하는 클래스이다.
 
 | 구분            | 이름                                                                                                     | 설명                                   | 타입                                    | 접근 제한자 (Visibility) |
 |:--------------|:-------------------------------------------------------------------------------------------------------|:-------------------------------------|:--------------------------------------|:--------------------|
@@ -304,7 +303,7 @@ Class Description: 애플리케이션 전반에서 발생하는 다양한 예외
 ---
 
 ### Class Diagram #16: CustomException
-Class Description: 애플리케이션의 비즈니스 로직에서 발생하는 특정 오류를 나타내기 위해 정의된 커스텀 런타임 예외 클래스입니다.
+Class Description: 애플리케이션의 비즈니스 로직에서 발생하는 특정 오류를 나타내기 위해 정의된 커스텀 런타임 예외 클래스이다.
 
 | 구분            | 이름          | 설명        | 타입          | 접근 제한자 (Visibility) |
 |:--------------|:------------|:----------|:------------|:--------------------|
@@ -313,7 +312,7 @@ Class Description: 애플리케이션의 비즈니스 로직에서 발생하는 
 ---
 
 ### Class Diagram #17: ErrorDto
-Class Description: 클라이언트에게 오류 정보를 일관된 형식(상태 코드와 메시지)으로 전달하기 위한 데이터 전송 객체(`DTO`)입니다.
+Class Description: 클라이언트에게 오류 정보를 일관된 형식(상태 코드와 메시지)으로 전달하기 위한 데이터 전송 객체이다.
 
 | 구분            | 이름        | 설명         | 타입       | 접근 제한자 (Visibility) |
 |:--------------|:----------|:-----------|:---------|:--------------------|
@@ -327,15 +326,15 @@ Class Description: 클라이언트에게 오류 정보를 일관된 형식(상�
 ---
 
 ### Class Diagram #18: S3Config
-Class Description: Amazon S3 서비스 사용에 필요한 S3 클라이언트와 S3Presigner를 설정하고 빈으로 등록하는 Configuration 클래스입니다.
+Class Description: Amazon S3 서비스 사용에 필요한 S3 클라이언트와 S3Presigner를 설정하고 빈으로 등록하는 Configuration 클래스이다.
 
-| 구분            | 이름              | 설명                                          | 타입            | 접근 제한자 (Visibility) |
-|:--------------|:----------------|:--------------------------------------------|:--------------|:--------------------|
-| **Attribute** | `region`        | S3 리전 정보 (`${s3.region}` 값 주입)              | `String`      | `Private`           |
-| **Attribute** | `accessKey`     | AWS 액세스 키 (`${s3.access-key:}` 값 주입)        | `String`      | `Private`           |
-| **Attribute** | `secretKey`     | AWS 시크릿 키 (`${s3.secret-key:}` 값 주입)        | `String`      | `Private`           |
-| **Operation** | `s3Presigner()` | S3Presigner 객체 빈 생성 (Pre-signed URL 생성에 사용) | `S3Presigner` | `Public`            |
-| **Operation** | `s3Client()`    | S3Client 객체 빈 생성 (S3 데이터 접근에 사용)            | `S3Client`    | `Public`            |
+| 구분            | 이름              | 설명                  | 타입            | 접근 제한자 (Visibility) |
+|:--------------|:----------------|:--------------------|:--------------|:--------------------|
+| **Attribute** | `region`        | S3 리전 정보            | `String`      | `Private`           |
+| **Attribute** | `accessKey`     | AWS 액세스 키           | `String`      | `Private`           |
+| **Attribute** | `secretKey`     | AWS 시크릿 키           | `String`      | `Private`           |
+| **Operation** | `s3Presigner()` | S3Presigner 객체 빈 생성 | `S3Presigner` | `Public`            |
+| **Operation** | `s3Client()`    | S3Client 객체 빈 생성    | `S3Client`    | `Public`            |
 
 ---
 
@@ -345,11 +344,11 @@ Class Description: Amazon S3 서비스 사용에 필요한 S3 클라이언트와
 ---
 
 ### Class Diagram #19: SwaggerConfig
-Class Description: OpenAPI (Swagger) 문서를 설정하는 Configuration 클래스로, API 명세 정보, JWT 인증 방식 등을 정의합니다.
+Class Description: Swagger 문서를 설정하는 Configuration 클래스이다. FE와 협업하기 위한 API 명세서의 역할을 한다.
 
-| 구분 | 이름 | 설명 | 타입 | 접근 제한자 (Visibility) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Operation** | `openApi()` | 모든 경로에 대한 OpenAPI 그룹 설정 빈 생성 | `GroupedOpenApi` | `Public` |
+| 구분            | 이름          | 설명                           | 타입               | 접근 제한자 (Visibility) |
+|:--------------|:------------|:-----------------------------|:-----------------|:--------------------|
+| **Operation** | `openApi()` | 모든 경로에 대한 OpenAPI 그룹 설정 빈 생성 | `GroupedOpenApi` | `Public`            |
 
 ---
 
@@ -364,19 +363,21 @@ Class Description: OpenAPI (Swagger) 문서를 설정하는 Configuration 클래
 ### 3.3.1. User
 ![user.png](Class%20Diagram%20UML/user.png)
 
+---
+
 ### Class Diagram #20: SignUpDto
-Class Description: 회원가입 요청 시 사용자 정보를 담는 Request DTO입니다.
+Class Description: 회원가입 요청 시 사용자 정보를 담는 데이터 전송 클래스이다.
 
 | 구분            | 이름                                              | 설명                                   | 타입       | 접근 제한자 (Visibility) |
 |:--------------|:------------------------------------------------|:-------------------------------------|:---------|:--------------------|
-| **Attribute** | `nickname`                                      | 사용자 닉네임 (최소 2, 최대 10글자, 필수)          | `String` | `Private`           |
-| **Attribute** | `password`                                      | 비밀번호 (필수)                            | `String` | `Private`           |
-| **Attribute** | `email`                                         | 사용자 이메일 (형식 검사, 필수)                  | `String` | `Private`           |
+| **Attribute** | `nickname`                                      | 사용자 닉네임                              | `String` | `Private`           |
+| **Attribute** | `password`                                      | 비밀번호                                 | `String` | `Private`           |
+| **Attribute** | `email`                                         | 사용자 이메일                              | `String` | `Private`           |
 | **Operation** | `toEntity(String encodedPassword, Email email)` | 암호화된 비밀번호와 이메일 객체를 포함하여 User 엔티티로 변환 | `User`   | `Public`            |
 
 ---
 ### Class Diagram #21: LoginInfoDto
-Class Description: 로그인 성공 시 사용자 정보와 발급된 JWT 토큰을 담아 응답하는 Response DTO입니다.
+Class Description: 로그인 성공 시 사용자 정보와 발급된 JWT 토큰을 담아 응답하는 데이터 전송 클래스이다. 토큰은 발급 이후 FE에서 저장하고 삭제한다.
 
 | 구분            | 이름             | 설명                    | 타입             | 접근 제한자 (Visibility) |
 |:--------------|:---------------|:----------------------|:---------------|:--------------------|
@@ -389,7 +390,7 @@ Class Description: 로그인 성공 시 사용자 정보와 발급된 JWT 토큰
 
 ---
 ### Class Diagram #22: UserRepository
-Class Description: User 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스입니다.
+Class Description: User 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다. 추가구현하지 않고 기본적으로 정의되어있는 JPA 메소드들은 생략한다.
 
 | 구분            | 이름                                   | 설명                   | 타입               | 접근 제한자 (Visibility) |
 |:--------------|:-------------------------------------|:---------------------|:-----------------|:--------------------|
@@ -399,41 +400,41 @@ Class Description: User 엔티티의 영속성 관리를 위한 JPA Repository �
 
 ---
 ### Class Diagram #23: UserApi
-Class Description: 회원 관련 API 엔드포인트를 정의하는 인터페이스 (Swagger 문서용 Tag/Operation 정의 포함)입니다.
+Class Description: 회원 관련 API 엔드포인트를 정의하고 Swagger 문서에 대해 작성한 인터페이스이다.
 
-| 구분            | 이름                                                                    | 설명                     | 타입                  | 접근 제한자 (Visibility) |
-|:--------------|:----------------------------------------------------------------------|:-----------------------|:--------------------|:--------------------|
-| **Operation** | `getUser(@PathVariable Long id)`                                      | 회원 고유 ID를 통한 회원 조회     | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `getUserList()`                                                       | 모든 회원 정보 조회            | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `signUp(@Valid @RequestBody SignUpDto dto)`                           | 회원가입 기능                | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `existNickname(@RequestParam String nickname)`                        | 사용 가능한 닉네임 검사          | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `login(@RequestBody LoginDto dto, HttpServletResponse res)`           | 로그인 및 토큰 발급            | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails)` | 현재 로그인 사용자 회원탈퇴(삭제)    | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `logout(HttpServletResponse response)`                                | 로그아웃 (프론트엔드 토큰 삭제 가이드) | `ResponseEntity<?>` | `Public`            |
+| 구분            | 이름                                                                    | 설명                  | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:----------------------------------------------------------------------|:--------------------|:--------------------|:--------------------|
+| **Operation** | `getUser(@PathVariable Long id)`                                      | 회원 고유 ID를 통한 회원 조회  | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `getUserList()`                                                       | 모든 회원 정보 조회         | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `signUp(@Valid @RequestBody SignUpDto dto)`                           | 회원가입 기능             | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `existNickname(@RequestParam String nickname)`                        | 사용 가능한 닉네임 검사       | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `login(@RequestBody LoginDto dto, HttpServletResponse res)`           | 로그인 및 토큰 발급         | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails)` | 현재 로그인 사용자 회원탈퇴(삭제) | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `logout(HttpServletResponse response)`                                | 로그아웃                | `ResponseEntity<?>` | `Public`            |
 
 ---
 ### Class Diagram #24: UserService
-Class Description: 사용자(User)의 비즈니스 로직(회원가입, 로그인, 탈퇴 등)을 처리하는 서비스 클래스입니다.
+Class Description: 사용자(User)의 비즈니스 로직(회원가입, 로그인, 탈퇴 등)을 처리하는 서비스 클래스이다.
 
-| 구분            | 이름                                             | 설명                           | 타입                 | 접근 제한자 (Visibility) |
-|:--------------|:-----------------------------------------------|:-----------------------------|:-------------------|:--------------------|
-| **Attribute** | `userRepository`                               | 사용자 엔티티 저장소                  | `UserRepository`   | `Private`           |
-| **Attribute** | `passwordEncoder`                              | 비밀번호 인코더                     | `PasswordEncoder`  | `Private`           |
-| **Attribute** | `jwtUtil`                                      | JWT 유틸리티                     | `JwtUtil`          | `Private`           |
-| **Attribute** | `verifyRepository`                             | 인증 엔티티 저장소                   | `VerifyRepository` | `Private`           |
-| **Attribute** | `emailService`                                 | 이메일 관련 서비스                   | `EmailService`     | `Private`           |
-| **Operation** | `getUser(Long id)`                             | ID 기반 사용자 정보 단일 조회 (테스트 메소드) | `UserResDto`       | `Public`            |
-| **Operation** | `getUserList()`                                | 모든 사용자 목록 조회 (테스트 메소드)       | `List<UserResDto>` | `Public`            |
-| **Operation** | `signUp(SignUpDto dto)`                        | 회원가입 처리 로직                   | `User`             | `Public`            |
-| **Operation** | `existNickname(String nickname)`               | 닉네임 중복 여부 확인                 | `boolean`          | `Public`            |
-| **Operation** | `login(LoginDto dto, HttpServletResponse res)` | 로그인 및 JWT 토큰 발급/쿠키 설정        | `LoginInfoDto`     | `Public`            |
-| **Operation** | `deleteCurrentUser(String email)`              | 이메일 기반 현재 사용자 회원 탈퇴          | `void`             | `Public`            |
-| **Operation** | `findByEmailAddress(String email)`             | 이메일 주소로 User 엔티티 조회          | `User`             | `Public`            |
-| **Operation** | `logout(HttpServletResponse res)`              | 로그아웃                         | `void`             | `Public`            |
+| 구분            | 이름                                             | 설명                    | 타입                 | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------------------|:----------------------|:-------------------|:--------------------|
+| **Attribute** | `userRepository`                               | 사용자 엔티티 저장소           | `UserRepository`   | `Private`           |
+| **Attribute** | `passwordEncoder`                              | 비밀번호 인코더              | `PasswordEncoder`  | `Private`           |
+| **Attribute** | `jwtUtil`                                      | JWT 유틸리티              | `JwtUtil`          | `Private`           |
+| **Attribute** | `verifyRepository`                             | 인증 엔티티 저장소            | `VerifyRepository` | `Private`           |
+| **Attribute** | `emailService`                                 | 이메일 관련 서비스            | `EmailService`     | `Private`           |
+| **Operation** | `getUser(Long id)`                             | ID 기반 사용자 정보 단일 조회    | `UserResDto`       | `Public`            |
+| **Operation** | `getUserList()`                                | 모든 사용자 목록 조회          | `List<UserResDto>` | `Public`            |
+| **Operation** | `signUp(SignUpDto dto)`                        | 회원가입 처리 로직            | `User`             | `Public`            |
+| **Operation** | `existNickname(String nickname)`               | 닉네임 존재 여부 확인          | `boolean`          | `Public`            |
+| **Operation** | `login(LoginDto dto, HttpServletResponse res)` | 로그인 및 JWT 토큰 발급/쿠키 설정 | `LoginInfoDto`     | `Public`            |
+| **Operation** | `deleteCurrentUser(String email)`              | 이메일 기반 현재 사용자 회원 탈퇴   | `void`             | `Public`            |
+| **Operation** | `findByEmailAddress(String email)`             | 이메일 주소로 User 엔티티 조회   | `User`             | `Public`            |
+| **Operation** | `logout(HttpServletResponse res)`              | 로그아웃                  | `void`             | `Public`            |
 
 ---
 ### Class Diagram #25: LoginDto
-Class Description: 로그인 요청 시 사용자 이메일과 비밀번호를 담는 Request DTO입니다.
+Class Description: 로그인 요청 시 사용자 이메일과 비밀번호를 담는 데이터 전송 클래스이다.
 
 | 구분            | 이름         | 설명                 | 타입       | 접근 제한자 (Visibility) |
 |:--------------|:-----------|:-------------------|:---------|:--------------------|
@@ -442,7 +443,7 @@ Class Description: 로그인 요청 시 사용자 이메일과 비밀번호를 �
 
 ---
 ### Class Diagram #26: UserResDto
-Class Description: 사용자 목록 조회 및 단일 조회에 대한 응답 정보를 담는 Response DTO입니다.
+Class Description: 사용자 목록 조회 및 단일 조회에 대한 응답 정보를 담는 데이터 전송 클래스이다.
 
 | 구분            | 이름          | 설명                  | 타입           | 접근 제한자 (Visibility) |
 |:--------------|:------------|:--------------------|:-------------|:--------------------|
@@ -453,7 +454,7 @@ Class Description: 사용자 목록 조회 및 단일 조회에 대한 응답 �
 
 ---
 ### Class Diagram #27: UserController
-Class Description: 사용자 관련 API 요청을 받아 UserService로 전달하는 REST Controller입니다.
+Class Description: 사용자 관련 API 요청을 받아 UserService로 전달하는 REST Controller이다.
 
 | 구분            | 이름                                                                    | 설명              | 타입                  | 접근 제한자 (Visibility) |
 |:--------------|:----------------------------------------------------------------------|:----------------|:--------------------|:--------------------|
@@ -474,7 +475,7 @@ Class Description: 사용자 관련 API 요청을 받아 UserService로 전달�
 ![email.png](Class%20Diagram%20UML/email.png)
 
 ### Class Diagram #28: EmailAddressDto
-Class Description: 이메일 주소만 포함하는 Request DTO입니다. 중복 확인, 인증 메일 발송 등에 사용됩니다.
+Class Description: 이메일 주소만 포함하는 데이터 전송 클래스이다. 중복 확인, 인증 메일 발송 등에 사용됩니다.
 
 | 구분            | 이름      | 설명                  | 타입       | 접근 제한자 (Visibility) |
 |:--------------|:--------|:--------------------|:---------|:--------------------|
