@@ -12,6 +12,20 @@
 
 프로젝트의 핵심 데이터 모델인 엔티티 간의 관계를 나타낸다.
 
+1. 사용자 - User
+
+2. 이메일 - Email
+
+3. 검증 - Verify
+
+4. 일기 - Diary
+
+5. 별 - Star
+
+6. 별자리 - Constellation
+
+7. 별자리 선 - Connection
+
 
 ### 3.2. 공통 인프라 다이어그램 (Common Infrastructure Diagram)
 
@@ -19,13 +33,13 @@
 
 애플리케이션의 기반 설정(보안, 예외 처리, 외부 연동 설정 등)을 분리하여 관리하는 것이 목적이다.
 
-- Security
+1. 보안 - Security
 
-- Exception
+2. 예외처리 - Exception
 
-- External Config
+3. 외부 연동 클래스 설정 - External Config
 
-- API Docs
+4. API 명세서 - API Docs
 
 
 ### 3.3. 기능별 클래스 다이어그램 (Functional Diagrams)
@@ -50,11 +64,10 @@
 
 
 
-클래스들을 정의할때 다음과 같은 규칙을 따른다.
-1. 구현한 클래스는 해당 문서에서 1회만 Attribute와 Operation 정보를 기술한다.
-2. 한번 정의된 클래스는 다시 출현 시 Attribute와 Operation 정보를 생략하고 클래스 이름만을 표기한다.
-3. Getter, Setter, Constructor(Builder 패턴 제외)는 시각적 편의를 위해 생략한다.
-4. 라이브러리로 존재하는 클래스 및 인터페이스들은 다이어그램에 표기하나, 설명을 적거나 Attribute, Operation 정보에 대해 필수로 기술하지 않는다.
+### 클래스들을 정의할때 다음과 같은 규칙을 따른다.
+- 구현한 클래스는 해당 문서에서 1회만 Attribute와 Operation 정보를 기술하며, 한번 정의된 클래스는 다시 출현 시 Attribute와 Operation 정보를 생략하고 클래스 이름만을 표기한다.
+- Getter, Setter, Constructor(Builder 패턴 제외)는 시각적 편의를 위해 생략한다.
+- 라이브러리로 존재하는 클래스 및 인터페이스들은 다이어그램에 표기하나, 설명을 적거나 Attribute, Operation 정보에 대해 필수로 기술하지 않는다.
 
 ---
 
