@@ -1,0 +1,166 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.diary" {
+
+    ' Enums (열거형) '
+    enum Color << (E,#FFDDCC) Color >> {
+        RED // 분노
+        ORANGE // 불안
+        YELLOW // 행복
+        GREEN // 편안
+        BLUE // 슬픔
+        PURPLE // 우울
+        GRAY // 무감정
+        --
+        + values()
+        + valueOf()
+    }
+
+    enum Factor << (E,#DDEEFF) Factor >> {
+        FRIEND
+        FAMILY
+        WORK
+        STUDY
+        LOVE
+        HEALTH
+        ETC
+        --
+        + values()
+        + valueOf()
+    }
+
+    class Emotion << (E,#FFFFAA) Emotion Enum >> {
+        - color: Color
+        - description: String
+        --
+        + Emotion(color: Color, description: String)
+        + getColor(): Color
+        + getDescription(): String
+        --
+        // 상수는 내부적으로 존재하며, Color를 가집니다.
+        HAPPINESS(Color.YELLOW, "...")
+        SADNESS(Color.BLUE, "...")
+        ...
+    }
+
+    ' DTO (Request) '
+    class DiaryCreateReqDto << (D,#FFEEEE) Req DTO >> {
+        - emotion: Emotion
+        - factors: List<Factor>
+        - content: String
+        - date: LocalDate
+        --
+        + getEmotion(): Emotion
+        + getFactors(): List<Factor>
+        + getContent(): String
+        + getDate(): LocalDate
+    }
+
+    class DiaryUpdateReqDto << (D,#FFEEEE) Req DTO >> {
+        - date: LocalDate
+        - content: String
+        --
+        + getDate(): LocalDate
+        + getContent(): String
+    }
+
+    ' DTO (Response) '
+    class DiaryResDto << (D,#EEFFFF) Res DTO >> {
+        - date: LocalDate
+        - emotion: Emotion
+        - color: Color
+        - factors: List<Factor>
+        - content: String
+        --
+        + DiaryResDto(...) (Builder)
+        + of(d: Diary): DiaryResDto << Static Factory >>
+        + getDate(): LocalDate ...
+    }
+    DiaryResDto ..> Color
+    DiaryResDto ..> Emotion
+    DiaryResDto ..> Factor
+
+    class StarMonthlyResDto << (D,#EEFFFF) Res DTO >> {
+        - date: LocalDate
+        - color: Color
+        --
+        + StarMonthlyResDto(date: LocalDate, color: Color)
+        + getDate(): LocalDate
+        + getColor(): Color
+    }
+    StarMonthlyResDto ..> Color
+
+    ' Entity '
+    class Diary << (E,#CCCFFF) Entity >> {
+        - id: Long
+        - user: User (ManyToOne)
+        - emotion: Emotion
+        - factors: List<Factor> (ElementCollection)
+        - content: String
+        - createAt: LocalDate
+        - star: Star (OneToOne)
+        --
+        + Diary(...) (Builder)
+        + update(content: String)
+    }
+    Diary o-- Emotion : <<uses>>
+    Diary o-- Factor : <<uses>>
+    Diary "1" -- "1" Star : <<OneToOne>> mappedBy star
+
+    ' Repository '
+    interface DiaryRepository << (R,#CCFFCC) JpaRepository >> {
+        + existsByUser_IdAndCreateAt(userId: Long, date: LocalDate): boolean
+        + findByUser_IdAndCreateAt(userId: Long, date: LocalDate): Optional<Diary>
+        + findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId: Long, from: LocalDate, to: LocalDate): List<Diary>
+        + findByIdAndUser_Id(diaryId: Long, userId: Long): Optional<Diary>
+    }
+    DiaryRepository --> Diary : manages
+
+    ' Service '
+    class DiaryService << (S,#AADDFF) Service >> {
+        - diaryRepository: DiaryRepository
+        - userRepository: UserRepository
+        - starRepository: StarRepository
+        - entityManager: EntityManager
+        --
+        + create(userId: Long, dto: DiaryCreateReqDto): DiaryResDto
+        + update(userId: Long, diaryId: Long, dto: DiaryUpdateReqDto)
+        + getByDate(userId: Long, date: LocalDate): DiaryResDto
+        + getMonthlyStars(userId: Long, ym: YearMonth): List<StarMonthlyResDto>
+        + delete(userId: Long, diaryId: Long)
+    }
+    DiaryService --> DiaryRepository : injects/uses
+    DiaryService ..> DiaryCreateReqDto : uses
+    DiaryService ..> DiaryUpdateReqDto : uses
+    DiaryService ..> DiaryResDto : returns
+    DiaryService ..> StarMonthlyResDto : returns List
+
+    ' Controller '
+    interface DiaryApi << (I,#CCCCCC) Tag/Interface >> {
+        + createDiary(...): ResponseEntity<?>
+        + updateDiary(...): ResponseEntity<?>
+        + getDiaryByDate(...): ResponseEntity<DiaryResDto>
+        + getMonthlyStars(...): ResponseEntity<List<StarMonthlyResDto>>
+        + removeDiary(...): ResponseEntity<?>
+    }
+
+    class DiaryController << (C,#FFCCAA) RestController >> {
+        - diaryService: DiaryService
+        - userRepository: UserRepository
+        --
+        + createDiary(principal, dto): ResponseEntity<?>
+        + updateDiary(principal, diaryId, dto): ResponseEntity<?>
+        + getDiaryByDate(principal, date): ResponseEntity<DiaryResDto>
+        + getMonthlyStars(principal, year, month): ResponseEntity<List<StarMonthlyResDto>>
+        + removeDiary(principal, diaryId): ResponseEntity<Object>
+        - resolveUserId(principal: UserDetails): Long
+    }
+
+    DiaryController .up.|> DiaryApi : implements
+    DiaryController --> DiaryService : injects/uses
+    DiaryController ..> DiaryCreateReqDto : uses
+    DiaryController ..> DiaryUpdateReqDto : uses
+}
+@enduml

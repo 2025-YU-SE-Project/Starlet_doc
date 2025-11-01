@@ -1,0 +1,92 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.verify" {
+
+    ' DTO / Enum '
+    enum VerifyType << (E,#AAFFAA) Enum >> {
+        VERIFY // 인증됨
+        EMAIL_VERIFICATION // 회원가입 이메일 인증
+        REQUEST_PASSWORD_RESET // 비밀번호 재설정 요청
+        CHANGING_PASSWORD // 비밀번호 재설정중
+        --
+        + values()
+        + valueOf()
+    }
+
+    class PasswordResetConfirmDto << (D,#FFEEEE) Req DTO >> {
+        - email: String
+        - newPassword: String
+        --
+        + getEmail(): String
+        + getNewPassword(): String
+    }
+
+    ' Entity '
+    class Verify << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - token: String
+        - type: VerifyType
+        - expireTime: LocalDateTime
+        - email: Email (OneToOne, mappedBy)
+        --
+        + Verify(...) (Builder)
+        + updateStatus(token: String, type: VerifyType, expireTime: LocalDateTime)
+        + getToken(): String
+        + getType(): VerifyType
+    }
+
+    ' Repository '
+    interface VerifyRepository << (R,#CCFFCC) JpaRepository >> {
+        + findByToken(token: String): Optional<Verify>
+        + findAllByExpireTimeBefore(now: LocalDateTime): List<Verify>
+        + findByEmail_Address(emailAddress: String): Optional<Verify>
+    }
+
+    ' Service '
+    class VerifyService << (S,#AADDFF) Service >> {
+        - verifyRepository: VerifyRepository
+        - userRepository: UserRepository
+        - emailRepository: EmailRepository
+        - passwordEncoder: PasswordEncoder
+        --
+        + createVerifyEntity(email: Email, verifyType: VerifyType): Verify
+        + validateToken(token: String, requiredType: VerifyType): Verify
+        + emailVerification(token: String)
+        + passwordResetVerification(token: String)
+        + updatePassword(dto: PasswordResetConfirmDto)
+        + removeExpiredVerifyEntities() (@Scheduled)
+    }
+
+    ' Controller '
+    interface VerifyApi << (I,#CCCCCC) Tag/Interface >> {
+        + confirmChangePassword(@RequestBody dto: PasswordResetConfirmDto): ResponseEntity<?>
+    }
+
+    class VerifyController << (C,#FFCCAA) RestController >> {
+        - verifyService: VerifyService
+        --
+        + confirmChangePassword(@RequestBody dto: PasswordResetConfirmDto): ResponseEntity<?>
+    }
+
+    class VerifyViewController << (V,#FFCCAA) Controller >> {
+        - verifyService: VerifyService
+        --
+        + emailVerification(token: String, model: Model): String
+        + passwordResetVerification(token: String, model: Model): String
+    }
+
+    ' 관계 '
+    Verify o-- VerifyType : uses
+    VerifyRepository --> Verify : manages
+
+    VerifyService --> VerifyRepository : injects/uses
+    VerifyService ..> PasswordResetConfirmDto : uses (Req DTO)
+
+    VerifyController .up.|> VerifyApi : implements
+    VerifyController --> VerifyService : injects/uses
+
+    VerifyViewController --> VerifyService : injects/uses
+}
+@enduml

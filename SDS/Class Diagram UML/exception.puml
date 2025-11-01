@@ -1,0 +1,77 @@
+@startuml
+!theme toy
+
+' 수직 배열(세로 그림)을 위해 명시적으로 방향을 지정합니다.
+top to bottom direction
+
+package "com.example.starlet_be.exception" {
+
+    ' DTO 및 Enum '
+    class ErrorDto << (D,#DDEEFF) DTO >> {
+        - status: int
+        - message: String
+        --
+        + ErrorDto(status: int, message: String)
+        + getStatus(): int
+        + getMessage(): String
+    }
+
+    enum ErrorCode << (E,#AAFFAA) Enum >> {
+        NOT_VERIFY_USER(400, "...")
+        USER_NOT_FOUND(404, "...")
+        INTERNAL_SERVER_ERROR(500, "...")
+        --
+        - status: int
+        - message: String
+        --
+        + ErrorCode(status: int, message: String)
+        + getStatus(): int
+        + getMessage(): String
+    }
+
+    class CustomException << (E,#FFCCCC) Custom Exception >> {
+        - errorCode: ErrorCode
+        --
+        + CustomException(errorCode: ErrorCode)
+        + getErrorCode(): ErrorCode
+    }
+
+    class GlobalExceptionHandler << (H,#FFCCAA) RestControllerAdvice >> {
+        --
+        + customExceptionHandler(e: CustomException): ResponseEntity<?>
+        + customServerException(e: Exception): ResponseEntity<?>
+        + handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<Map<String, String>>
+        + handleMissingParam(ex: MissingServletRequestParameterException): ResponseEntity<ErrorDto>
+        + handleTypeMismatch(ex: MethodArgumentTypeMismatchException): ResponseEntity<ErrorDto>
+    }
+
+    class CustomAuthenticationEntryPoint << (A,#FFFF99) EntryPoint >> {
+        --
+        + commence(request, response, authException) : void
+    }
+
+    class CustomAccessDeniedHandler << (D,#FFFF99) AccessDeniedHandler >> {
+        --
+        + handle(request, response, accessDeniedException) : void
+    }
+
+    abstract class RuntimeException
+    interface AuthenticationEntryPoint
+    interface AccessDeniedHandler
+    class MethodArgumentNotValidException
+
+    CustomException --|> RuntimeException : extends
+    CustomException o-- ErrorCode : <<has>>
+
+    GlobalExceptionHandler --> CustomException : <<catches>>
+    GlobalExceptionHandler --> ErrorCode : <<uses>>
+    GlobalExceptionHandler ..> ErrorDto : <<creates/returns>>
+    GlobalExceptionHandler --> MethodArgumentNotValidException : <<catches>>
+
+    CustomAuthenticationEntryPoint .up.|> AuthenticationEntryPoint : implements
+    CustomAuthenticationEntryPoint ..> ErrorDto : <<creates>>
+
+    CustomAccessDeniedHandler .up.|> AccessDeniedHandler : implements
+    CustomAccessDeniedHandler ..> ErrorDto : <<creates>>
+}
+@enduml

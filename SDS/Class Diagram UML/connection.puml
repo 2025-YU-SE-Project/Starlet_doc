@@ -1,0 +1,60 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.connection" {
+
+    ' External Entities (외부 참조, 필드/메소드 생략) '
+    class Star << (E,Gray) External Entity >>
+    class Constellation << (E,Gray) External Entity >>
+
+    ' DTO (Request) '
+    class ConnectionDto << (D,#FFEEEE) Req DTO >> {
+        - startStarId: Long
+        - endStarId: Long
+        --
+        + ConnectionDto(startStarId: Long, endStarId: Long) (Builder)
+        + getStartStarId(): Long
+        + getEndStarId(): Long
+    }
+
+    ' DTO (Response) '
+    class StarryNightConnectionDto << (D,#EEFFFF) Res DTO >> {
+        - connectionId: Long
+        - startStarId: Long
+        - endStarId: Long
+        --
+        + StarryNightConnectionDto(...) (Builder)
+        + getConnectionId(): Long
+        + getStartStarId(): Long
+        + getEndStarId(): Long
+    }
+
+    ' Entity '
+    class Connection << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - constellation: Constellation (ManyToOne)
+        - start: Star (ManyToOne)
+        - end: Star (ManyToOne)
+        --
+        + Connection(constellation: Constellation, start: Star, end: Star) (Builder)
+        + getId(): Long
+        + getConstellation(): Constellation
+        + getStart(): Star
+        + getEnd(): Star
+    }
+
+    ' Repository '
+    interface ConnectionRepository << (R,#CCFFCC) JpaRepository >> {
+        + findByConstellation(constellation: Constellation): List<Connection>
+    }
+
+    ' 관계 (Entity) '
+    Connection "0..*" *-- "1" Constellation : <<ManyToOne>> belongs to
+    Connection "0..*" *-- "1" Star : <<ManyToOne>> starts at
+    Connection "0..*" *-- "1" Star : <<ManyToOne>> ends at
+
+    ' 관계 (Repository) '
+    ConnectionRepository --> Connection : manages
+}
+@enduml

@@ -1,0 +1,146 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.user" {
+
+    ' DTO (Request / Response) '
+    class SignUpDto << (D,#FFEEEE) Req DTO >> {
+        - nickname: String
+        - password: String
+        - email: String
+        --
+        + toEntity(encodedPassword: String, email: Email): User
+        + getNickname(): String
+        + getPassword(): String
+        + getEmail(): String
+    }
+
+    class LoginDto << (D,#FFEEEE) Req DTO >> {
+        - email: String
+        - password: String
+        --
+        + getEmail(): String
+        + getPassword(): String
+    }
+
+    class UserResDto << (D,#EEFFFF) Res DTO >> {
+        - id: Long
+        - nickname: String
+        - email: String
+        --
+        + UserResDto(id: Long, nickname: String, email: String)
+        + getId(): Long
+        + getNickname(): String
+        + getEmail(): String
+    }
+
+    class LoginInfoDto << (D,#EEFFFF) Res DTO >> {
+        - userId: Long
+        - email: String
+        - nickname: String
+        - accessToken: String
+        - refreshToken: String
+        --
+        + LoginInfoDto(...)
+        + getUserId(): Long
+        ...
+    }
+
+    ' Entity '
+    class User << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - nickname: String
+        - password: String
+        - email: Email (OneToOne)
+        - profilePhotoUrl: String
+        - stars: List<Star> (OneToMany)
+        - diaries: List<Diary> (OneToMany)
+        - constellations: List<Constellation> (OneToMany)
+        --
+        + User(...) (Builder)
+        + toResDto(): UserResDto
+        + changePassword(encodedPassword: String)
+        + changeProfilePhotoUrl(profilePhotoUrl: String)
+    }
+
+    ' Repository '
+    interface UserRepository << (R,#CCFFCC) JpaRepository >> {
+        + existsByEmailAddress(email: String): boolean
+        + existsByNickname(nickname: String): boolean
+        + findByEmailAddress(email: String): Optional<User>
+    }
+
+    ' Service '
+    class UserService << (S,#AADDFF) Service >> {
+        - userRepository: UserRepository
+        - emailRepository: EmailRepository
+        - emailService: EmailService
+        - verifyRepository: VerifyRepository
+        - jwtUtil: JwtUtil
+        - passwordEncoder: PasswordEncoder
+        --
+        + getUser(id: Long): UserResDto
+        + getUserList(): List<UserResDto>
+        + signUp(dto: SignUpDto): User
+        + existNickname(nickname: String): boolean
+        + login(dto: LoginDto, res: HttpServletResponse): LoginInfoDto
+        + deleteCurrentUser(email: String)
+        + findByEmailAddress(email: String): User
+        + logout(res: HttpServletResponse)
+    }
+
+    ' Controller Interface (API Spec) '
+    interface UserApi << (I,#CCCCCC) Tag/Interface >> {
+        + getUser(id: Long): ResponseEntity<?>
+        + getUserList(): ResponseEntity<?>
+        + signUp(dto: SignUpDto): ResponseEntity<?>
+        + existNickname(nickname: String): ResponseEntity<?>
+        + login(dto: LoginDto, res: HttpServletResponse): ResponseEntity<?>
+        + deleteCurrentUser(userDetails: UserDetails): ResponseEntity<?>
+        + logout(response: HttpServletResponse): ResponseEntity<?>
+    }
+
+    ' Controller Implementation '
+    class UserController << (C,#FFCCAA) RestController >> {
+        - userService: UserService
+        - emailService: EmailService
+        --
+        + getUser(id: Long): ResponseEntity<?>
+        + getUserList(): ResponseEntity<?>
+        + signUp(dto: SignUpDto): ResponseEntity<?>
+        + existNickname(nickname: String): ResponseEntity<?>
+        + login(dto: LoginDto, res: HttpServletResponse): ResponseEntity<?>
+        + deleteCurrentUser(userDetails: UserDetails): ResponseEntity<?>
+        + logout(response: HttpServletResponse): ResponseEntity<?>
+    }
+
+    ' 관계 (의존성 및 흐름) '
+    UserController .up.|> UserApi : implements
+    UserController --> UserService : injects/uses
+    UserController ..> SignUpDto : uses (Req DTO)
+    UserController ..> LoginDto : uses (Req DTO)
+
+    UserService --> UserRepository : injects/uses
+    UserService ..> SignUpDto : uses (Req DTO)
+    UserService ..> LoginDto : uses (Req DTO)
+    UserService ..> LoginInfoDto : returns (Res DTO)
+    UserService ..> UserResDto : returns (Res DTO)
+
+    UserRepository .up.|> JpaRepository : extends
+    UserRepository --> User : manages
+
+    User --> UserResDto : converts to (toResDto)
+
+    SignUpDto ..> User : converts to (toEntity)
+
+    ' 외부 의존성 (Security, Email, Other Entities) '
+    UserService ..> JwtUtil : uses (Token)
+    UserService ..> PasswordEncoder : uses (Encoding)
+    UserService ..> EmailService : uses
+    User o-- Email : contains (OneToOne)
+    User "1" o-- "0..*" Star : contains (OneToMany)
+    User "1" o-- "0..*" Diary : contains (OneToMany)
+    User "1" o-- "0..*" Constellation : contains (OneToMany)
+}
+@enduml
