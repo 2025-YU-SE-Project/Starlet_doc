@@ -59,8 +59,8 @@
 | **SD-4.4** | Diary | 감정 일기 작성, 수정, 조회 및 별 생성 연계 |
 | **SD-4.5** | Star | 별 생성, 조회, 좌표 수정, 삭제 |
 | **SD-4.6** | Constellation | 별자리 생성, 수정, 아카이브, 대표 설정 |
-| **SD-4.7** | MyPage | 사용자 레벨 및 통계 조회, 대표 별자리 표시 |
-| **SD-4.8** | Common/System | 인증, 예외처리, 파일 업로드 등 공통 기능 |
+| **SD-4.7** | S3 | 프로필 이미지 업로드, Presigned URL 발급, 최종 이미지 확정 |
+| **SD-4.8** | MyPage | 사용자 요약 정보, 감정별 통계, 대표 별자리 조회 등 |
 
 ---
 
@@ -420,9 +420,10 @@
 7. **VerifyService** : `verify.updateStatus(null, VERIFY, null)` → `verifyRepository.save(verify)`  
 8. **정상 응답** : `200 OK`  
 <br>
+
 ---
 
-## Diary Sequence diagram
+## SD-4.4 Diary Sequence diagram
 ### SD-4.4.1 감정 선택 단계  
 
 ```mermaid
@@ -733,6 +734,8 @@ sequenceDiagram
 
 <br>
 
+---
+
 ## SD-4.5 Star Sequence diagram
 
 ### SD-4.5.1 별 생성 (Diary 완료 시 자동 생성)
@@ -933,6 +936,8 @@ end
 7. **Controller → Client** : 200 OK + Body 없음  
 
 <br>
+
+---
 
 ## SD-4.6 Constellation Sequence diagram
 
@@ -1394,3 +1399,654 @@ sequenceDiagram
 7. **Controller → Client** : 200 OK (본문 없음)  
 
 <br>
+
+현재 코드상 Connection은 별자리(Consetellation) 흐름 안에서만 생성/조회되고, 별도 Controller/API는 없으니 “연결만 단독으로”는 시퀀스가 없고, 다음 두 지점에서만 등장한다. 
+1. 별자리 생성 중 연결 저장
+2. 조회 시 연결 포함 반환 <br>
+해당 내용에 관련된 Connection 전용 서브 시퀀스 2개를 정리해서 C1, C2로 정리하였다.
+
+### SD-4.6.C1 연결 저장 (별자리 생성 중)  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant CC as ConstellationController
+    participant CS as ConstellationService
+    participant SR as StarRepository
+    participant CN as ConnectionRepository
+
+    Client->>CC: POST /api/v1/constellation\n{ name, description, stars[], connections[] }
+    CC->>CS: createConstellation(userDetails, dto)
+
+    loop 연결 저장 (dto.connections)
+        CS->>SR: findById(startStarId)
+        SR-->>CS: Start Star
+        CS->>SR: findById(endStarId)
+        SR-->>CS: End Star
+        CS->>CN: save(Connection.builder()\n  .constellation(constellation)\n  .start(startStar)\n  .end(endStar)\n  .build())
+    end
+
+    CS-->>CC: void
+    CC-->>Client: 200 OK (본문 없음)
+```
+
+사용자가 별자리를 생성할 때, **선(연결)을 저장**하는 단계만 분리한 시퀀스다.  
+각 `ConnectionDto(startStarId, endStarId)`에 대해 시작/종료 별을 조회하고,  
+`connectionRepository.save()` 로 연결을 저장한다.
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `createConstellation(userDetails, dto)`  
+- Service → StarRepository : `findById()` 로 시작/종료 별 조회  
+- Service → ConnectionRepository : `save(Connection)` 호출  
+- Controller → Client : 200 OK (본문 없음)
+
+**흐름요약**  
+1. Client → ConstellationController : `POST /api/v1/constellation`  
+2. Controller → ConstellationService : `createConstellation(userDetails, dto)`  
+3. Service → StarRepository : `findById(start)`, `findById(end)`  
+4. Service → ConnectionRepository : `save()`  
+5. Controller → Client : 200 OK (본문 없음)
+
+<br>
+
+### SD-4.6.C2 연결 조회 (밤하늘/아카이브/상세)  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant CS as ConstellationService
+    participant CR as ConstellationRepository
+    participant CN as ConnectionRepository
+
+    Client->>CS: (예) GET /api/v1/constellation/archive
+    CS->>CR: findByUser(user) 또는 findById(id) / belongDate 기간 조회 등
+    CR-->>CS: Constellation 리스트 또는 단건
+
+    loop 각 Constellation
+        CS->>CN: findByConstellation(con)
+        CN-->>CS: Connection 리스트
+        CS->>CS: ConnectionDto / StarryNightConnectionDto 로 매핑
+    end
+
+    CS-->>Client: 200 OK + 연결 포함 응답
+```
+
+**밤하늘/아카이브/상세 조회에서 연결을 함께 반환**하는 공통 패턴이다.  
+`connectionRepository.findByConstellation(con)` 으로 선 목록을 가져오고,  
+응답 DTO(`ConnectionDto` 또는 `StarryNightConnectionDto`)로 매핑한다.
+
+서버 측 흐름은 다음과 같다:  
+- Service → ConstellationRepository : 대상 별자리(들) 조회  
+- Service → ConnectionRepository : `findByConstellation(con)` 로 연결 목록 조회  
+- Service 내부 : DTO 매핑 (`ConnectionDto` / `StarryNightConnectionDto`)  
+- Service → Client : 200 OK + 연결 포함 응답
+
+**흐름요약**  
+1. Client → ConstellationService : 별자리(들) 조회 요청  
+2. Service → ConstellationRepository : 대상 별자리(들) 조회  
+3. Service → ConnectionRepository : `findByConstellation(con)`  
+4. Service 내부 : 연결 DTO 매핑  
+5. Service → Client : 200 OK + 연결 포함 응답
+
+<br>
+
+---
+
+## SD-4.7 S3 Sequence diagram
+
+### SD-4.7.1 파일 업로드 Presigned URL 발급  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant SC as S3Controller
+    participant UR as UserRepository
+    participant SS as S3StorageService
+    participant SP as S3Presigner
+
+    Client->>SC: POST /api/v1/s3/image/tempUrl\n{ contentType }
+    SC->>UR: findByEmailAddress(userDetails.getUsername())
+    alt 사용자 없음
+        UR-->>SC: empty
+        SC-->>Client: 500 Internal Server Error\n(존재하지 않는 사용자)
+    else 사용자 있음
+        UR-->>SC: User(id)
+        SC->>SC: key = "uploads/users/{userId}/{uuid}.png"
+        SC->>SS: createUploadUrl(key, contentType)
+        SS->>SS: contentType.startsWith("image/") 검증 (실패 시 IllegalArgumentException)
+        SS->>SP: presignPutObject(bucket, key, contentType, 10분 유효)
+        SP-->>SS: Presigned URL 반환
+        SS-->>SC: URL 반환
+        SC-->>Client: 200 OK + S3tempResDto{ presignedUrl, tempKey }
+    end
+```
+
+이 단계는 사용자가 **이미지 업로드를 위해 S3 Presigned URL을 요청**하는 과정이다.  
+요청은 `POST /api/v1/s3/image/tempUrl` 이며, `contentType`(예: `image/png`)을 전달한다.  
+서버는 로그인 사용자의 `userId`로 업로드 경로(`uploads/users/{userId}/{uuid}.png`)를 생성하고,  
+10분간 유효한 **S3 PUT Presigned URL**을 생성하여 응답한다.  
+
+서버 측 흐름은 다음과 같다:  
+- Controller → UserRepository : `findByEmailAddress()` 로 사용자 조회  
+- Controller 내부 : 업로드 경로(`tempKey`) 생성  
+- Controller → S3StorageService : `createUploadUrl(key, contentType)` 호출  
+- Service 내부 : contentType 검증 (`image/` 로 시작하지 않으면 IllegalArgumentException 발생)  
+- Service → S3Presigner : `presignPutObject` 실행 (10분 유효)  
+- Service → Controller : URL 반환  
+- Controller → Client : 200 OK + `S3tempResDto{ presignedUrl, tempKey }`  
+
+**흐름요약**  
+1. **Client → S3Controller** : `POST /api/v1/s3/image/tempUrl` 요청 (`contentType`)  
+2. **S3Controller → UserRepository** : 사용자 조회  
+3. **S3Controller 내부** : `tempKey` 생성 (`uploads/users/{userId}/{uuid}.png`)  
+4. **S3Controller → S3StorageService** : `createUploadUrl(key, contentType)` 호출  
+5. **S3StorageService → S3Presigner** : `presignPutObject`(10분 유효)  
+6. **S3StorageService → S3Controller** : URL 반환  
+7. **S3Controller → Client** : 200 OK + `presignedUrl`, `tempKey` 반환  
+
+<br>
+
+### SD-4.7.2 파일 업로드 완료 처리 (uploads → public 전환)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant UC as UserController (MyPage)
+    participant UR as UserRepository
+    participant SS as S3StorageService
+
+    Client->>UC: POST /api/v1/mypage/profile-image/publish\n{ tempKey }
+    UC->>UR: findByEmailAddress(userDetails.getUsername())
+    alt 사용자 없음
+        UR-->>UC: empty
+        UC-->>Client: 404 Not Found (USER_NOT_FOUND)
+    else 사용자 있음
+        UR-->>UC: User(id)
+        UC->>SS: publishProfile(user.id, tempKey)
+        SS-->>UC: finalUrl (https://{bucket}.s3.{region}.amazonaws.com/public/users/{id}/profile.png)
+        %% (선택) UC->>UR: 사용자 프로필 URL 저장 (필드 제공 시)
+        UC-->>Client: 200 OK + S3uploadResDto{ imageUrl: finalUrl }
+    end
+```
+
+이 단계는 사용자가 **업로드를 마친 임시 객체**를 **공개 경로로 승격**하는 과정이다.  
+요청은 `POST /api/v1/mypage/profile-image/publish` 이고, 본문은 `{ tempKey }` 형식이다.  
+서비스 레벨에서는 `S3StorageService.publishProfile(userId, tempKey)` 를 호출하여  
+`uploads/users/{userId}/...` → `public/users/{userId}/profile.png` 로 복사하고 최종 URL을 반환한다.
+
+서버 측 흐름은 다음과 같다:
+- Controller → UserRepository : `findByEmailAddress()` 로 사용자 조회 (없으면 404)
+- Controller → S3StorageService : `publishProfile(userId, tempKey)` 호출
+- Service 내부 : tempKey Prefix 검증(`uploads/users/{userId}/`) 후 `copyObject`
+- Service → Controller : 최종 공개 URL 반환
+- Controller → Client : 200 OK + `S3uploadResDto{ imageUrl }`
+
+**흐름요약**  
+1. **Client → UserController** : `POST /api/v1/mypage/profile-image/publish` (`tempKey`)  
+2. **UserController → UserRepository** : 사용자 조회 (`USER_NOT_FOUND` 시 404)  
+3. **UserController → S3StorageService** : `publishProfile(userId, tempKey)`  
+4. **S3StorageService 내부** : tempKey 검증 → `copyObject` 수행  
+5. **UserController → Client** : 200 OK + `S3uploadResDto`(최종 URL)  
+
+<br>
+
+---
+
+## SD-4.8 Mypage Sequence diagram
+
+### SD-4.8.1 마이페이지 요약 조회 (업데이트: totalStars/totalConstellations 포함)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant MPC as MyPageController
+    participant MPS as MyPageService
+    participant UR as UserRepository
+    participant DR as DiaryRepository
+    participant CR as ConstellationRepository
+
+    Client->>AF: GET /api/v1/mypage/summary?year=YYYY&month=MM (JWT 포함, yearMonth 선택)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>MPC: userId 주입
+        MPC->>MPS: getSummary(userId, yearMonth?)
+        par 사용자 정보
+            MPS->>UR: findById(userId)
+            UR-->>MPS: User
+        and 기간별 일기 조회 (별=일기 1:1)
+            alt yearMonth 존재
+                MPS->>DR: findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId, from, to)
+            else 전체 기간
+                MPS->>DR: findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId, MIN_DATE, NOW)
+            end
+            DR-->>MPS: Diary 리스트
+            MPS->>MPS: totalStars = diaries.size()
+            MPS->>MPS: Emotion 분포 집계(비율)
+        and 전체 별자리 수
+            MPS->>CR: findByUser(User)
+            CR-->>MPS: Constellation 리스트
+            MPS->>MPS: totalConstellations = constellations.size()
+        and 대표 별자리
+            MPS->>CR: findByUserAndIsRepresentative(user, true)
+            CR-->>MPS: Optional<Constellation>
+        end
+        MPS-->>MPC: MyPageSummaryDto(user, stats{totalStars, emotionRatio, totalConstellations}, representative, scope)
+        MPC-->>Client: 200 OK + MyPageSummaryDto
+    end
+```
+
+이 단계는 사용자가 **마이페이지에 진입**할 때,  
+사용자 정보 + 감정/별 통계 + **전체 별 개수(totalStars)** + **전체 별자리 수(totalConstellations)** + 대표 별자리를 **한 번에** 전달하는 요약 API 흐름이다.  
+
+- **totalStars**: `Diary` 리스트 개수로 계산(도메인 규칙상 *1 Diary = 1 Star*).  
+- **totalConstellations**: 사용자의 `Constellation` 리스트 개수로 계산.  
+- `yearMonth`가 주어지면 해당 월 통계, 없으면 전체 기간 통계를 반환.  
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `getSummary(userId, yearMonth?)` 호출  
+- Service → UserRepository : `findById(userId)`  
+- Service → DiaryRepository : `findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(...)`  
+- Service 내부 : `totalStars = diaries.size()`, Emotion 분포 계산  
+- Service → ConstellationRepository : `findByUser(user)` → `totalConstellations = size()`  
+- Service → ConstellationRepository : `findByUserAndIsRepresentative(user, true)`  
+- Controller → Client : `MyPageSummaryDto` 반환 (200 OK)  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → MyPageController** : userId 주입  
+3. **MyPageController → MyPageService** : `getSummary(userId, yearMonth?)`  
+4. **MyPageService → UserRepository** : 사용자 조회  
+5. **MyPageService → DiaryRepository** : 기간별 일기 조회 → **totalStars** 계산  
+6. **MyPageService → ConstellationRepository** : 사용자 별자리 조회 → **totalConstellations** 계산  
+7. **MyPageService → ConstellationRepository** : 대표 별자리 조회  
+8. **MyPageController → Client** : 200 OK + MyPageSummaryDto
+
+<br>
+
+
+### SD-4.8.2 사용자 정보 조회  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
+
+    Client->>AF: GET /api/v1/users/me (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>UC: userId 주입
+        UC->>US: getUserProfile(userId)
+        US->>UR: findById(userId)
+        alt 사용자 없음
+            UR-->>US: Optional.empty()
+            US-->>UC: CustomException(USER_NOT_FOUND)
+            UC-->>Client: 404 Not Found
+        else 사용자 존재
+            UR-->>US: User
+            US-->>UC: UserProfileResponseDto(id, nickname, email, level, joinDate)
+            UC-->>Client: 200 OK + UserProfileResponseDto
+        end
+    end
+```
+
+이 단계는 사용자가 **마이페이지 내 프로필 섹션**에서 자신의 정보를 조회할 때 실행되는 흐름이다.  
+JWT AccessToken을 검증하여 인증된 사용자만 접근할 수 있으며,  
+`UserRepository`를 통해 사용자 정보를 조회하고 `UserProfileResponseDto`로 응답한다.  
+
+조회 대상에는 닉네임, 이메일, 가입일, 레벨(또는 점수 기반 등급)이 포함될 수 있다.  
+존재하지 않는 사용자일 경우 `CustomException(USER_NOT_FOUND)`를 발생시켜 404 응답을 반환한다.  
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `getUserProfile(userId)` 호출  
+- Service → Repository : `findById(userId)` 로 사용자 조회  
+- 미존재 시 : `CustomException(USER_NOT_FOUND)` → 404  
+- 존재 시 : `UserProfileResponseDto` 로 매핑 후 반환  
+- Controller → Client : 200 OK + 프로필 정보  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → UserController** : userId 주입  
+3. **UserController → UserService** : `getUserProfile(userId)` 호출  
+4. **UserService → UserRepository** : 사용자 조회  
+5. **미존재 시** : `CustomException(USER_NOT_FOUND)` → 404  
+6. **존재 시** : `UserProfileResponseDto` 반환  
+7. **UserController → Client** : 200 OK + 사용자 정보  
+
+<br>
+
+### SD-4.8.3 감정 통계 조회  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant DC as DiaryController
+    participant DS as DiaryService
+    participant DR as DiaryRepository
+
+    Client->>AF: GET /api/v1/calendar/diary/statistics?year=YYYY&month=MM (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>DC: userId 주입
+        DC->>DS: getEmotionStatistics(userId, year, month)
+        DS->>DS: from = YearMonth.of(year, month).atDay(1)
+        DS->>DS: to = from.atEndOfMonth()
+        DS->>DR: findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId, from, to)
+        DR-->>DS: Diary 리스트 반환
+        DS->>DS: Emotion 그룹화 및 비율 계산
+        DS-->>DC: EmotionStatisticDto(Map<Emotion, Double>)
+        DC-->>Client: 200 OK + EmotionStatisticDto
+    end
+```
+
+이 단계는 사용자가 **마이페이지 내 통계 섹션**에서 월별 감정 비율을 확인할 때 호출되는 API의 흐름이다.  
+요청 시 연도(`year`)와 월(`month`)을 쿼리 파라미터로 전달하며,  
+`DiaryRepository`에서 해당 기간의 모든 일기를 조회해 감정(`Emotion`) 필드를 기준으로 집계한다.  
+
+감정별 카운트를 계산한 뒤 전체 일기 수로 나누어 비율을 산출하며,  
+감정 데이터가 없는 경우 `0.0` 비율로 반환된다.  
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `getEmotionStatistics(userId, year, month)` 호출  
+- Service 내부 : `YearMonth` 기반 날짜 계산 (from ~ to)  
+- Service → Repository : `findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc()` 호출  
+- Service 내부 : Emotion 그룹화 및 비율 계산  
+- Controller → Client : 200 OK + EmotionStatisticDto 반환  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → DiaryController** : userId 주입  
+3. **DiaryController → DiaryService** : `getEmotionStatistics(userId, year, month)` 호출  
+4. **DiaryService → DiaryRepository** : 해당 월의 일기 조회  
+5. **DiaryService 내부** : Emotion 비율 계산  
+6. **DiaryController → Client** : 200 OK + EmotionStatisticDto 반환  
+
+<br>
+
+### SD-4.8.4 대표 별자리 표시  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant MPC as MyPageController
+    participant MPS as MyPageService
+    participant CR as ConstellationRepository
+
+    Client->>AF: GET /api/v1/mypage/representative (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>MPC: userId 주입
+        MPC->>MPS: getRepresentativeConstellation(userId)
+        MPS->>CR: findByUserAndIsRepresentative(user, true)
+        alt 대표 별자리 없음
+            CR-->>MPS: Optional.empty()
+            MPS-->>MPC: 기본값(DefaultConstellationDto)
+            MPC-->>Client: 200 OK + 기본값 (예: “대표 별자리가 없습니다.”)
+        else 대표 별자리 존재
+            CR-->>MPS: Constellation 반환
+            MPS-->>MPC: RepresentativeConstellationDto(id, name, date)
+            MPC-->>Client: 200 OK + RepresentativeConstellationDto
+        end
+    end
+```
+
+이 단계는 사용자가 **마이페이지 내 대표 별자리 영역**을 조회할 때 수행되는 흐름이다.  
+JWT 인증 후 사용자를 식별하고,  
+`ConstellationRepository.findByUserAndIsRepresentative(user, true)` 를 통해 대표 별자리를 조회한다.  
+만약 설정된 대표 별자리가 없으면 “기본 문구 또는 기본 이미지”가 반환된다.  
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `getRepresentativeConstellation(userId)` 호출  
+- Service → Repository : `findByUserAndIsRepresentative(user, true)` 실행  
+- 대표 별자리 없을 시 기본 DTO 반환  
+- 존재할 경우 `RepresentativeConstellationDto` 로 변환 후 반환  
+- Controller → Client : 200 OK 응답  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → MyPageController** : userId 주입  
+3. **MyPageController → MyPageService** : `getRepresentativeConstellation(userId)` 호출  
+4. **MyPageService → ConstellationRepository** : 대표 별자리 조회  
+5. **대표 없음** : 기본 DTO 반환  
+6. **대표 존재 시** : 대표 별자리 정보 DTO 반환  
+7. **MyPageController → Client** : 200 OK + 대표 별자리 정보  
+
+<br>
+
+### SD-4.8.5 연간 월별 별자리 수 조회  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant MPC as MyPageController
+    participant MPS as MyPageService
+    participant UR as UserRepository
+    participant CR as ConstellationRepository
+
+    Client->>AF: GET /api/v1/mypage/statistics/constellations?year=YYYY (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>MPC: userId 주입
+        MPC->>MPS: getMonthlyConstellationCounts(userId, year)
+        MPS->>UR: findById(userId)
+        UR-->>MPS: User
+        MPS->>MPS: from=LocalDate.of(year,1,1), to=LocalDate.of(year,12,31)
+        MPS->>CR: findByUserAndBelongDateBetween(user, from, to)
+        CR-->>MPS: Constellation 리스트
+        MPS->>MPS: 월별 그룹화(1..12) 및 누락 월 0으로 채움
+        MPS-->>MPC: List<MonthCountDto(month, count)>
+        MPC-->>Client: 200 OK + [{month:1,count:n},...{month:12,count:m}]
+    end
+```
+
+이 단계는 사용자의 **한 해(1~12월) 동안 생성된 별자리 수를 월별 시리즈**로 조회해  
+마이페이지 라인차트에 사용하는 데이터 흐름이다. `belongDate`를 기준으로 집계한다.
+
+서버 측 흐름은 다음과 같다:
+- Controller → Service : `getMonthlyConstellationCounts(userId, year)` 호출  
+- Service → UserRepository : `findById(userId)`  
+- Service 내부 : `from=year-01-01`, `to=year-12-31` 계산  
+- Service → ConstellationRepository : `findByUserAndBelongDateBetween(user, from, to)`  
+- Service 내부 : 결과를 **월별 그룹화(1..12)**, 없는 월은 **0**으로 보정  
+- Controller → Client : `[{month, count}]` 형태로 200 OK 반환  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → MyPageController** : userId 주입  
+3. **MyPageController → MyPageService** : `getMonthlyConstellationCounts(userId, year)`  
+4. **MyPageService → UserRepository** : 사용자 조회  
+5. **MyPageService → ConstellationRepository** : 연간 범위 내 별자리 조회  
+6. **MyPageService 내부** : 월별 그룹화 및 누락 월 0 채움  
+7. **MyPageController → Client** : 200 OK + 월별 카운트 시리즈  
+
+<br>
+
+### SD-4.8.6 프로필 이미지 업로드 (임시 URL 발급)  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant S3C as S3Controller
+    participant S3S as S3StorageService
+    participant UR as UserRepository
+
+    Client->>AF: POST /api/v1/s3/image/tempUrl?contentType=image/png (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>S3C: userId 주입
+        S3C->>UR: findByEmailAddress(userDetails.username)
+        UR-->>S3C: User(id)
+        S3C->>S3S: createUploadUrl(key="uploads/users/{id}/{uuid}.png", contentType)
+        S3S->>S3S: Presigned URL 생성 (10분 유효)
+        S3S-->>S3C: URL 반환
+        S3C-->>Client: 200 OK + {presignedUrl, tempKey}
+    end
+```
+
+이 단계는 사용자가 **프로필 이미지를 업로드하기 전에**  
+S3에 직접 업로드할 수 있는 **Presigned URL**을 발급받는 과정이다.  
+JWT 인증 후 사용자 식별을 수행하고,  
+`S3StorageService.createUploadUrl()`에서 AWS SDK의 `S3Presigner`로 10분 유효의 업로드 URL을 생성한다.
+
+서버 측 흐름은 다음과 같다:
+- Controller → UserRepository : 사용자 이메일로 조회 (`findByEmailAddress`)  
+- Controller 내부 : key 생성 `"uploads/users/{userId}/{UUID}.png"`  
+- Controller → Service : `createUploadUrl(key, contentType)`  
+- Service 내부 : `S3Presigner.presignPutObject()` 호출로 URL 생성  
+- Controller → Client : `{presignedUrl, tempKey}` 반환  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → S3Controller** : userId 주입  
+3. **S3Controller → UserRepository** : 사용자 조회  
+4. **S3Controller → S3StorageService** : `createUploadUrl(key, contentType)` 호출  
+5. **S3StorageService 내부** : Presigned URL 생성  
+6. **S3Controller → Client** : 200 OK + URL, tempKey 반환  
+
+<br>
+
+### SD-4.8.7 닉네임 중복 검사 (프로필 수정 시)  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
+
+    Client->>AF: GET /api/v1/users/check-nickname?nickname={nickname} (JWT 포함 가능)
+    AF->>AF: AccessToken 검증 (필요 시)
+    alt 토큰 유효하지 않음 (보호된 경우)
+        AF-->>Client: 401 Unauthorized
+    else 통과 또는 공개 엔드포인트
+        AF-->>UC: (옵션) userId 주입
+        UC->>US: checkNickname(nickname)
+        US->>UR: 닉네임 존재 여부 조회
+        alt 닉네임 존재
+            UR-->>US: true
+            US-->>UC: 중복(true)
+            UC-->>Client: 409 Conflict (닉네임 중복)
+        else 닉네임 미존재
+            UR-->>US: false
+            US-->>UC: 사용 가능(false)
+            UC-->>Client: 200 OK (사용 가능)
+        end
+    end
+```
+
+사용자가 **마이페이지 프로필 편집**에서 닉네임 입력 후 **중복 여부를 확인**할 때 사용하는 기존 API 흐름이다.  
+컨트롤러는 `UserService.checkNickname(nickname)`을 호출하고, 서비스는 `UserRepository`를 통해 **닉네임 존재 여부**를 조회한다.  
+중복이면 `409 Conflict`, 사용 가능하면 `200 OK` 를 반환한다.
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `checkNickname(nickname)` 호출  
+- Service → Repository : 닉네임 존재 여부 조회  
+- 중복 시 : 409 Conflict 반환  
+- 사용 가능 시 : 200 OK 반환  
+
+**흐름요약**  
+1. **Client → AuthFilter** : (필요 시) JWT 검증  
+2. **AuthFilter → UserController** : (옵션) userId 주입  
+3. **UserController → UserService** : `checkNickname(nickname)`  
+4. **UserService → UserRepository** : 닉네임 존재 여부 조회  
+5. **중복일 때** : 409 Conflict  
+6. **사용 가능일 때** : 200 OK  
+
+<br>
+
+### SD-4.8.8 프로필 저장 (닉네임 + 이미지 확정)  
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
+    participant S3S as S3StorageService
+
+    Client->>AF: PATCH /api/v1/users/profile\n{ nickname, tempKey } (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
+        AF-->>Client: 401 Unauthorized
+    else 유효함
+        AF-->>UC: userId 주입
+        UC->>US: updateProfile(userId, nickname, tempKey)
+        US->>UR: findById(userId)
+        UR-->>US: User 엔티티 반환
+        alt tempKey 존재
+            US->>S3S: publishProfile(userId, tempKey)
+            S3S->>S3S: tempKey 검증 ("uploads/users/{userId}/" prefix)
+            S3S->>S3S: S3 copyObject(tempKey → public/users/{userId}/profile.png)
+            S3S-->>US: public 이미지 URL 반환
+            US->>UR: 프로필 이미지 URL 및 닉네임 수정
+            UR-->>US: 저장 완료
+        else tempKey 없음 (닉네임만 수정)
+            US->>UR: 닉네임만 수정
+            UR-->>US: 저장 완료
+        end
+        US-->>UC: 업데이트 완료 응답
+        UC-->>Client: 200 OK + UserProfileResDto
+    end
+```
+
+이 단계는 사용자가 **마이페이지에서 닉네임 및 프로필 이미지를 수정 후 저장**할 때 수행되는 흐름이다.  
+JWT 인증을 통과하면, 서버는 `nickname`과 `tempKey`를 받아  
+`S3StorageService.publishProfile()`로 이미지를 확정 저장하고,  
+`UserRepository`를 통해 사용자 엔티티를 갱신한다.
+
+서버 측 흐름은 다음과 같다:  
+- Controller → Service : `updateProfile(userId, nickname, tempKey)` 호출  
+- Service → UserRepository : `findById(userId)`  
+- Service 내부 :  
+  - tempKey 존재 시 → `S3StorageService.publishProfile()` 실행 (S3 객체 복사 및 URL 반환)  
+  - tempKey 미존재 시 → 닉네임만 업데이트  
+- Service → Repository : 엔티티 갱신  
+- Controller → Client : 200 OK + UserProfileResDto 반환  
+
+**흐름요약**  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → UserController** : userId 주입  
+3. **UserController → UserService** : `updateProfile(userId, nickname, tempKey)`  
+4. **UserService → UserRepository** : 사용자 조회  
+5. **tempKey 존재 시** :  
+   - `publishProfile()` 실행 → S3 객체 복사  
+   - URL 반환 → User 엔티티 업데이트  
+6. **tempKey 없음 시** : 닉네임만 수정  
+7. **UserService → UserRepository** : 저장  
+8. **UserController → Client** : 200 OK + UserProfileResDto  
+
+<br>
+
