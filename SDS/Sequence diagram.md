@@ -1,4 +1,6 @@
-# 4. Sequence Diagram
+# Starlet_BE: 소프트웨어 설계 명세서 (SDS)
+
+## 4. Sequence Diagram
 
 이 장에서는 STARLET 서비스의 주요 기능별 Sequence Diagram과 그에 대한 설명을 제공한다.  
 각 다이어그램은 해당 기능의 Use Case 시나리오 에 따라 설계되었으며,  
@@ -9,7 +11,7 @@
 
 ---
 
-## 작성 및 고려 사항
+### 작성 및 고려 사항
 
 1. **모든 Sequence Diagram은 특정 Use Case와 1:1 대응된다.**  
    각 Diagram은 SRS 문서의 기능 명세와 직접적으로 연결되며, Use Case를 기준으로 구성하였다.  
@@ -45,7 +47,7 @@
 
 ---
 
-## 구성 체계
+### 구성 체계
 
 본 장의 Sequence Diagram은 **도메인별로 구분**되며,  
 각 도메인 내에서 API 단위 또는 세부 시나리오 단위로 세분화하였다.
