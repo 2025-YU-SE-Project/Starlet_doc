@@ -35,15 +35,17 @@
 
 ## 6.4. 홈화면
 
-<figure>
-  <img src="./User%20interface%20prototype%20image/image-home-before.png" width="80%" alt="홈화면(로그인 전)">
-  <figcaption align="center"><sub>홈화면(로그인 전)</sub></figcaption>
-</figure>
+<p align="center">
+  <img src="./User%20interface%20prototype%20image/image-home-before.png" width="100%" alt="홈화면(로그인 전)">
+  <br>
+  <sub>홈화면(로그인 전)</sub>
+</p>
 
-<figure>
-  <img src="./User%20interface%20prototype%20image/image-home-after.png" width="80%" alt="홈화면(로그인 후)">
-  <figcaption align="center"><sub>홈화면(로그인 후)</sub></figcaption>
-</figure>
+<p align="center">
+  <img src="./User%20interface%20prototype%20image/image-home-after.png" width="100%" alt="홈화면(로그인 후)">
+  <br>
+  <sub>홈화면(로그인 후)</sub>
+</p>
 
 > 위 그림은 로그인 전, 후의 홈화면이다.  
 > 로그인 전에는 상단 오른쪽에 로그인/회원가입 버튼이 있고, 하단의 3가지 버튼을 클릭하면 로그인 페이지로 자동 이동한다.  
@@ -54,15 +56,17 @@
 
 ## 6.5. 사이드바
 
-<figure>
-  <img src="./User%20interface%20prototype%20image/image-sidebar-before.png" width="80%" alt="사이드바(로그인 전)">
-  <figcaption align="center"><sub>사이드바(로그인 전)</sub></figcaption>
-</figure>
+<p align="center">
+  <img src="./User%20interface%20prototype%20image/image-sidebar-before.png" width="100%" alt="사이드바(로그인 전)">
+  <br>
+  <sub>사이드바(로그인 전)</sub>
+</p>
 
-<figure>
-  <img src="./User%20interface%20prototype%20image/image-sidebar-after.png" width="80%" alt="사이드바(로그인 후)">
-  <figcaption align="center"><sub>사이드바(로그인 후)</sub></figcaption>
-</figure>
+<p align="center">
+  <img src="./User%20interface%20prototype%20image/image-sidebar-after.png" width="100%" alt="사이드바(로그인 후)">
+  <br>
+  <sub>사이드바(로그인 후)</sub>
+</p>
 
 > 위 그림은 사이드바 화면이다.  
 > 로그인 전에는 미등록 사용자임을 나타낸다.
