@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.star" {
 
-    ' Enums / External References '
     enum Color << (E,#FFDDCC) Enum >> {
         // RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, GRAY
         // ... (상수 생략)
@@ -18,7 +17,6 @@ package "com.example.starlet_be.domains.star" {
     class Constellation << (E,Gray) External Entity >>
     class Connection << (E,Gray) External Entity >>
 
-    ' DTO (Request) '
     class DiaryToStarReqDto << (D,#FFEEEE) Req DTO >> {
         - date: String
         --
@@ -35,7 +33,6 @@ package "com.example.starlet_be.domains.star" {
         + getY(): Double
     }
 
-    ' DTO (Response) '
     class StarInfoDto << (D,#EEFFFF) Res DTO >> {
         - starId: Long
         - userId: Long
@@ -76,7 +73,6 @@ package "com.example.starlet_be.domains.star" {
     }
     StarArchiveDetailDto ..> Color
 
-    ' Entity '
     class Star << (E,#FFFFAA) Entity >> {
         - id: Long
         - color: Color
@@ -95,7 +91,6 @@ package "com.example.starlet_be.domains.star" {
     }
     Star o-- Color : <<uses>>
 
-    ' Repository '
     interface StarRepository << (R,#CCFFCC) JpaRepository >> {
         + existsByUserAndDiary(user: User, diary: Diary): boolean
         + findByConstellation(constellation: Constellation): List<Star>
@@ -104,7 +99,6 @@ package "com.example.starlet_be.domains.star" {
     }
     StarRepository --> Star : manages
 
-    ' Service '
     class StarService << (S,#AADDFF) Service >> {
         - userRepository: UserRepository
         - starRepository: StarRepository
@@ -117,7 +111,6 @@ package "com.example.starlet_be.domains.star" {
     StarService ..> StarPositionDto : uses
     StarService ..> StarryNightStarDto : returns List
 
-    ' Controller '
     interface StarApi << (I,#CCCCCC) Tag/Interface >> {
         + getStar(id: Long): ResponseEntity<?>
         + getStarryNightStar(userDetails, year, month): ResponseEntity<?>

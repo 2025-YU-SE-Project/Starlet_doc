@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.constellation" {
 
-    ' External Entities & DTOs (타 도메인에서 참조) '
     class User << (E,Gray) External Entity >>
     class Star << (E,Gray) External Entity >>
     class Connection << (E,Gray) External Entity >>
@@ -17,7 +16,6 @@ package "com.example.starlet_be.domains.constellation" {
     class StarArchiveDto << (D,Gray) External Res DTO >>
     class StarArchiveDetailDto << (D,Gray) External Res DTO >>
 
-    ' DTO (Request) '
     class CreateConstellationDto << (D,#FFEEEE) Req DTO >> {
         - name: String
         - description: String
@@ -46,7 +44,6 @@ package "com.example.starlet_be.domains.constellation" {
         + getDescription(): String
     }
 
-    ' DTO (Response) '
     class StarryNightConstellationDto << (D,#EEFFFF) Res DTO >> {
         - constellationId: Long
         - userId: Long
@@ -97,7 +94,6 @@ package "com.example.starlet_be.domains.constellation" {
     ArchiveDetailDto o-- StarArchiveDetailDto
     ArchiveDetailDto o-- ConnectionDto
 
-    ' Entity '
     class Constellation << (E,#FFFFAA) Entity >> {
         - id: Long
         - user: User (ManyToOne)
@@ -120,7 +116,6 @@ package "com.example.starlet_be.domains.constellation" {
     Constellation "1" o-- "0..*" Star : <<OneToMany>> contains
     Constellation "1" o-- "0..*" Connection : <<OneToMany>> contains
 
-    ' Repository '
     interface ConstellationRepository << (R,#CCFFCC) JpaRepository >> {
         + findByUserAndBelongDateBetween(User user, startDate, endDate): List<Constellation>
         + findByUser(User user): List<Constellation>
@@ -128,7 +123,6 @@ package "com.example.starlet_be.domains.constellation" {
     }
     ConstellationRepository --> Constellation : manages
 
-    ' Service '
     class ConstellationService << (S,#AADDFF) Service >> {
         - constellationRepository: ConstellationRepository
         - starRepository: StarRepository
@@ -152,7 +146,6 @@ package "com.example.starlet_be.domains.constellation" {
     ConstellationService ..> ArchiveDto : returns List
     ConstellationService ..> ArchiveDetailDto : returns
 
-    ' Controller Interface (API Spec) '
     interface ConstellationApi << (I,#CCCCCC) Tag/Interface >> {
         + getStarryNightConstellation(...): ResponseEntity<?>
         + createConstellation(...): ResponseEntity<?>
@@ -163,7 +156,6 @@ package "com.example.starlet_be.domains.constellation" {
         + changeRepresentativeConstellation(...): ResponseEntity<?>
     }
 
-    ' Controller Implementation '
     class ConstellationController << (C,#FFCCAA) RestController >> {
         - constellationService: ConstellationService
         --
@@ -176,7 +168,6 @@ package "com.example.starlet_be.domains.constellation" {
         + changeRepresentativeConstellation(...): ResponseEntity<?>
     }
 
-    ' 관계 (Controller -> API Interface) '
     ConstellationController .up.|> ConstellationApi : implements
     ConstellationController --> ConstellationService : injects/uses
 }

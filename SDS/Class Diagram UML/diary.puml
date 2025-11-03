@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.diary" {
 
-    ' Enums (열거형) '
     enum Color << (E,#FFDDCC) Color >> {
         RED // 분노
         ORANGE // 불안
@@ -45,7 +44,6 @@ package "com.example.starlet_be.domains.diary" {
         ...
     }
 
-    ' DTO (Request) '
     class DiaryCreateReqDto << (D,#FFEEEE) Req DTO >> {
         - emotion: Emotion
         - factors: List<Factor>
@@ -66,7 +64,6 @@ package "com.example.starlet_be.domains.diary" {
         + getContent(): String
     }
 
-    ' DTO (Response) '
     class DiaryResDto << (D,#EEFFFF) Res DTO >> {
         - date: LocalDate
         - emotion: Emotion
@@ -92,7 +89,6 @@ package "com.example.starlet_be.domains.diary" {
     }
     StarMonthlyResDto ..> Color
 
-    ' Entity '
     class Diary << (E,#CCCFFF) Entity >> {
         - id: Long
         - user: User (ManyToOne)
@@ -109,7 +105,6 @@ package "com.example.starlet_be.domains.diary" {
     Diary o-- Factor : <<uses>>
     Diary "1" -- "1" Star : <<OneToOne>> mappedBy star
 
-    ' Repository '
     interface DiaryRepository << (R,#CCFFCC) JpaRepository >> {
         + existsByUser_IdAndCreateAt(userId: Long, date: LocalDate): boolean
         + findByUser_IdAndCreateAt(userId: Long, date: LocalDate): Optional<Diary>
@@ -118,7 +113,6 @@ package "com.example.starlet_be.domains.diary" {
     }
     DiaryRepository --> Diary : manages
 
-    ' Service '
     class DiaryService << (S,#AADDFF) Service >> {
         - diaryRepository: DiaryRepository
         - userRepository: UserRepository
@@ -137,7 +131,6 @@ package "com.example.starlet_be.domains.diary" {
     DiaryService ..> DiaryResDto : returns
     DiaryService ..> StarMonthlyResDto : returns List
 
-    ' Controller '
     interface DiaryApi << (I,#CCCCCC) Tag/Interface >> {
         + createDiary(...): ResponseEntity<?>
         + updateDiary(...): ResponseEntity<?>

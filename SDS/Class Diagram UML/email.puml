@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.email" {
 
-    ' DTO '
     class EmailAddressDto << (D,#FFEEEE) Req DTO >> {
         - email: String
         --
@@ -24,7 +23,6 @@ package "com.example.starlet_be.domains.email" {
         + getVerifyExpireAt(): String
     }
 
-    ' Entity '
     class Email << (E,#FFFFAA) Entity >> {
         - id: Long
         - address: String
@@ -36,13 +34,11 @@ package "com.example.starlet_be.domains.email" {
         + getVerify(): Verify
     }
 
-    ' Repository '
     interface EmailRepository << (R,#CCFFCC) JpaRepository >> {
         + findByAddress(email: String): Optional<Email>
         + existsByAddress(address: String): boolean
     }
 
-    ' Service '
     class EmailService << (S,#AADDFF) Service >> {
         - emailRepository: EmailRepository
         - verifyRepository: VerifyRepository
@@ -63,7 +59,6 @@ package "com.example.starlet_be.domains.email" {
         - setMimeMessageHelper(message: MimeMessage, content: String): MimeMessageHelper
     }
 
-    ' Controller '
     interface EmailAPI << (I,#CCCCCC) Tag/Interface >> {
         + checkDuplication(address: String): ResponseEntity<?>
         + getVerificationStatus(address: String): ResponseEntity<?>
@@ -82,7 +77,6 @@ package "com.example.starlet_be.domains.email" {
         + requestPasswordReset(dto: EmailAddressDto): ResponseEntity<?>
     }
 
-    ' 관계 '
     EmailRepository --> Email : manages
     Email "1" *-- "1" Verify : <<OneToOne>> uses
 

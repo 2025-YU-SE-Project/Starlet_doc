@@ -1,25 +1,21 @@
 @startuml
 !theme toy
 
-' 수직 배열(세로 그림)을 위해 명시적으로 방향을 지정합니다.
 top to bottom direction
 
 package "com.example.starlet_be.security" {
 
-    ' Cors 설정 (Configuration) '
     class CorsConfig << (C,#FFDDAA) Configuration >> {
         --
         + corsConfigurationSource(): CorsConfigurationSource
     }
 
-    ' 사용자 정보 로드 (UserDetailsService 구현) '
     class CustomUserDetailService << (S,#AADDFF) Service >> {
         - userRepository: UserRepository
         --
         + loadUserByUsername(email: String): UserDetails
     }
 
-    ' JWT 필터 (OncePerRequestFilter 상속) '
     class JwtAuthenticationFilter << (F,#FFAAEE) Filter >> {
         - jwtUtil: JwtUtil
         - customUserDetailService: CustomUserDetailService
@@ -27,7 +23,6 @@ package "com.example.starlet_be.security" {
         # doFilterInternal(request, response, filterChain) : void
     }
 
-    ' JWT 유틸리티 (Component) '
     class JwtUtil << (U,#DDAAFF) Utility >> {
         - secretKey: String
         - accessValid: long (1시간)
@@ -42,7 +37,6 @@ package "com.example.starlet_be.security" {
         + extractRefreshTokenFromCookie(request: HttpServletRequest): String
     }
 
-    ' 스프링 시큐리티 설정 (Configuration) '
     class SecurityConfig << (C,#FFDDAA) Configuration >> {
         - customUserDetailService: CustomUserDetailService
         - jwtAuthenticationFilter: JwtAuthenticationFilter
@@ -56,7 +50,6 @@ package "com.example.starlet_be.security" {
         + securityFilterChain(http: HttpSecurity): SecurityFilterChain
     }
 
-    ' 외부 클래스 및 인터페이스 '
     interface UserDetailsService
     abstract class OncePerRequestFilter
     interface CorsConfigurationSource
@@ -65,11 +58,9 @@ package "com.example.starlet_be.security" {
     class CustomAuthenticationEntryPoint
     class HttpSecurity
 
-    ' 관계 (구현/상속) '
     CustomUserDetailService .up.|> UserDetailsService : implements
     JwtAuthenticationFilter .up.|> OncePerRequestFilter : extends
 
-    ' 관계 (의존성 주입 및 사용) '
     SecurityConfig --> CustomUserDetailService : injects/uses
     SecurityConfig --> JwtAuthenticationFilter : injects/uses
     SecurityConfig --> CustomAccessDeniedHandler : injects/uses
