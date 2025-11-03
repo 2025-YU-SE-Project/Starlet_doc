@@ -35,8 +35,15 @@
 
 ## 6.4. 홈화면
 
-![그림: 홈화면(로그인 전)](./User%20interface%20prototype%20image/image-home-before.png)
-![그림: 홈화면(로그인 후)](./User%20interface%20prototype%20image/image-home-after.png)
+<figure>
+  <img src="./User%20interface%20prototype%20image/image-home-before.png" width="80%" alt="홈화면(로그인 전)">
+  <figcaption align="center"><sub>홈화면(로그인 전)</sub></figcaption>
+</figure>
+
+<figure>
+  <img src="./User%20interface%20prototype%20image/image-home-after.png" width="80%" alt="홈화면(로그인 후)">
+  <figcaption align="center"><sub>홈화면(로그인 후)</sub></figcaption>
+</figure>
 
 > 위 그림은 로그인 전, 후의 홈화면이다.  
 > 로그인 전에는 상단 오른쪽에 로그인/회원가입 버튼이 있고, 하단의 3가지 버튼을 클릭하면 로그인 페이지로 자동 이동한다.  
@@ -47,8 +54,15 @@
 
 ## 6.5. 사이드바
 
-![그림: 사이드바(로그인 전)](./User%20interface%20prototype%20image/image-sidebar-before.png)
-![그림: 사이드바(로그인 후)](./User%20interface%20prototype%20image/image-sidebar-after.png)
+<figure>
+  <img src="./User%20interface%20prototype%20image/image-sidebar-before.png" width="80%" alt="사이드바(로그인 전)">
+  <figcaption align="center"><sub>사이드바(로그인 전)</sub></figcaption>
+</figure>
+
+<figure>
+  <img src="./User%20interface%20prototype%20image/image-sidebar-after.png" width="80%" alt="사이드바(로그인 후)">
+  <figcaption align="center"><sub>사이드바(로그인 후)</sub></figcaption>
+</figure>
 
 > 위 그림은 사이드바 화면이다.  
 > 로그인 전에는 미등록 사용자임을 나타낸다.
@@ -106,6 +120,8 @@
 
 ## 6.7. 밤하늘 화면
 
+### 밤하늘 화면(별자리 생성 전)
+
 ![그림: 밤하늘 화면(별자리 생성 전)](./User%20interface%20prototype%20image/image-starsky-before.png)
 
 > 달력에서 작성한 일기를 기반으로 별과 별자리가 두 달 단위로 표시된다.  
@@ -125,12 +141,16 @@
 
 ---
 
+### 밤하늘 화면(별자리 생성 후)
+
 ![그림: 밤하늘 화면(별자리 생성 후)](./User%20interface%20prototype%20image/image-starsky-after.png)
 
 > 생성된 별자리의 별과 간선이 그대로 나타난다.  
 > 별자리 선 위에 마우스를 올리면 별자리 이름과 생성일자가 라벨로 표시된다.
 
 ---
+
+### 별자리 선택(드래그 및 크기 조절)
 
 ![그림: 별자리 선택(드래그 및 크기 조절)](./User%20interface%20prototype%20image/image-constellation-resize.png)
 
@@ -143,11 +163,15 @@
 
 ## 6.8. 별자리 아카이브
 
+### 별자리 아카이브
+
 ![그림: 별자리 아카이브](./User%20interface%20prototype%20image/image-archive.png)
 
 > 지금까지 생성된 별자리 목록이 나타나며 해당 목록에 따라 별자리 생성일자, 이름, 설명이 표시된다.
 
 ---
+
+### 별자리 아카이브 상세
 
 ![그림: 별자리 아카이브 상세](./User%20interface%20prototype%20image/image-archive-detail.png)
 
@@ -158,6 +182,8 @@
 
 ---
 
+### 대표 별자리 설정
+
 ![그림: 대표 별자리 설정](./User%20interface%20prototype%20image/image-archive-represent.png)
 
 > 별자리 아카이브의 상단 우측 별 모양을 클릭하면 대표 별자리 설정 모달이 열린다.  
@@ -167,6 +193,8 @@
 
 ## 6.9. 마이 페이지
 
+### 마이 페이지
+
 ![그림: 마이 페이지](./User%20interface%20prototype%20image/image-mypage.png)
 
 > 대표 별자리가 상단 우측에 나타난다.  
@@ -174,6 +202,8 @@
 > 하단 그래프에서 감정별 일기 수와 별자리 수를 한눈에 확인 가능하다.
 
 ---
+
+### 프로필 수정
 
 ![그림: 프로필 수정](./User%20interface%20prototype%20image/image-profile-edit.png)
 
