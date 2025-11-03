@@ -448,3 +448,174 @@
 | Frequency | 제한없음 |
 | Concurrency | 제한없음 |
 | Due Date | |
+
+###  Use Case #12 별자리 아카이브 조회
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 로그인한 사용자가 자신이 만든 별자리를 Constellation Archive(별자리 아카이브)에서 확인할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다. |
+| **Trigger** | 사용자가 홈 화면 또는 사이드바에서 Constellation Archive(별자리 아카이브)를 눌렀을 때   |
+| **Success Post Condition** | 사용자는 자신이 생성한 별자리 목록을 시간순으로 조회할 수 있다.  |
+| **Failed Post Condition** | 사용자는 자신이 생성한 별자리 목록을 조회할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 Constellation Archive(별자리 아카이브)에서 자신이 만든 별자리 목록을 조회한다.   |
+| 1 |  사용자는 홈 또는 사이드 바에서 Constellation Archive(별자리 아카이브)를 클릭한다. |
+| 2 |  시스템은 사용자 정보를 바탕으로 생성한 별자리 목록을 조회한다. |
+| 3 |  시스템은  한 화면에 최대 4개의 별자리를 시간순으로 표시한다. |
+| 4 |  사용자는 별자리의 생성시간, 이름, 설명을 조회한다. |
+| 5 |  사용자는 “<”, “>” 버튼을 클릭하여 이전 또는 다음페이지로 이동하여 다른 시간대에 생성된 별자리를 조회한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 별자리 로딩 실패 2a1. 네트워크 및 서버 오류로 별자리가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a. 사용자가 만든 별자리가 없는 경우 3a1. 별자리가 없다는 메시지를 표시한다.  |
+| 5 | 5a. 이전 페이지 또는 다음 페이지가 없는 경우 5a1. “<”, “>”이 비활성화된다.  |
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #13 별자리 상세 조회
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 로그인한 사용자가 생성한 별자리 상세정보를 조회할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다.  |
+| **Trigger** | Constellation Archive(별자리 아카이브)에서 특정 별자리를 클릭할 때   |
+| **Success Post Condition** | 사용자는 특정 별자리의 상세정보를 조회할 수 있다.  |
+| **Failed Post Condition** | 사용자는 특정 별자리의 상세정보를 조회할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 특정 별자리의 상세 정보를 확인할 수 있다.   |
+| 1 |  사용자는 홈 또는 사이드 바에서 Constellation Archive(별자리 아카이브)를 클릭한다. |
+| 2 |  use case #12를 실행한다. |
+| 3 |  사용자는 상세조회하고자하는 특정 별자리를 클릭한다. |
+| 4 |  시스템은 별자리 상세 데이터를 조회한다. |
+| 5 |  시스템은 <br> 1. 별자리 생성 일자 <br> 2. 별자리 이름 <br> 3. 별자리 설명 <br> 4. 별자리에 사용된 별과 그에 따른 감정 <br> 4. 해당 별이 생성된 날짜를 랜더링한다.  |
+| 6 |  사용자가 별자리 상세 내용을 조회한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 별자리 상세 데이터 로딩 실패 2a1. 네트워크 및 서버 오류로 별자리 상세내용이 표시되지 않는다. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #14 별자리 정보 수정
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 로그인한 사용자가 별자리 상세 조회 페이지에서 별자리 이름과 소개를 수정한다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다.  |
+| **Trigger** | 별자리 상세 페이지에서 수정 버튼을 클릭했을 때   |
+| **Success Post Condition** | 별자리 이름, 소개가 수정된 정보로 저장되고, 별자리 아카이브와 밤하늘 별자리에 반영된다.  |
+| **Failed Post Condition** | 변경 사항이 저장되지 않으며 기존 정보가 유지된다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 별자리 이름과 수정해 저장한다.   |
+| 1 |  use case #13 이 실행된다. |
+| 2 |  사용자는 별자리 상세 페이지에서 수정 버튼을 클릭한다. |
+| 3 |  시스템은 별자리를 수정하는 페이지를 띄운다. |
+| 4 |  사용자는 해당 별자리의 이름과 소개를 수정한다. |
+| 5 |  사용자는 저장 버튼을 클릭한다.  |
+| 6 |  시스템은 사용자가 수정한 정보를 저장하여 별자리 아카이브와 밤하늘 페이지에 반영한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 별자리 상세 데이터 로딩 실패 1a1. 네트워크 및 서버 오류로 별자리 상세내용이 표시되지 않는다. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #15 대표 별자리 설정
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 로그인한 사용자가 대표 별자리를 설정할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다.  |
+| **Trigger** | Constellation Archive(별자리 아카이브)에서 별자리 옆 즐겨찾기 버튼을 클릭했을때    |
+| **Success Post Condition** |선택한 별자리가 대표 별자리로 설정되고 즐겨찾기 버튼이 활성화되어 표시된다.  |
+| **Failed Post Condition** | 대표 별자리 설정이 이루어지지 않으며, 즐겨찾기 버튼이 활성화되지 않는다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 Constellation Archive(별자리 아카이브)에서 즐겨찾기 버튼을 눌러 대표 별자리를 설정한다.   |
+| 1 |  use case #12 이 실행된다. |
+| 2 |  사용자는 별자리 옆 즐겨찾기(별 모양) 버튼을 클릭한다. |
+| 3 |  시스템은 대표별자리 설정 확인 모들창을 표시한다. |
+| 4 |  사용자는 예를 선택한다. |
+| 5 |  시스템은 해당 별자리를 대표 별자리로 설정한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 4 | 4a. 아니요를 눌렀을 경우 4a1. 해당 별자리는 대표별자리로 생성되지 않으며 기존을 유지한다. |
+| 5 | 5a. 이미 다른 대표 별자리가 있을 경우 5a1. 사용자가 즐겨찾기 버튼을 누른 별자리로 대표 별자리가 변경된다. |
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
