@@ -1,12 +1,10 @@
 @startuml
 !theme toy
 
-' 수직 배열(세로 그림)을 위해 명시적으로 방향을 지정합니다.
 top to bottom direction
 
 package "com.example.starlet_be.exception" {
 
-    ' DTO 및 Enum '
     class ErrorDto << (D,#DDEEFF) DTO >> {
         - status: int
         - message: String

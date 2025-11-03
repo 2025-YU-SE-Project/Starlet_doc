@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.S3" {
 
-    ' External Entities (외부 참조, 필드/메소드 생략) '
     class S3Presigner << (I,Gray) AWS SDK >>
     class S3Client << (I,Gray) AWS SDK >>
     class UserRepository << (R,Gray) Repository >>
@@ -12,7 +11,6 @@ package "com.example.starlet_be.domains.S3" {
     class UserDetails << (I,Gray) Spring Security >>
     class URL << (C,Gray) Java Util >>
 
-    ' DTO (Response) '
     class S3tempResDto << (D,#EEFFFF) Res DTO >> {
         - presignedUrl: String
         - tempKey: String
@@ -31,7 +29,6 @@ package "com.example.starlet_be.domains.S3" {
         + getImageUrl(): String
     }
 
-    ' Service '
     class S3StorageService << (S,#AADDFF) Service >> {
         - presigner: S3Presigner
         - s3Client: S3Client
@@ -45,7 +42,6 @@ package "com.example.starlet_be.domains.S3" {
     S3StorageService --> S3Client : injects/uses
     S3StorageService ..> URL : returns/uses
 
-    ' Controller '
     class S3Controller << (C,#FFCCAA) RestController >> {
         - s3StorageService: S3StorageService
         - userRepository: UserRepository
@@ -55,14 +51,12 @@ package "com.example.starlet_be.domains.S3" {
         - resolveUserId(principal: UserDetails): Long
     }
 
-    ' 관계 (Controller -> Service / DTO) '
     S3Controller --> S3StorageService : injects/uses
     S3Controller --> UserRepository : injects/uses
     S3Controller ..> S3tempResDto : returns
     S3Controller ..> S3uploadResDto : returns
     S3Controller ..> UserDetails : uses
 
-    ' 관계 (Service -> DTO) '
     S3StorageService --> S3tempResDto : used by Factory
 }
 @enduml

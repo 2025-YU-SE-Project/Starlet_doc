@@ -1,7 +1,6 @@
 @startuml
 !theme toy
 
-' 수직 배열(세로 그림)을 위해 명시적으로 방향을 지정합니다.
 top to bottom direction
 
 package "com.example.starlet_be.swagger" {
@@ -11,17 +10,13 @@ package "com.example.starlet_be.swagger" {
         + openApi(): GroupedOpenApi (@Bean)
     }
 
-    ' 외부 의존성/SpringDoc 클래스 '
     class GroupedOpenApi
 
-    ' Swagger/OpenAPI Annotation 클래스 (주요 역할 명시) '
     annotation OpenAPIDefinition
     annotation SecurityScheme
 
-    ' 관계 (SwaggerConfig는 GroupedOpenApi를 Bean으로 생성합니다) '
     SwaggerConfig .down.> GroupedOpenApi : creates/returns Bean
 
-    ' Annotation 관계 '
     SwaggerConfig ..|> OpenAPIDefinition : annotates
     SwaggerConfig ..|> SecurityScheme : annotates
 }

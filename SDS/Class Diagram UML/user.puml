@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.user" {
 
-    ' DTO (Request / Response) '
     class SignUpDto << (D,#FFEEEE) Req DTO >> {
         - nickname: String
         - password: String
@@ -47,7 +46,6 @@ package "com.example.starlet_be.domains.user" {
         ...
     }
 
-    ' Entity '
     class User << (E,#FFFFAA) Entity >> {
         - id: Long
         - nickname: String
@@ -64,14 +62,12 @@ package "com.example.starlet_be.domains.user" {
         + changeProfilePhotoUrl(profilePhotoUrl: String)
     }
 
-    ' Repository '
     interface UserRepository << (R,#CCFFCC) JpaRepository >> {
         + existsByEmailAddress(email: String): boolean
         + existsByNickname(nickname: String): boolean
         + findByEmailAddress(email: String): Optional<User>
     }
 
-    ' Service '
     class UserService << (S,#AADDFF) Service >> {
         - userRepository: UserRepository
         - emailRepository: EmailRepository
@@ -90,7 +86,6 @@ package "com.example.starlet_be.domains.user" {
         + logout(res: HttpServletResponse)
     }
 
-    ' Controller Interface (API Spec) '
     interface UserApi << (I,#CCCCCC) Tag/Interface >> {
         + getUser(id: Long): ResponseEntity<?>
         + getUserList(): ResponseEntity<?>
@@ -101,7 +96,6 @@ package "com.example.starlet_be.domains.user" {
         + logout(response: HttpServletResponse): ResponseEntity<?>
     }
 
-    ' Controller Implementation '
     class UserController << (C,#FFCCAA) RestController >> {
         - userService: UserService
         - emailService: EmailService
@@ -115,7 +109,6 @@ package "com.example.starlet_be.domains.user" {
         + logout(response: HttpServletResponse): ResponseEntity<?>
     }
 
-    ' 관계 (의존성 및 흐름) '
     UserController .up.|> UserApi : implements
     UserController --> UserService : injects/uses
     UserController ..> SignUpDto : uses (Req DTO)
@@ -134,7 +127,6 @@ package "com.example.starlet_be.domains.user" {
 
     SignUpDto ..> User : converts to (toEntity)
 
-    ' 외부 의존성 (Security, Email, Other Entities) '
     UserService ..> JwtUtil : uses (Token)
     UserService ..> PasswordEncoder : uses (Encoding)
     UserService ..> EmailService : uses

@@ -4,11 +4,9 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.connection" {
 
-    ' External Entities (외부 참조, 필드/메소드 생략) '
     class Star << (E,Gray) External Entity >>
     class Constellation << (E,Gray) External Entity >>
 
-    ' DTO (Request) '
     class ConnectionDto << (D,#FFEEEE) Req DTO >> {
         - startStarId: Long
         - endStarId: Long
@@ -18,7 +16,6 @@ package "com.example.starlet_be.domains.connection" {
         + getEndStarId(): Long
     }
 
-    ' DTO (Response) '
     class StarryNightConnectionDto << (D,#EEFFFF) Res DTO >> {
         - connectionId: Long
         - startStarId: Long
@@ -30,7 +27,6 @@ package "com.example.starlet_be.domains.connection" {
         + getEndStarId(): Long
     }
 
-    ' Entity '
     class Connection << (E,#FFFFAA) Entity >> {
         - id: Long
         - constellation: Constellation (ManyToOne)
@@ -44,17 +40,14 @@ package "com.example.starlet_be.domains.connection" {
         + getEnd(): Star
     }
 
-    ' Repository '
     interface ConnectionRepository << (R,#CCFFCC) JpaRepository >> {
         + findByConstellation(constellation: Constellation): List<Connection>
     }
 
-    ' 관계 (Entity) '
     Connection "0..*" *-- "1" Constellation : <<ManyToOne>> belongs to
     Connection "0..*" *-- "1" Star : <<ManyToOne>> starts at
     Connection "0..*" *-- "1" Star : <<ManyToOne>> ends at
 
-    ' 관계 (Repository) '
     ConnectionRepository --> Connection : manages
 }
 @enduml

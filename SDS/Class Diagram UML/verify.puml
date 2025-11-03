@@ -4,7 +4,6 @@ top to bottom direction
 
 package "com.example.starlet_be.domains.verify" {
 
-    ' DTO / Enum '
     enum VerifyType << (E,#AAFFAA) Enum >> {
         VERIFY // 인증됨
         EMAIL_VERIFICATION // 회원가입 이메일 인증
@@ -23,7 +22,6 @@ package "com.example.starlet_be.domains.verify" {
         + getNewPassword(): String
     }
 
-    ' Entity '
     class Verify << (E,#FFFFAA) Entity >> {
         - id: Long
         - token: String
@@ -37,14 +35,12 @@ package "com.example.starlet_be.domains.verify" {
         + getType(): VerifyType
     }
 
-    ' Repository '
     interface VerifyRepository << (R,#CCFFCC) JpaRepository >> {
         + findByToken(token: String): Optional<Verify>
         + findAllByExpireTimeBefore(now: LocalDateTime): List<Verify>
         + findByEmail_Address(emailAddress: String): Optional<Verify>
     }
 
-    ' Service '
     class VerifyService << (S,#AADDFF) Service >> {
         - verifyRepository: VerifyRepository
         - userRepository: UserRepository
@@ -59,7 +55,6 @@ package "com.example.starlet_be.domains.verify" {
         + removeExpiredVerifyEntities() (@Scheduled)
     }
 
-    ' Controller '
     interface VerifyApi << (I,#CCCCCC) Tag/Interface >> {
         + confirmChangePassword(@RequestBody dto: PasswordResetConfirmDto): ResponseEntity<?>
     }
@@ -77,7 +72,6 @@ package "com.example.starlet_be.domains.verify" {
         + passwordResetVerification(token: String, model: Model): String
     }
 
-    ' 관계 '
     Verify o-- VerifyType : uses
     VerifyRepository --> Verify : manages
 
