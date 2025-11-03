@@ -137,3 +137,314 @@
 | Frequency | 제한없음 |
 | Concurrency | 제한없음 |
 | Due Date | |
+
+###  Use Case #4 비밀번호 찾기
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  시스템 기능을 사용하고자 하는 사용자가 비밀번호를 재설정 한다.  |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 사용자는 회원가입이 되어있어야 한다. <br> 사용자는 현재 로그인되지 않은 상태여야 한다. |
+| **Trigger** | 사용자가 로그인 화면에서 비밀번호 찾기를 누를 때  |
+| **Success Post Condition** | 사용자는 비밀번호를 재설정할 수 있다.  |
+| **Failed Post Condition** | 사용자는 비밀번호 재설정에 실패하여 로그인을 할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자가 비밀번호를 재설정한다.  |
+| 1 |  사용자는 로그인 화면에서 비밀번호 찾기를 눌러 비밀번호를 제설정하는 페이지에 진입한다. |
+| 2 |  사용자는 가입한 이메일 주소를 입력 후 비밀번호 재설정 메일 보내기를 클릭한다.  |
+| 3 |  시스템은 사용자 이메일을 체크하여 이메일 존재 여부를 판단한다. |
+| 4 |  사용자는 입력한 이메일 주소 메일함에서 시스템에서 전송된 이메일 확인 버튼을 클릭한다.  |
+| 5 |  사용자는 시스템으로 돌아와 인증 상태 확인 버튼을 클릭한다.  |
+| 6 |  인증 완료된 사용자라면 비밀번호, 비밀번호 확인을 입력 후 비밀번호 변경을 클릭한다.  |
+| 7 |  시스템은 비밀번호가 변경된 사용자라면 로그인 화면을 제공한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 비밀번호 재설정 메일 보내기를 실패한다. <br> 2a1. 가입되지 않은 이메일로 비밀번호 재설정 메일 보내기를 클릭 시 오류 메시지를 출력한다 <br> 2a2. 이메일 입력 형식이 맞지 않으면 오류 메시지를 출력한다.  |
+| 4 | 4a. 이메일 인증상태 확인을 실패한다. <br> 4a1. 사용자가 자신의 메일함에서 인증 확인 버튼을 클릭하지 않고 인증 상태 확인 버튼을 클릭했을 경우 오류 메시지를 출력한다.  |
+| 6 | 6a. 비밀번호 재설정을 실패한다. <br> 6a1. 사용자가 새 비밀번호와 새 비밀번호 확인 입력 필드값을 다르게 입력했을 경우, 오류 메시지를 출력한다. <br> 6a2. 비밀번호 조건과 맞지 않을 경우, 오류 메시지를 출력한다. |
+
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #5 한/영 변환 토글
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  모든 사용자는 홈 화면의 언어 토글을 통해 한국어와 영어 중 원하는 언어로 UI를 바꿀 수 있다.  |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 사용자는 홈 화면에 진입한 상태여야한다. |
+| **Trigger** | 사용자가 홈 화면에서 Select Language 를 누를 때  |
+| **Success Post Condition** | 사용자는 한국어와 영어 중 원하는 언어로 UI를 바꿀 수 있다.  |
+| **Failed Post Condition** | 사용자는 한국어와 영어 중 원하는 언어로 UI를 바꿀 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 한국어와 영어 중 원하는 언어로 UI를 바꿀 수 있다.  |
+| 1 |  사용자는 홈 화면에서 Select Language 버튼을 누른다. |
+| 2 |  1. 사용자가 KR 한국어로 선택 할 시 홈 화면의 기능에 대한 주제들이 한국어로 변경된다. <br> 2. 사용자가 KR 한국어로 선택 할 시 사이드바를 열었을 때 나타나있는 기능들이 한국어로 변경된다. |
+| 3 |  1. 사용자가 US 영어로 선택 할 시 홈 화면의 기능에 대한 주제들이 영어어로 변경된다. <br> 2. 사용자가 US 영어로 선택 할 시 사이드바를 열었을 때 나타나있는 기능들이 영어로 변경된다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 네트워크 또는 통신에 문제가 있는 경우 <br> 1a1. 이용자는 어떠한 화면도 볼 수 없다. |
+
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #6 감정 일기 작성
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  로그인한 사용자는 캘린더 페이지로 진입하여 사용자 감정 일기를 작성 후 그 감정에 맞는 별을 받을 수 있다.  |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2.사용자는 calendar 페이지에 진입한 상태여야한다. |
+| **Trigger** | 사용자에서 홈 화면 또는 네브바에서 My Diary(나의 일기)를 누를 때  |
+| **Success Post Condition** | 사용자는 달력에서 클릭한 날짜의 일기를 작성 후 감정에 맞는 별을 받을 수 있다.  |
+| **Failed Post Condition** | 1. 사용자는 달력에서 클릭한 날짜의 일기를 작성할 수 없다. <br> 2. 사용자는 작성한 일기에 맞는 감정 별을 받을 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 달력에서 클릭한 날짜에 감정 일기를 작성한 후 별을 받는다.  |
+| 1 |  사용자는 홈 화면 또는 사이드바에서 My Diary(나의 일기)를 누른다. |
+| 2 |  사용자는 일기를 작성하고자하는 달로 이동한다.  |
+| 3 |  사용자는 일기작성을 원하는 날짜를 선택한다. |
+| 4 |  사용자는 감정 선택창에서 감정을 선택한다.  |
+| 5 |  사용자는 감정 요인 태그 선택창에서 감정 요인 태그를 1개 이상 선택한다.  |
+| 6 |  사용자는 감정에 맞는 별을 부여받고, 일기를 작성할 수 있다.  |
+| 6 |  사용자는 완료버튼을 누르고 밤하늘 페이지로 이동하는 모달창에서 예를 누를 경우 밤하늘 페이지로 이동하고, 아니요를 누를 경우 캘린더 페이지로 이동한다.  |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a 캘린더 로딩 실패 2a1. 네트워크 및 서버 오류로 캘린더가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 4 | 4a. 감정을 선택하지 않은 경우 <br> 4a1. 사용자는 일기를 작성할 수 없다. |
+| 5 | 5a. 감정 요인을 선택하지 않은 경우 <br> 5a1. 사용자는 일기를 작성할 수 없다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #7 감정 일기 및 감정별 조회
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  로그인한 사용자는 캘린더 페이지로 진입하여 자신이 작성한 감정 일기와 감정 별을 조회할 수 있다.  |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 감정 일기를 작성한 상태여야한다. |
+| **Trigger** | 1. 사용자가 캘린더 페이지에서 감정 일기를 작성한 달로 진입했을 때 <br> 2. 사용자가 캘린더에서 감정일기를 작성한 날짜를 선택했을 때 |
+| **Success Post Condition** | 사용자는 해당 날짜의 감정 별과 일기를 조회할 수 있다.  |
+| **Failed Post Condition** | 사용자는 해당 날짜의 감정 별과 일기를 조회할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 캘린더에서 감정일기를 작성한 날짜의 일기와 감정별을 조회한다.  |
+| 1 |  사용자는 홈 화면 또는 사이드바에서 My Diary(나의 일기)를 누른다. |
+| 2 |  사용자는 감정 일기와 감정 별 조회를 원하는 날짜의 달로 이동한다.  |
+| 3 |  사용자는 해당 달에서 감정 별을 조회한다.  |
+| 4 |  사용자는 해당 달/원하는 날짜를 클릭하여 그 안의 일기 내용과 감정 별, 감정 요인 태그를 조회한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a 캘린더 로딩 실패 2a1. 네트워크 및 서버 오류로 캘린더가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a 선택한 달에 일기가 없는 경우 3a1. 캘린더에는 아무 별도 표시되지 않으며 일기를 조회 할 수 없다. |
+
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+
+###  Use Case #8 감정 일기 내용 수정
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  로그인한 사용자가 기존에 작성한 특정 날짜의 감정일기 내용을 수정할 수 있다.   |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 감정 일기를 작성한 상태여야한다. |
+| **Trigger** | 1. 사용자가 캘린더 페이지에서 감정 일기를 작성한 달로 진입했을 때 <br> 2. 사용자가 캘린더에서 감정일기를 작성한 날짜를 선택했을 때 |
+| **Success Post Condition** | 사용자는 해당 날짜의 감정 별과 일기를 수정할 수 있다.  |
+| **Failed Post Condition** | 사용자는 해당 날짜의 감정 별과 일기를 수정할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 캘린더에서 원하는 날짜를 선택하여 감정 일기 내용을 수정한다.  |
+| 1 |  사용자는 홈 화면 또는 사이드바에서 My Diary(나의 일기)를 누른다. |
+| 2 |  사용자는 감정 일기 수정을 원하는 날짜의 달로 이동한다.  |
+| 3 |  사용자는 해당 달에서 수정을 원하는 일을 선택하여 누른다. |
+| 4 |  사용자는 감정 일기 내용을 수정한다. |
+| 5 |  사용자는 완료을 누른다. |
+| 6 |  시스템은 사용자가 수정한 감정일기 내용을 반영한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a 캘린더 로딩 실패 2a1. 네트워크 및 서버 오류로 캘린더가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a 선택한 달에 일기가 없는 경우 3a1. 캘린더에는 아무 별도 표시되지 않으며 일기를 수정 할 수 없다. |
+
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #9 별자리 생성
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  로그인한 사용자가 밤하늘 페이지에서 자신이 가진 별들을 선택해 별자리를 생성한다. 생성된 별자리게 밤하늘 페이지에 표시된다.   |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 7개 이상의 별을 가진 상태여아한다. <br> 3. 밤하늘 페이지에 진입한 상태여한다. |
+| **Trigger** | 1. 사용자가 홈화면 또는 사이드바에서 Night Sky Page(밤하늘 페이지)를 눌렀을 때 <br> 2. 사용자가 My Diary(나의 일기)에서 일기 작성후 밤하늘 페이지로 이동하는 모달창에서 예를 눌렀을 때  |
+| **Success Post Condition** | 사용자는 소유하고있는 별로 별자리를 생성할 수 있다.  |
+| **Failed Post Condition** | 사용자는 소유하고있는 별로 별자리를 생성할 수 없때  |
+| **Success Post Condition** | 사용자가 선택한 별자리의 위치와 크기가 변경되어 Night Sky Page(밤하늘 페이지) 화면에 띄어진다.  |
+| **Failed Post Condition** | 사용자가 선택한 별자리 위치와 크기가 Night Sky Page(밤하늘 페이지) 화면에 반영이 되지않고, 기존 위치에 기존과 동일한 크기로 저장된다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 별자리를 클릭하여 드래그를 하여 위치를 이동하고, 크기 조정 슬라이더로 선택한 별자리 크기를 변경한 뒤 저장한다.  |
+| 1 |  사용자는 홈 또는 사이드바에서 Night Sky Page(밤하늘 페이지)로 이동한다. 또는 My Diary(나의 일기)페이지에서 일기 작성 후 밤하늘 페이지로 이동 여부 모달창에서 예를 클릭했을때 Night Sky Page(발하늘 페이지)로 이동한다. |
+| 2 | 사용자는 크기와 위치를 변경하고자하는 별자리를 선택하거나 드래그한다. |
+| 3 | 사용자는 원하고자하는 위치에 해당 별자리를 드래그 한 후 적용 버튼을 누른다. |
+| 4 | 시스템은 사용자가 적용 버튼을 누른 시점의 위치에 별자리를 저장 후 Night Sky Page(발하늘 페이지)에 표시한다. |
+| 5 | 사용자는 별자리 크기 조절 창의 슬라이더를 통해 드래그하여 별자리 크기를 조정 후 적용 버튼을 누른다. |
+| 6 | 시스템은 사용자가 적용 버튼을 눌렀을 때의 별자리 크기를 저장 후 Night Sky Page(발하늘 페이지)에 표시한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 별자리 로딩 실패 2a1. 네트워크 및 서버 오류로 별이 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a. 변경 후 적용 버튼을 누르지않고 해당 별자리가 아닌 화면을 클릭 또는 새로고침 했을 경우 3a1. 기존에 있던 별자리 위치와 크기로 유지된다. |
+
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #11 별 및 별자리 조회
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** |  로그인한 사용자가 Night Sky Page(밤하늘 페이지)에서 자신이 소유한 별과 별자리를 조회한다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별 또는 별자리를 보유하고 있어야한다. |
+| **Trigger** | 1. 사용자가 홈화면 또는 사이드바에서 Night Sky Page(밤하늘 페이지)를 눌렀을 때 <br> 2. 사용자가 My Diary(나의 일기)에서 일기 작성후 밤하늘 페이지로 이동하는 모달창에서 예를 눌렀을 때   |
+| **Success Post Condition** | 사용자는 자신의 별 및 별자리를 화면에서 확인할 수 있다.  |
+| **Failed Post Condition** | 사용자는 자신의 별 및 별자리를 화면에서 확인할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 Night Sky Page(밤하늘 페이지)에서 자신이 소유한 별과 별자리를 확인한다.   |
+| 1 |  사용자는 홈 또는 사이드바에서 Night Sky Page(밤하늘 페이지)로 이동한다. 또는 My Diary(나의 일기)페이지에서 일기 작성 후 밤하늘 페이지로 이동 여부 모달창에서 예를 클릭했을때 Night Sky Page(발하늘 페이지)로 이동한다. |
+| 2 |  시스템은 사용자의 별과 별자리 정보를 조회한다. |
+| 3 |  시스템은 2개월 기준으로 별과 별자리를 화면에 랜더링한다. |
+| 4 |  사용자는 별자리 선을 호버하여 해당 별자리의 이름과 별자리 생성 시기를 조회한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 별자리 및 별 로딩 실패 2a1. 네트워크 및 서버 오류로 별자리 및 별이 표시되지 않는다. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
