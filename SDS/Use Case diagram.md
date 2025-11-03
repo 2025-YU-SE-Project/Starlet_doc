@@ -619,3 +619,47 @@
 | Frequency | 제한없음 |
 | Concurrency | 제한없음 |
 | Due Date | |
+
+###  Use Case #16 마이페이지 조회
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 로그인한 사용자가 자신의 정보(닉네임, 레벨, 대표 별자리)와 활동 통계(월별 감정 통게, 연도별 별자리 생성수, 기록된 별, 생성한 별자리)를 조회할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
+| **Trigger** |  사용자가 사이드바에서 My Page(마이페이지)를 클릭했을 때   |
+| **Success Post Condition** |사용자는 자신의 정보와 해당 시스템 내의 활동 통계 및 대표별자리를 조회할 수 있다.  |
+| **Failed Post Condition** | 사용자는 자신의 정보와 해당 시스템 내의 활동 통계 및 대표별자리를 조회할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 My Page(마이페이지)에서 자신의 정보 및 활동 통계, 대표별자리를 확인한다.   |
+| 1 |  사용자는 사이드바에서 My Page(마이페이지)를 클릭한다. |
+| 2 |  시스템은 사용자 데이터를 조회한다 |
+| 3 |  시스템은 My Page(마이페이지)에 다음과 같은 항목을 표시한다 <br> 1. 사용자 닉네임 <br> 2. 사용자 레벨 <br> 3. 사용자가 설정한 대표 별자리 <br> 4. 월별감정통계 <br> 5. 연도별 별자리 생성수 <br> 6. 기록된 별 <br> 7. 생성한 별자리 <br> 8. 사용자 레벨 척도  |
+| 4 |  사용자는 데이터 정보를 조회할 수 있다. |
+
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. |
+| 2 | 2a. 사용자 데이터 로딩 실패 2a1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a. 사용자가 설정한 대표별자리가 없을 경우 3a1. 가장 최근 만들어진 별자리를 랜더링한다 3a2. 별자리 자체가 존재하지 않는 경우 오류메시지를 표시한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
