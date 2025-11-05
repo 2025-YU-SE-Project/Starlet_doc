@@ -1,6 +1,7 @@
 ## 5. State machine diagram
 
-![State_diagram](https://github.com/user-attachments/assets/8bada09c-5f0e-4838-9544-433810ea8bb2)
+![smd](https://github.com/user-attachments/assets/c0eed4cc-3caf-4a0d-a89c-7a6f80ddfe80)
+
 
 <br>
 
