@@ -711,3 +711,51 @@
 | Frequency | 제한없음 |
 | Concurrency | 제한없음 |
 | Due Date | |
+
+###  Use Case #17 프로필 수정
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 로그인한 사용자가 자신의 프로필 정보(사진, 닉네임)을 수정할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Author** |  |
+| **Last Update** |  |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
+| **Trigger** |  사용자가 사이드바에서 My Page(마이페이지)를 클릭했을 때   |
+| **Success Post Condition** |사용자는 자신의 프로필 정보(사진, 닉네임)을 수정할 수 있다.  |
+| **Failed Post Condition** | 사용자는 자신의 프로필 정보(사진, 닉네임)을 수정할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 My Page(마이페이지)에서 자신의 프로필 정보(사진, 닉네임)을 수정한다.   |
+| 1 |  사용자는 사이드바에서 My Page(마이페이지)를 클릭한다. |
+| 2 |  시스템은 사용자 데이터를 조회한다 |
+| 3 |  사용자는 프로필 편집 버튼을 클릭한다.  |
+| 4 |  시스템은 현재 프로필을 랜더링한다. |
+| 5 |  사용자는 현재 프로필을 클릭하여 새로운 프로필을 local에서 선택 후 확인을 누른다. |
+| 6 |  사용자는 새로운 닉네임을 입력한다. |
+| 7 |  사용자가 중복 확인 버튼을 클릭한다. |
+| 8 |  시스템은 사용자 닉네임 중복 여부를 검사한다. |
+| 8 |  사용자가 완료 버튼을 클릭한다. |
+| 9 |  사용자가 입력한 내용에 맞게 사용자 플필 정보(사진,닉네임)이 바뀐다. |
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. |
+| 2 | 2a. 사용자 데이터 로딩 실패 2a1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 7 | 7a. 닉네임 중복일 경우 7a1. 닉네임 중복여부에 대한 오류 메시지를 표시한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
