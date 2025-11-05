@@ -10,6 +10,16 @@
     이미지
 </p>
 
+
+| Student ID | Name       |
+|------------|------------|
+| 22112080   | 임태현        |
+| 22311967   | 조민서        |
+| 22110330   | 조은별        |
+| 22311897   | 이나현        |
+| 22112155   | 최정(Leader) |
+
+
 <br>
 <br>
 <br>
@@ -20,7 +30,7 @@
 
 | Revision date | Version # | Description | Author |
 |:-------------:|:---------:|:------------|:-------|
-|               |           |             |        |
+|  2025/11/07   |   1.0.0   | 초안 작성       | 전체     |
 |               |           |             |        |
 |               |           |             |        |
 
@@ -30,12 +40,25 @@
 
 ## Contents
 
-**1.  Introduction** <br>
-**2.  Use case analysis** <br>
-**3.  Class Diagram** <br>
-**4.  Sequence Diagram** <br>
-**5.  State machine diagram** <br>
-**6.  User interface prototype** <br>
-**7.  Implementation requirements** <br>
-**8.  Glossary** <br>
-**9.  References** <br>
+1.  Introduction
+2.  Use case analysis
+3.  Class Diagram
+4.  Sequence Diagram
+5.  State machine diagram
+6.  User interface prototype
+7.  Implementation requirements
+8.  Glossary
+9.  References
+
+
+## Author
+
+* **Introduction**: 임태현
+* **Use case analysis**: 조민서
+* **Class diagram**: 최정
+* **Sequence diagram**: 이나현
+* **State machine diagram**: 조은별
+* **User interface prototype**: 임태현
+* **Implementation requirements**: 최정
+* **Glossary**: 전체
+* **References**: 전체
