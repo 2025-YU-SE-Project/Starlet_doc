@@ -2,7 +2,7 @@
 
 ---
 
-## 6. User interface prototype
+## 6. User Interface Prototype
 
 ### 6.1. 로그인
 
