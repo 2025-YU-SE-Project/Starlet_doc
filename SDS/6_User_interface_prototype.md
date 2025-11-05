@@ -78,7 +78,7 @@
 
 ### 6.6. 나의 일기
 
-### 6.6.1. 달력
+### 6.6.1 달력
 
 ![그림: 달력](./User%20interface%20prototype%20image/image-calendar.png)
 
@@ -88,7 +88,7 @@
 
 ---
 
-### 6.6.2. 감정 및 태그 선택
+### 6.6.2 감정 및 태그 선택
 
 ![그림: 감정 및 태그 선택](./User%20interface%20prototype%20image/image-emotion-tag.png)
 
@@ -97,7 +97,7 @@
 
 ---
 
-### 6.6.3. 일기 작성
+### 6.6.3 일기 작성
 
 ![그림: 일기 작성](./User%20interface%20prototype%20image/image-diary-write.png)
 
@@ -106,7 +106,7 @@
 
 ---
 
-### 6.6.4. 일기 작성 완료 모달
+### 6.6.4 일기 작성 완료 모달
 
 ![그림: 일기 작성 완료 모달](./User%20interface%20prototype%20image/image-diary-finish.png)
 
@@ -115,7 +115,7 @@
 
 ---
 
-### 6.6.5. 작성한 일기
+### 6.6.5 작성한 일기
 
 ![그림: 작성한 일기](./User%20interface%20prototype%20image/image-diary-view.png)
 
@@ -126,7 +126,7 @@
 
 ## 6.7. 밤하늘 화면
 
-### 6.7.1. 밤하늘 화면(별자리 생성 전)
+### 6.7.1 밤하늘 화면(별자리 생성 전)
 
 ![그림: 밤하늘 화면(별자리 생성 전)](./User%20interface%20prototype%20image/image-starsky-before.png)
 
@@ -136,7 +136,7 @@
 
 ---
 
-### 6.7.2. 별자리 생성 모달
+### 6.7.2 별자리 생성 모달
 
 ![그림: 별자리 생성 모달](./User%20interface%20prototype%20image/image-constellation-modal.png)
 
@@ -147,7 +147,7 @@
 
 ---
 
-### 6.7.3. 밤하늘 화면(별자리 생성 후)
+### 6.7.3 밤하늘 화면(별자리 생성 후)
 
 ![그림: 밤하늘 화면(별자리 생성 후)](./User%20interface%20prototype%20image/image-starsky-after.png)
 
@@ -156,7 +156,7 @@
 
 ---
 
-### 6.7.4. 별자리 선택(드래그 및 크기 조절)
+### 6.7.4 별자리 선택(드래그 및 크기 조절)
 
 ![그림: 별자리 선택(드래그 및 크기 조절)](./User%20interface%20prototype%20image/image-constellation-resize.png)
 
@@ -169,7 +169,7 @@
 
 ### 6.8. 별자리 아카이브
 
-### 6.8.1. 별자리 아카이브
+### 6.8.1 별자리 아카이브
 
 ![그림: 별자리 아카이브](./User%20interface%20prototype%20image/image-archive.png)
 
@@ -177,7 +177,7 @@
 
 ---
 
-### 6.8.2. 별자리 아카이브 상세
+### 6.8.2 별자리 아카이브 상세
 
 ![그림: 별자리 아카이브 상세](./User%20interface%20prototype%20image/image-archive-detail.png)
 
@@ -188,7 +188,7 @@
 
 ---
 
-### 6.8.3. 대표 별자리 설정
+### 6.8.3 대표 별자리 설정
 
 ![그림: 대표 별자리 설정](./User%20interface%20prototype%20image/image-archive-represent.png)
 
@@ -199,7 +199,7 @@
 
 ### 6.9. 마이 페이지
 
-### 6.9.1. 마이 페이지
+### 6.9.1 마이 페이지
 
 ![그림: 마이 페이지](./User%20interface%20prototype%20image/image-mypage.png)
 
@@ -209,7 +209,7 @@
 
 ---
 
-### 6.9.2. 프로필 수정
+### 6.9.2 프로필 수정
 
 ![그림: 프로필 수정](./User%20interface%20prototype%20image/image-profile-edit.png)
 
