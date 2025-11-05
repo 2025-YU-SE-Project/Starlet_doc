@@ -3,7 +3,8 @@
 ## 5. State machine diagram (상태 머신 다이어그램)
 
 
-![State_Machine_Diagram](https://github.com/user-attachments/assets/72aaa002-7535-4379-91cd-8e15209676d7)
+![State_Machine_Diagram(1)](https://github.com/user-attachments/assets/7770ce39-886c-483d-b8bd-981a0080edc7)
+
 
 
 <br>
