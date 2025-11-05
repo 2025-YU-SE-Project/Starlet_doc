@@ -4,7 +4,7 @@
 
 ## 6. User interface prototype
 
-## 6.1. 로그인
+### 6.1. 로그인
 
 ![그림: 로그인](./User%20interface%20prototype%20image/image-login.png)
 
@@ -14,7 +14,7 @@
 
 ---
 
-## 6.2. 회원가입
+### 6.2. 회원가입
 
 ![그림: 회원가입](./User%20interface%20prototype%20image/image-signup.png)
 
@@ -25,7 +25,7 @@
 
 ---
 
-## 6.3. 비밀번호 찾기
+### 6.3. 비밀번호 찾기
 
 ![그림: 비밀번호 찾기](./User%20interface%20prototype%20image/image-findpw.png)
 
@@ -35,7 +35,7 @@
 
 ---
 
-## 6.4. 홈화면
+### 6.4. 홈화면
 
 <p align="center">
   <img src="./User%20interface%20prototype%20image/image-home-before.png" width="100%" alt="홈화면(로그인 전)">
@@ -56,7 +56,7 @@
 
 ---
 
-## 6.5. 사이드바
+### 6.5. 사이드바
 
 <p align="center">
   <img src="./User%20interface%20prototype%20image/image-sidebar-before.png" width="100%" alt="사이드바(로그인 전)">
@@ -76,7 +76,7 @@
 
 ---
 
-## 6.6. 나의 일기
+### 6.6. 나의 일기
 
 ### 달력
 
@@ -167,7 +167,7 @@
 
 ---
 
-## 6.8. 별자리 아카이브
+### 6.8. 별자리 아카이브
 
 ### 별자리 아카이브
 
@@ -197,7 +197,7 @@
 
 ---
 
-## 6.9. 마이 페이지
+### 6.9. 마이 페이지
 
 ### 마이 페이지
 
