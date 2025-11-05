@@ -1,3 +1,9 @@
+# Starlet: 소프트웨어 설계 명세서 (SDS)
+
+---
+
+## 2. Use Case
+
 ## Use case analysis
 이번 장은 STARLET 시스템의 Use Case Diagram과 Use Case Description을 제시한다.
 이 장에서는 Diagram의 개요, 구성 목적, 그리고 각 Use Case 간의 관계를 중심으로 기술할 예정이다.
