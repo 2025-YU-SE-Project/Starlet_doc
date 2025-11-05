@@ -1,6 +1,8 @@
-# 6. 사용자 인터페이스 프로토타입 (User Interface Prototype)
+# Starlet: 소프트웨어 설계 명세서 (SDS)
 
 ---
+
+## 6. User interface prototype
 
 ## 6.1. 로그인
 
