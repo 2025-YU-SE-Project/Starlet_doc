@@ -6,10 +6,7 @@
 <br>
 <br>
 
-<p align="center">
-    이미지
-</p>
-
+![starletlogo.png](Title%20image/starletlogo.png)
 
 | Student ID | Name       |
 |------------|------------|
