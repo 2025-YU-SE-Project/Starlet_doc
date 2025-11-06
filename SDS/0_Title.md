@@ -6,8 +6,6 @@
 <br>
 <br>
 
-<img alt="starletlogo" src="Title%20image/starletlogo.png"/>
-
 ![starletlogo.png](Title%20image/starletlogo.png)
 
 | Student ID | Name       |
