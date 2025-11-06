@@ -1,4 +1,4 @@
-# Starlet_BE: 소프트웨어 설계 명세서 (SDS)
+# Starlet: 소프트웨어 설계 명세서 (SDS)
 
 ---
 
