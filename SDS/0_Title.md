@@ -40,22 +40,9 @@
 1.  Introduction
 2.  Use case analysis
 3.  Class Diagram
-4.  Sequence Diagram
+4.  Sequence diagram
 5.  State machine diagram
 6.  User interface prototype
 7.  Implementation requirements
 8.  Glossary
 9.  References
-
-
-## Author
-
-* **Introduction**: 임태현
-* **Use case analysis**: 조민서
-* **Class diagram**: 최정
-* **Sequence diagram**: 이나현
-* **State machine diagram**: 조은별
-* **User interface prototype**: 임태현
-* **Implementation requirements**: 최정
-* **Glossary**: 전체
-* **References**: 전체
