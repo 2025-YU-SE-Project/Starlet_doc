@@ -354,6 +354,16 @@ Class Description: Amazon S3 서비스 사용에 필요한 S3 클라이언트와
 
 ---
 
+### Class Diagram #19: OpenAiConfig
+Class Description: OpenAi 서비스 사용에 필요한 OpenAi Key와 서비스와 통신할 수 있도록 RestTemplate를 빈으로 등록하는 Configuration 클래스이다.
+
+| 구분            | 이름               | 설명               | 타입             | 접근 제한자 (Visibility) |
+|:--------------|:-----------------|:-----------------|:---------------|:--------------------|
+| **Attribute** | `openAiApiKey`   | OpenAi 키         | `String`       | `Private`           |
+| **Operation** | `restTemplate()` | 서비스와 통신하기 위한 메소드 | `RestTemplate` | `Public`            |
+
+---
+
 ### 3.2.4. API Docs
 ![apidocs.png](Class%20Diagram%20UML/apidocs.png)
 
