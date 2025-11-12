@@ -1116,4 +1116,8 @@ Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 
 ---
 
 ### 3.4.2 OpenAi
+
+![openai.png](Class%20Diagram%20UML/openai.png)
+
+
 ---
