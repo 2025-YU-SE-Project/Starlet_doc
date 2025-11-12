@@ -975,6 +975,17 @@ Class Description: 별자리 아카이브 상세 조회 시 반환되는 별자�
 | **Attribute** | `angerCount`       | 분노 감정 별 개수                | `Integer`                    | `Private`           |
 | **Attribute** | `sadnessCount`     | 슬픔 감정 별 개수                | `Integer`                    | `Private`           |
 | **Operation** | `builder()`        | ArchiveDetailDto 객체 빌더 생성 | `ArchiveDetailDto`           | `Public`            |
+---
+### Class Diagram #66: ConstellationNameSuggestDto
+Class Description: 추천받은 별자리의 이름과 설명을 담는 Response 데이터 전송 클래스이다.
+
+| 구분            | 이름            | 설명        | 타입       | 접근 제한자 (Visibility) |
+|:--------------|:--------------|:----------|:---------|:--------------------|
+| **Attribute** | `name`        | 추천 별자리 이름 | `String` | `Private`           |
+| **Attribute** | `description` | 추천 별자리 설명 | `String` | `Private`           |
+
+
+
 
 ---
 ### Class Diagram #67: ConstellationController
@@ -990,6 +1001,8 @@ Class Description: 별자리 관련 API 요청을 받아 ConstellationService로
 | **Operation** | `getArchiveDetail(@PathVariable Long id)`                                                                                        | 별자리 아카이브 상세조회 엔드포인트  | `ResponseEntity<?>`    | `Public`            |
 | **Operation** | `updateConstellationInfo(@PathVariable Long id, @RequestBody UpdateConstellationInfo dto)`                                       | 별자리 이름 및 설명 수정 엔드포인트 | `ResponseEntity<?>`    | `Public`            |
 | **Operation** | `changeRepresentativeConstellation(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails)`                     | 대표 별자리 설정/변경 엔드포인트   | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `suggestConstellationName(@RequestBody StarsIdDto dto)`                                                                          | 별자리 이름 추천            | `ResponseEntity<?>`    | `Public`            |
+
 
 ---
 ### Class Diagram #68: ConstellationService
