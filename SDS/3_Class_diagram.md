@@ -1121,3 +1121,83 @@ Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 
 
 
 ---
+
+### Class Diagram #76: OpenAiReqDto
+Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO입니다. 채팅 모델 및 메시지 리스트를 포함합니다.
+
+| 구분                        | 이름                                                   | 설명                                     | 타입              | 접근 제한자 (Visibility) |
+|:--------------------------|:-----------------------------------------------------|:---------------------------------------|:----------------|:--------------------|
+| **Attribute**             | `model`                                              | 사용할 AI 모델 이름                           | `String`        | `Private`           |
+| **Attribute**             | `messages`                                           | 역할(role) 및 내용(content)을 포함한 메시지 목록     | `List<Message>` | `Private`           |
+| **Operation**             | `OpenAiReqDto(String model, List<Message> messages)` | 모든 필드를 포함한 생성자                         | `OpenAiReqDto`  | `Public`            |
+| **Inner Class**           | `Message`                                            | 메시지 내용을 담는 내부 클래스                      | -               | `Public`            |
+| **Inner Class Attribute** | `role`                                               | 메시지 역할 (`system`, `user`, `assistant`) | `String`        | `Private`           |
+| **Inner Class Attribute** | `content`                                            | 메시지 내용                                 | `String`        | `Private`           |
+| **Inner Class Operation** | `Message(String role, String content)`               | 모든 필드를 포함한 생성자                         | `Message`       | `Public`            |
+
+---
+### Class Diagram #77: OpenAiResDto
+Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response DTO입니다.
+
+| 구분                        | 이름        | 설명                | 타입             | 접근 제한자 (Visibility) |
+|:--------------------------|:----------|:------------------|:---------------|:--------------------|
+| **Attribute**             | `choices` | AI 응답 선택지 목록      | `List<Choice>` | `Private`           |
+| **Inner Class**           | `Choice`  | 응답 선택지 내부 클래스     | -              | `Public`            |
+| **Inner Class Attribute** | `message` | AI가 생성한 메시지       | `Message`      | `Private`           |
+| **Inner Class**           | `Message` | 메시지 내용을 담는 내부 클래스 | -              | `Public`            |
+| **Inner Class Attribute** | `role`    | 메시지 역할            | `String`       | `Private`           |
+| **Inner Class Attribute** | `content` | 메시지 내용            | `String`       | `Private`           |
+
+---
+### Class Diagram #78: ModerationDto
+Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO들을 정의하는 클래스입니다.
+
+| 구분                         | 이름                                | 설명                    | 타입                  | 접근 제한자 (Visibility) |
+|:---------------------------|:----------------------------------|:----------------------|:--------------------|:--------------------|
+| **Inner Class**            | `ModerationRequest`               | 모더레이션 요청 본문           | -                   | `Public`            |
+| **Inner Class Attribute**  | `input`                           | 유해성을 검사할 텍스트          | `String`            | `Private`           |
+| **Inner Class Operation**  | `ModerationRequest(String input)` | 입력 텍스트 생성자            | `ModerationRequest` | `Public`            |
+| **Inner Class**            | `ModerationResponse`              | 모더레이션 응답 본문           | -                   | `Public`            |
+| **Inner Class Attribute**  | `id`                              | 응답 ID                 | `String`            | `Private`           |
+| **Inner Class Attribute**  | `model`                           | 사용된 모델                | `String`            | `Private`           |
+| **Inner Class Attribute**  | `results`                         | 검사 결과 리스트             | `List<Result>`      | `Private`           |
+| **Nested Class**           | `Result`                          | 개별 검사 결과              | -                   | `Public`            |
+| **Nested Class Attribute** | `flagged`                         | 유해성 플래그 여부            | `boolean`           | `Private`           |
+| **Nested Class Attribute** | `categories`                      | 유해성 카테고리 (boolean)    | `Categories`        | `Private`           |
+| **Nested Class Attribute** | `category_scores`                 | 유해성 카테고리별 점수 (double) | `CategoryScores`    | `Private`           |
+| **Nested Class**           | `Categories`                      | 유해성 카테고리 플래그 목록       | -                   | `Public`            |
+| **Nested Class Attribute** | `sexual`, `hate`, ...             | 각 카테고리 플래그            | `boolean`           | `Private`           |
+| **Nested Class**           | `CategoryScores`                  | 유해성 카테고리별 점수 목록       | -                   | `Public`            |
+| **Nested Class Attribute** | `sexual`, `hate`, ...             | 각 카테고리 점수             | `double`            | `Private`           |
+
+---
+### Class Diagram #79: OpenAIService
+Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스입니다. 시스템 및 사용자 프롬프트를 구성하여 응답을 받아옵니다.
+
+| 구분            | 이름                                                      | 설명                                      | 타입             | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------|:----------------------------------------|:---------------|:--------------------|
+| **Attribute** | `key`                                                   | OpenAI API 키 (`${openai.api.key}` 값 주입) | `String`       | `Private`           |
+| **Attribute** | `objectMapper`                                          | JSON 처리 객체                              | `ObjectMapper` | `Private`           |
+| **Attribute** | `API_URL`                                               | OpenAI Chat API 엔드포인트                   | `String`       | `Private`           |
+| **Operation** | `getAssistance(String userPrompt, String systemPrompt)` | AI에게 질의하고 텍스트 응답을 반환                    | `String`       | `Public`            |
+
+---
+### Class Diagram #80: ModerationService
+Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스트의 유해성 검사를 수행하는 서비스입니다.
+
+| 구분            | 이름                      | 설명                          | 타입                                 | 접근 제한자 (Visibility) |
+|:--------------|:------------------------|:----------------------------|:-----------------------------------|:--------------------|
+| **Attribute** | `restTemplate`          | HTTP 통신을 위한 RestTemplate    | `RestTemplate`                     | `Private`           |
+| **Attribute** | `moderationUrl`         | Moderation API 엔드포인트        | `String`                           | `Private`           |
+| **Operation** | `moderate(String text)` | 텍스트의 유해성 검사를 요청하고 응답 DTO 반환 | `ModerationDto.ModerationResponse` | `Public`            |
+
+---
+### Class Diagram #81: OpenAiController
+Class Description: OpenAI API 및 Moderation API 호출을 위한 엔드포인트를 제공하는 REST Controller입니다.
+
+| 구분            | 이름                                       | 설명                     | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------------|:-----------------------|:--------------------|:--------------------|
+| **Attribute** | `openAIService`                          | OpenAI Chat API 서비스    | `OpenAIService`     | `Private`           |
+| **Attribute** | `moderationService`                      | Moderation API 서비스     | `ModerationService` | `Private`           |
+| **Operation** | `openAi(@RequestBody String prompt)`     | 일반 AI 응답 요청 엔드포인트      | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `moderation(@RequestBody String prompt)` | 닉네임/일기 유해성 검사 요청 엔드포인트 | `ResponseEntity<?>` | `Public`            |
