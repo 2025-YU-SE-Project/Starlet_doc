@@ -914,6 +914,7 @@ Class Description: 별자리 관련 API 엔드포인트를 정의하는 인터�
 | **Operation** | `getArchiveDetail(@PathVariable Long id)`                                                                                        | 특정 별자리 아카이브 상세 조회      | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `updateConstellationInfo(@PathVariable Long id, @RequestBody UpdateConstellationInfo dto)`                                       | 별자리 이름 및 설명 수정         | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `changeRepresentativeConstellation(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails)`                     | 대표 별자리 설정/변경           | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `suggestConstellationName(@RequestBody StarsIdDto dto)`                                                                          | 별자리 이름 추천              | `ResponseEntity<?>` | `Public`            |
 
 ---
 ### Class Diagram #63: ConstellationRepository
