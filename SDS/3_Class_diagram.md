@@ -63,7 +63,11 @@
 
 ### 3.4. 외부 서비스 다이어그램 (External Service Diagram)
 
-S3와 OpenAI와 관련된 클래스들을 상세히 기술한다.
+S3와 OpenAi와 관련된 클래스들을 상세히 기술한다.
+
+1. S3
+
+2. OpenAi
 
 
 
@@ -1056,7 +1060,12 @@ Class Description: 밤하늘 별자리 조회 시 연결선 정보를 담아 응
 
 ---
 
-### 3.3.8. External Services : S3
+## 3.4. 외부 서비스 다이어그램
+
+---
+
+### 3.4.1 S3
+
 ![s3.png](Class%20Diagram%20UML/s3.png)
 
 ---
@@ -1104,4 +1113,7 @@ Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 
 | **Operation** | `resolveUserId(UserDetails principal)`                                                      | UserDetails에서 사용자 ID를 조회        | `Long`             | `Private`           |
 
 
+---
+
+### 3.4.2 OpenAi
 ---
