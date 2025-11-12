@@ -1008,19 +1008,22 @@ Class Description: 별자리 관련 API 요청을 받아 ConstellationService로
 ### Class Diagram #68: ConstellationService
 Class Description: 별자리 생성, 조회, 위치 최신화, 아카이브 관리 등 별자리 관련 핵심 비즈니스 로직을 담당하는 서비스이다.
 
-| 구분            | 이름                                                                          | 설명                           | 타입                                  | 접근 제한자 (Visibility) |
-|:--------------|:----------------------------------------------------------------------------|:-----------------------------|:------------------------------------|:--------------------|
-| **Attribute** | `constellationRepository`                                                   | Constellation 엔티티 저장소        | `ConstellationRepository`           | `Private`           |
-| **Attribute** | `connectionRepository`                                                      | Connection 엔티티 저장소           | `ConnectionRepository`              | `Private`           |
-| **Attribute** | `starRepository`                                                            | Star 엔티티 저장소                 | `StarRepository`                    | `Private`           |
-| **Attribute** | `userRepository`                                                            | User 엔티티 저장소                 | `UserRepository`                    | `Private`           |
-| **Operation** | `createConstellation(UserDetails userDetails, CreateConstellationDto dto)`  | 별자리 생성 및 구성 별, 연결선 저장        | `void`                              | `Public`            |
-| **Operation** | `getStarryNightConstellation(UserDetails userDetails, int year, int month)` | 밤하늘 별자리 조회 (2달 간격)           | `List<StarryNightConstellationDto>` | `Public`            |
-| **Operation** | `repositionConstellation(Long id, ConstellationPositionDto dto)`            | 별자리 위치 최신화 및 좌표 범위 검증        | `void`                              | `Public`            |
-| **Operation** | `getArchiveList(UserDetails userDetails)`                                   | 사용자의 모든 별자리 아카이브 목록 조회       | `List<ArchiveDto>`                  | `Public`            |
-| **Operation** | `getArchiveDetail(Long id)`                                                 | 별자리 아카이브 상세 조회 및 감정별 별 개수 집계 | `ArchiveDetailDto`                  | `Public`            |
-| **Operation** | `updateConstellationInfo(Long id, UpdateConstellationInfo dto)`             | 별자리 이름 및 설명 수정               | `void`                              | `Public`            |
-| **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)`       | 대표 별자리 설정/변경                 | `void`                              | `Public`            |
+| 구분            | 이름                                                                          | 설명                                | 타입                                  | 접근 제한자 (Visibility) |
+|:--------------|:----------------------------------------------------------------------------|:----------------------------------|:------------------------------------|:--------------------|
+| **Attribute** | `constellationRepository`                                                   | Constellation 엔티티 저장소             | `ConstellationRepository`           | `Private`           |
+| **Attribute** | `connectionRepository`                                                      | Connection 엔티티 저장소                | `ConnectionRepository`              | `Private`           |
+| **Attribute** | `starRepository`                                                            | Star 엔티티 저장소                      | `StarRepository`                    | `Private`           |
+| **Attribute** | `userRepository`                                                            | User 엔티티 저장소                      | `UserRepository`                    | `Private`           |
+| **Attribute** | `openAiService`                                                             | OpenAI 서비스 Bean                   | `OpenAiService`                     | `Private`           |
+| **Attribute** | `moderationService`                                                         | moderation 서비스 Bean               | `ModerationService`                 | `Private`           |
+| **Operation** | `createConstellation(UserDetails userDetails, CreateConstellationDto dto)`  | 별자리 생성 및 구성 별, 연결선 저장             | `void`                              | `Public`            |
+| **Operation** | `getStarryNightConstellation(UserDetails userDetails, int year, int month)` | 밤하늘 별자리 조회 (2달 간격)                | `List<StarryNightConstellationDto>` | `Public`            |
+| **Operation** | `repositionConstellation(Long id, ConstellationPositionDto dto)`            | 별자리 위치 최신화 및 좌표 범위 검증             | `void`                              | `Public`            |
+| **Operation** | `getArchiveList(UserDetails userDetails)`                                   | 사용자의 모든 별자리 아카이브 목록 조회            | `List<ArchiveDto>`                  | `Public`            |
+| **Operation** | `getArchiveDetail(Long id)`                                                 | 별자리 아카이브 상세 조회 및 감정별 별 개수 집계      | `ArchiveDetailDto`                  | `Public`            |
+| **Operation** | `updateConstellationInfo(Long id, UpdateConstellationInfo dto)`             | 별자리 이름 및 설명 수정                    | `void`                              | `Public`            |
+| **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)`       | 대표 별자리 설정/변경                      | `void`                              | `Public`            |
+| **Operation** | `suggestConstellationName(StartIdDto dto)`                                  | 별자리 이름 추천을 위한 별 정보들 OpenAi 요청 메소드 | `ConstellationNameSuggestDto`       | `Public`            |
 
 
 ---
