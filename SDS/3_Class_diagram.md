@@ -61,6 +61,10 @@
 7. 별자리 선 - Connection
 
 
+### 3.4. 외부 서비스 다이어그램 (External Service Diagram)
+
+S3와 OpenAI와 관련된 클래스들을 상세히 기술한다.
+
 
 
 ### 클래스들을 정의할때 다음과 같은 규칙을 따른다.
