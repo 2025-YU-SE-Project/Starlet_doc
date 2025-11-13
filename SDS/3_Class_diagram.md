@@ -446,21 +446,22 @@ Class Description: 회원 관련 API 엔드포인트를 정의하는 인터페�
 ### Class Diagram #25: UserService
 Class Description: 사용자(User)의 비즈니스 로직(회원가입, 로그인, 탈퇴 등)을 처리하는 서비스 클래스이다.
 
-| 구분            | 이름                                             | 설명                    | 타입                 | 접근 제한자 (Visibility) |
-|:--------------|:-----------------------------------------------|:----------------------|:-------------------|:--------------------|
-| **Attribute** | `userRepository`                               | 사용자 엔티티 저장소           | `UserRepository`   | `Private`           |
-| **Attribute** | `passwordEncoder`                              | 비밀번호 인코더              | `PasswordEncoder`  | `Private`           |
-| **Attribute** | `jwtUtil`                                      | JWT 유틸리티              | `JwtUtil`          | `Private`           |
-| **Attribute** | `verifyRepository`                             | 인증 엔티티 저장소            | `VerifyRepository` | `Private`           |
-| **Attribute** | `emailService`                                 | 이메일 관련 서비스            | `EmailService`     | `Private`           |
-| **Operation** | `getUser(Long id)`                             | ID 기반 사용자 정보 단일 조회    | `UserResDto`       | `Public`            |
-| **Operation** | `getUserList()`                                | 모든 사용자 목록 조회          | `List<UserResDto>` | `Public`            |
-| **Operation** | `signUp(SignUpDto dto)`                        | 회원가입 처리 로직            | `User`             | `Public`            |
-| **Operation** | `validNickname(String nickname)`               | 닉네임 존재 여부 확인          | `boolean`          | `Public`            |
-| **Operation** | `login(LoginDto dto, HttpServletResponse res)` | 로그인 및 JWT 토큰 발급/쿠키 설정 | `LoginInfoDto`     | `Public`            |
-| **Operation** | `deleteCurrentUser(String email)`              | 이메일 기반 현재 사용자 회원 탈퇴   | `void`             | `Public`            |
-| **Operation** | `findByEmailAddress(String email)`             | 이메일 주소로 User 엔티티 조회   | `User`             | `Public`            |
-| **Operation** | `logout(HttpServletResponse res)`              | 로그아웃                  | `void`             | `Public`            |
+| 구분            | 이름                                             | 설명                    | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------------------|:----------------------|:--------------------|:--------------------|
+| **Attribute** | `userRepository`                               | 사용자 엔티티 저장소           | `UserRepository`    | `Private`           |
+| **Attribute** | `passwordEncoder`                              | 비밀번호 인코더              | `PasswordEncoder`   | `Private`           |
+| **Attribute** | `jwtUtil`                                      | JWT 유틸리티              | `JwtUtil`           | `Private`           |
+| **Attribute** | `verifyRepository`                             | 인증 엔티티 저장소            | `VerifyRepository`  | `Private`           |
+| **Attribute** | `emailService`                                 | 이메일 관련 서비스            | `EmailService`      | `Private`           |
+| **Attribute** | `moderationService`                            | moderation 서비스 Bean   | `ModerationService` | `Private`           |
+| **Operation** | `getUser(Long id)`                             | ID 기반 사용자 정보 단일 조회    | `UserResDto`        | `Public`            |
+| **Operation** | `getUserList()`                                | 모든 사용자 목록 조회          | `List<UserResDto>`  | `Public`            |
+| **Operation** | `signUp(SignUpDto dto)`                        | 회원가입 처리 로직            | `User`              | `Public`            |
+| **Operation** | `validNickname(String nickname)`               | 닉네임 존재 여부 확인          | `boolean`           | `Public`            |
+| **Operation** | `login(LoginDto dto, HttpServletResponse res)` | 로그인 및 JWT 토큰 발급/쿠키 설정 | `LoginInfoDto`      | `Public`            |
+| **Operation** | `deleteCurrentUser(String email)`              | 이메일 기반 현재 사용자 회원 탈퇴   | `void`              | `Public`            |
+| **Operation** | `findByEmailAddress(String email)`             | 이메일 주소로 User 엔티티 조회   | `User`              | `Public`            |
+| **Operation** | `logout(HttpServletResponse res)`              | 로그아웃                  | `void`              | `Public`            |
 
 ---
 ### Class Diagram #26: LoginDto
