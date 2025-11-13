@@ -699,13 +699,15 @@ Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 
 ### Class Diagram #45: DiaryApi
 Class Description: 감정 일기 관련 API 엔드포인트를 정의하는 인터페이스이다. (Swagger 문서용 Tag/Operation 정의 포함)
 
-| 구분            | 이름                                                                                                                 | 설명              | 타입                                        | 접근 제한자 (Visibility) |
-|:--------------|:-------------------------------------------------------------------------------------------------------------------|:----------------|:------------------------------------------|:--------------------|
-| **Operation** | `createDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryCreateReqDto req)`           | 감정 일기 생성 및 별 생성 | `ResponseEntity<?>`                       | `Public`            |
-| **Operation** | `updateDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryUpdateReqDto req)`           | 일기 내용 수정        | `ResponseEntity<?>`                       | `Public`            |
-| **Operation** | `getDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable LocalDate date)`                           | 특정 날짜 일기 조회     | `ResponseEntity<?>`                       | `Public`            |
-| **Operation** | `getMonthlyStars(@AuthenticationPrincipal UserDetails principal, @RequestParam int year, @RequestParam int month)` | 특정 월의 별 목록 조회   | `ResponseEntity<List<StarMonthlyResDto>>` | `Public`            |
-| **Operation** | `removeDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable("diaryId") Long diaryId)`               | (개발용) 감정 일기 삭제  | `ResponseEntity<?>`                       | `Public`            |
+| 구분            | 이름                                                                                                                            | 설명              | 타입                                        | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------------------------------------------------------------------|:----------------|:------------------------------------------|:--------------------|
+| **Operation** | `createDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryCreateReqDto req)`                      | 감정 일기 생성 및 별 생성 | `ResponseEntity<?>`                       | `Public`            |
+| **Operation** | `updateDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryUpdateReqDto req)`                      | 일기 내용 수정        | `ResponseEntity<?>`                       | `Public`            |
+| **Operation** | `getDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable LocalDate date)`                                      | 특정 날짜 일기 조회     | `ResponseEntity<?>`                       | `Public`            |
+| **Operation** | `getMonthlyStars(@AuthenticationPrincipal UserDetails principal, @RequestParam int year, @RequestParam int month)`            | 특정 월의 별 목록 조회   | `ResponseEntity<List<StarMonthlyResDto>>` | `Public`            |
+| **Operation** | `removeDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable("diaryId") Long diaryId)`                          | (개발용) 감정 일기 삭제  | `ResponseEntity<?>`                       | `Public`            |
+| **Operation** | `getDiaryMonthSummary(@AuthenticationPrincipal UserDetails details, @RequestParam Integer year, @RequestParam Integer month)` | 한달 일기 분석        | `ResponseEntity<?>`                       | `Public`            |
+
 
 ---
 ### Class Diagram #46: DiaryRepository
@@ -739,16 +741,18 @@ Class Description: 감정 일기(Diary) 생성, 수정, 조회 및 월별 별 �
 ### Class Diagram #48: DiaryController
 Class Description: 감정 일기 관련 API 요청을 받는 REST Controller이다.
 
-| 구분            | 이름                                                                                                                 | 설명                       | 타입                                        | 접근 제한자 (Visibility) |
-|:--------------|:-------------------------------------------------------------------------------------------------------------------|:-------------------------|:------------------------------------------|:--------------------|
-| **Attribute** | `diaryService`                                                                                                     | 일기 관련 서비스                | `DiaryService`                            | `Private`           |
-| **Attribute** | `userRepository`                                                                                                   | 사용자 엔티티 저장소              | `UserRepository`                          | `Private`           |
-| **Operation** | `createDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryCreateReqDto req)`           | 일기 생성 엔드포인트              | `ResponseEntity<DiaryResDto>`             | `Public`            |
-| **Operation** | `updateDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryUpdateReqDto req)`           | 일기 수정 엔드포인트              | `ResponseEntity<DiaryResDto>`             | `Public`            |
-| **Operation** | `getDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable LocalDate date)`                           | 특정 날짜 일기 조회 엔드포인트        | `ResponseEntity<DiaryResDto>`             | `Public`            |
-| **Operation** | `getMonthlyStars(@AuthenticationPrincipal UserDetails principal, @RequestParam int year, @RequestParam int month)` | 월별 별 목록 조회 엔드포인트         | `ResponseEntity<List<StarMonthlyResDto>>` | `Public`            |
-| **Operation** | `resolveUserId(UserDetails principal)`                                                                             | UserDetails에서 사용자 ID를 조회 | `Long`                                    | `Private`           |
-| **Operation** | `removeDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable("diaryId") Long diaryId)`               | (개발용) 일기 삭제 엔드포인트        | `ResponseEntity<Object>`                  | `Public`            |
+| 구분            | 이름                                                                                                                            | 설명                       | 타입                                        | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------------------------------------------------------------------|:-------------------------|:------------------------------------------|:--------------------|
+| **Attribute** | `diaryService`                                                                                                                | 일기 관련 서비스                | `DiaryService`                            | `Private`           |
+| **Attribute** | `userRepository`                                                                                                              | 사용자 엔티티 저장소              | `UserRepository`                          | `Private`           |
+| **Operation** | `createDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryCreateReqDto req)`                      | 일기 생성 엔드포인트              | `ResponseEntity<DiaryResDto>`             | `Public`            |
+| **Operation** | `updateDiary(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody DiaryUpdateReqDto req)`                      | 일기 수정 엔드포인트              | `ResponseEntity<DiaryResDto>`             | `Public`            |
+| **Operation** | `getDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable LocalDate date)`                                      | 특정 날짜 일기 조회 엔드포인트        | `ResponseEntity<DiaryResDto>`             | `Public`            |
+| **Operation** | `getMonthlyStars(@AuthenticationPrincipal UserDetails principal, @RequestParam int year, @RequestParam int month)`            | 월별 별 목록 조회 엔드포인트         | `ResponseEntity<List<StarMonthlyResDto>>` | `Public`            |
+| **Operation** | `resolveUserId(UserDetails principal)`                                                                                        | UserDetails에서 사용자 ID를 조회 | `Long`                                    | `Private`           |
+| **Operation** | `removeDiary(@AuthenticationPrincipal UserDetails principal, @PathVariable("diaryId") Long diaryId)`                          | (개발용) 일기 삭제 엔드포인트        | `ResponseEntity<Object>`                  | `Public`            |
+| **Operation** | `getDiaryMonthSummary(@AuthenticationPrincipal UserDetails details, @RequestParam Integer year, @RequestParam Integer month)` | 한달 일기 분석                 | `ResponseEntity<?>`                       | `Public`            |
+
 
 ---
 
