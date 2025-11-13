@@ -733,18 +733,22 @@ Class Description: Diary 엔티티의 영속성 관리를 위한 JPA Repository 
 ### Class Diagram #47: DiaryService
 Class Description: 감정 일기(Diary) 생성, 수정, 조회 및 월별 별 조회 등 핵심 비즈니스 로직을 담당하는 서비스이다.
 
-| 구분            | 이름                                           | 설명                                | 타입                        | 접근 제한자 (Visibility) |
-|:--------------|:---------------------------------------------|:----------------------------------|:--------------------------|:--------------------|
-| **Attribute** | `diaryRepository`                            | Diary 엔티티 저장소                     | `DiaryRepository`         | `Private`           |
-| **Attribute** | `userRepository`                             | User 엔티티 저장소                      | `UserRepository`          | `Private`           |
-| **Attribute** | `starRepository`                             | Star 엔티티 저장소                      | `StarRepository`          | `Private`           |
-| **Attribute** | `em`                                         | 엔티티 매니저 (JPA)                     | `EntityManager`           | `Private`           |
-| **Operation** | `create(Long userId, DiaryCreateReqDto req)` | 새로운 일기 생성 및 연관된 Star 엔티티 생성       | `DiaryResDto`             | `Public`            |
-| **Operation** | `update(Long userId, DiaryUpdateReqDto req)` | 특정 날짜의 일기 내용 수정                   | `DiaryResDto`             | `Public`            |
-| **Operation** | `getByDate(Long userId, LocalDate date)`     | 특정 날짜의 일기 조회                      | `DiaryResDto`             | `Public`            |
-| **Operation** | `getMonthlyStars(Long userId, YearMonth ym)` | 특정 월에 작성된 일기 기반으로 별(날짜, 색상) 목록 조회 | `List<StarMonthlyResDto>` | `Public`            |
-| **Operation** | `delete(Long userId, Long diaryId)`          | (개발용) 일기 삭제                       | `void`                    | `Public`            |
-| **Operation** | `safeFactors(List<Factor> in)`               | Factor 목록을 안전하게 복사/초기화 (널 방지)     | `List<Factor>`            | `Private`           |
+| 구분            | 이름                                                                       | 설명                                | 타입                        | 접근 제한자 (Visibility) |
+|:--------------|:-------------------------------------------------------------------------|:----------------------------------|:--------------------------|:--------------------|
+| **Attribute** | `diaryRepository`                                                        | Diary 엔티티 저장소                     | `DiaryRepository`         | `Private`           |
+| **Attribute** | `userRepository`                                                         | User 엔티티 저장소                      | `UserRepository`          | `Private`           |
+| **Attribute** | `starRepository`                                                         | Star 엔티티 저장소                      | `StarRepository`          | `Private`           |
+| **Attribute** | `em`                                                                     | 엔티티 매니저 (JPA)                     | `EntityManager`           | `Private`           |
+| **Attribute** | `openAiService`                                                          | OpenAI 서비스 Bean                   | `OpenAiService`           | `Private`           |
+| **Attribute** | `moderationService`                                                      | moderation 서비스 Bean               | `ModerationService`       | `Private`           |
+| **Operation** | `create(Long userId, DiaryCreateReqDto req)`                             | 새로운 일기 생성 및 연관된 Star 엔티티 생성       | `DiaryResDto`             | `Public`            |
+| **Operation** | `update(Long userId, DiaryUpdateReqDto req)`                             | 특정 날짜의 일기 내용 수정                   | `DiaryResDto`             | `Public`            |
+| **Operation** | `getByDate(Long userId, LocalDate date)`                                 | 특정 날짜의 일기 조회                      | `DiaryResDto`             | `Public`            |
+| **Operation** | `getMonthlyStars(Long userId, YearMonth ym)`                             | 특정 월에 작성된 일기 기반으로 별(날짜, 색상) 목록 조회 | `List<StarMonthlyResDto>` | `Public`            |
+| **Operation** | `delete(Long userId, Long diaryId)`                                      | (개발용) 일기 삭제                       | `void`                    | `Public`            |
+| **Operation** | `safeFactors(List<Factor> in)`                                           | Factor 목록을 안전하게 복사/초기화 (널 방지)     | `List<Factor>`            | `Private`           |
+| **Operation** | `getDiaryMonthSummary(UserDetails details, Integer year, Integer month)` | 한달 일기 분석                          | `DiarySummaryResDto`      | `Public`            |
+
 
 ---
 ### Class Diagram #48: DiaryController
