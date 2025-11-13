@@ -1108,63 +1108,69 @@ Class Description: 밤하늘 별자리 조회 시 연결선 정보를 담아 응
 ---
 ## 3.3.8. MyPage
 
+MyPage Main Class<br/>
+![myPageMain.png](Class%20Diagram%20UML/myPageMain.png)
+<br/>
+
+MyPage Command Class(DTO)<br/>
+![myPageDtos.png](Class%20Diagram%20UML/myPageDtos.png)
 
 ---
 
 ### Class Diagram #76: mypageController
 Class Description: 마이페이지 관련 API 요청을 처리하고 MyPageService로 전달하는 REST Controller이다.
 
-| 구분 | 이름 | 설명 | 타입 | 접근 제한자 (Visibility) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Attribute** | `myPageService` | 마이페이지 비즈니스 로직 서비스 | `MyPageService` | `Private` |
-| **Attribute** | `userRepository` | 사용자 엔티티 저장소 | `UserRepository` | `Private` |
-| **Operation** | `getSummary(UserDetails principal, Integer year, Integer month)` | 마이페이지 요약 정보(프로필, 레벨, 통계 등) 조회 | `ResponseEntity<MyPageSummaryResDto>` | `Public` |
-| **Operation** | `getUserSummary(UserDetails principal)` | 사용자 프로필 및 별/별자리 개수 조회 | `ResponseEntity<UserSummaryResDto>` | `Public` |
-| **Operation** | `getLevel(UserDetails principal)` | 사용자 레벨 정보 조회 | `ResponseEntity<LevelResDto>` | `Public` |
-| **Operation** | `getRepresentative(UserDetails principal)` | 대표 별자리 정보 조회 | `ResponseEntity<?>` | `Public` |
-| **Operation** | `getMonthlyCount(UserDetails principal, Integer year)` | 연간 월별 별자리 생성 통계 조회 | `ResponseEntity<List<MonthlyCountResDto>>` | `Public` |
-| **Operation** | `getEmotionCount(UserDetails principal, int year, int month)` | 월별 감정 통계 조회 | `ResponseEntity<List<EmotionCountResDto>>` | `Public` |
-| **Operation** | `confirmPhoto(UserDetails principal, ConfirmPhotoReqDto req)` | 임시 프로필 사진을 최종 사진으로 확정 | `ResponseEntity<ConfirmPhotoResDto>` | `Public` |
-| **Operation** | `updateNickname(UserDetails principal, UpdateNicknameReqDto req)` | 사용자 닉네임 수정 | `ResponseEntity<UpdateNicknameResDto>` | `Public` |
-| **Operation** | `resolveUserId(UserDetails principal)` | UserDetails에서 사용자 ID를 조회 | `Long` | `Private` |
+| 구분            | 이름                                                                | 설명                            | 타입                                         | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------|:------------------------------|:-------------------------------------------|:--------------------|
+| **Attribute** | `myPageService`                                                   | 마이페이지 비즈니스 로직 서비스             | `MyPageService`                            | `Private`           |
+| **Attribute** | `userRepository`                                                  | 사용자 엔티티 저장소                   | `UserRepository`                           | `Private`           |
+| **Operation** | `getSummary(UserDetails principal, Integer year, Integer month)`  | 마이페이지 요약 정보(프로필, 레벨, 통계 등) 조회 | `ResponseEntity<MyPageSummaryResDto>`      | `Public`            |
+| **Operation** | `getUserSummary(UserDetails principal)`                           | 사용자 프로필 및 별/별자리 개수 조회         | `ResponseEntity<UserSummaryResDto>`        | `Public`            |
+| **Operation** | `getLevel(UserDetails principal)`                                 | 사용자 레벨 정보 조회                  | `ResponseEntity<LevelResDto>`              | `Public`            |
+| **Operation** | `getRepresentative(UserDetails principal)`                        | 대표 별자리 정보 조회                  | `ResponseEntity<?>`                        | `Public`            |
+| **Operation** | `getMonthlyCount(UserDetails principal, Integer year)`            | 연간 월별 별자리 생성 통계 조회            | `ResponseEntity<List<MonthlyCountResDto>>` | `Public`            |
+| **Operation** | `getEmotionCount(UserDetails principal, int year, int month)`     | 월별 감정 통계 조회                   | `ResponseEntity<List<EmotionCountResDto>>` | `Public`            |
+| **Operation** | `confirmPhoto(UserDetails principal, ConfirmPhotoReqDto req)`     | 임시 프로필 사진을 최종 사진으로 확정         | `ResponseEntity<ConfirmPhotoResDto>`       | `Public`            |
+| **Operation** | `updateNickname(UserDetails principal, UpdateNicknameReqDto req)` | 사용자 닉네임 수정                    | `ResponseEntity<UpdateNicknameResDto>`     | `Public`            |
+| **Operation** | `resolveUserId(UserDetails principal)`                            | UserDetails에서 사용자 ID를 조회      | `Long`                                     | `Private`           |
 
 ---
 ### Class Diagram #77: MyPageService
 Class Description: 마이페이지 요약, 레벨, 통계, 프로필 수정 등 핵심 비즈니스 로직을 담당하는 서비스이다.
 
-| 구분 | 이름 | 설명 | 타입 | 접근 제한자 (Visibility) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Attribute** | `userRepository` | 사용자 엔티티 저장소 | `UserRepository` | `Private` |
-| **Attribute** | `diaryRepository` | 일기 엔티티 저장소 | `DiaryRepository` | `Private` |
-| **Attribute** | `constellationRepository` | 별자리 엔티티 저장소 | `ConstellationRepository` | `Private` |
-| **Attribute** | `starRepository` | 별 엔티티 저장소 | `StarRepository` | `Private` |
-| **Attribute** | `constellationMapper` | 별자리 DTO 매퍼 | `ConstellationMapper` | `Private` |
-| **Attribute** | `s3StorageService` | S3 스토리지 서비스 | `S3StorageService` | `Private` |
-| **Operation** | `getSummary(Long userId, Integer year, Integer month)` | 마이페이지 요약 정보 전체 조회 | `MyPageSummaryResDto` | `Public` |
-| **Operation** | `getUserSummary(Long userId)` | 사용자 프로필, 총 별/별자리 개수 조회 | `UserSummaryResDto` | `Public` |
-| **Operation** | `getLevel(Long userId)` | 총 별 개수 기반으로 레벨 정보 계산 및 조회 | `LevelResDto` | `Public` |
-| **Operation** | `getRepresentativeConstellation(Long userId)` | 대표 별자리 정보 조회 | `StarryNightConstellationDto` | `Public` |
-| **Operation** | `getMonthlyCount(Long userId, int year)` | 연간 월별 별자리 생성 통계 조회 및 집계 | `List<MonthlyCountResDto>` | `Public` |
-| **Operation** | `getEmotionCount(Long userId, int year, int month)` | 월별 감정별 일기 개수 통계 조회 및 집계 | `List<EmotionCountResDto>` | `Public` |
-| **Operation** | `confirmProfilePhoto(Long userId, String tempKey)` | 임시 S3 키로 프로필 사진 확정 및 URL 업데이트 | `ConfirmPhotoResDto` | `Public` |
-| **Operation** | `updateNickname(Long userId, String newNickname)` | 닉네임 유효성 검사 후 수정 | `UpdateNicknameResDto` | `Public` |
+| 구분            | 이름                                                     | 설명                            | 타입                            | 접근 제한자 (Visibility) |
+|:--------------|:-------------------------------------------------------|:------------------------------|:------------------------------|:--------------------|
+| **Attribute** | `userRepository`                                       | 사용자 엔티티 저장소                   | `UserRepository`              | `Private`           |
+| **Attribute** | `diaryRepository`                                      | 일기 엔티티 저장소                    | `DiaryRepository`             | `Private`           |
+| **Attribute** | `constellationRepository`                              | 별자리 엔티티 저장소                   | `ConstellationRepository`     | `Private`           |
+| **Attribute** | `starRepository`                                       | 별 엔티티 저장소                     | `StarRepository`              | `Private`           |
+| **Attribute** | `constellationMapper`                                  | 별자리 DTO 매퍼                    | `ConstellationMapper`         | `Private`           |
+| **Attribute** | `s3StorageService`                                     | S3 스토리지 서비스                   | `S3StorageService`            | `Private`           |
+| **Operation** | `getSummary(Long userId, Integer year, Integer month)` | 마이페이지 요약 정보 전체 조회             | `MyPageSummaryResDto`         | `Public`            |
+| **Operation** | `getUserSummary(Long userId)`                          | 사용자 프로필, 총 별/별자리 개수 조회        | `UserSummaryResDto`           | `Public`            |
+| **Operation** | `getLevel(Long userId)`                                | 총 별 개수 기반으로 레벨 정보 계산 및 조회     | `LevelResDto`                 | `Public`            |
+| **Operation** | `getRepresentativeConstellation(Long userId)`          | 대표 별자리 정보 조회                  | `StarryNightConstellationDto` | `Public`            |
+| **Operation** | `getMonthlyCount(Long userId, int year)`               | 연간 월별 별자리 생성 통계 조회 및 집계       | `List<MonthlyCountResDto>`    | `Public`            |
+| **Operation** | `getEmotionCount(Long userId, int year, int month)`    | 월별 감정별 일기 개수 통계 조회 및 집계       | `List<EmotionCountResDto>`    | `Public`            |
+| **Operation** | `confirmProfilePhoto(Long userId, String tempKey)`     | 임시 S3 키로 프로필 사진 확정 및 URL 업데이트 | `ConfirmPhotoResDto`          | `Public`            |
+| **Operation** | `updateNickname(Long userId, String newNickname)`      | 닉네임 유효성 검사 후 수정               | `UpdateNicknameResDto`        | `Public`            |
 
 ---
 ### Class Diagram #78: LevelPolicy
 Class Description: 총 별 개수에 따라 사용자 레벨을 결정하고 다음 레벨까지의 진행도를 계산하는 정책 클래스이다.
 
-| 구분 | 이름 | 설명 | 타입 | 접근 제한자 (Visibility) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Attribute** | `RULES` | 정의된 레벨 규칙 리스트 | `List<Rule>` | `Private` |
-| **Operation** | `resolve(long totalStars)` | 총 별 개수를 기준으로 현재 레벨 정보 계산 및 반환 | `LevelResDto` | `Public` |
+| 구분            | 이름                         | 설명                            | 타입            | 접근 제한자 (Visibility) |
+|:--------------|:---------------------------|:------------------------------|:--------------|:--------------------|
+| **Attribute** | `RULES`                    | 정의된 레벨 규칙 리스트                 | `List<Rule>`  | `Private`           |
+| **Operation** | `resolve(long totalStars)` | 총 별 개수를 기준으로 현재 레벨 정보 계산 및 반환 | `LevelResDto` | `Public`            |
 
 ---
 ### Class Diagram #79: ConstellationMapper
 Class Description: Constellation 엔티티를 마이페이지/밤하늘 응답에 필요한 DTO 포맷으로 변환하는 매퍼 클래스이다.
 
-| 구분 | 이름 | 설명 | 타입 | 접근 제한자 (Visibility) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Operation** | `toStarryNightDto(Constellation c)` | Constellation 엔티티를 StarryNightConstellationDto로 변환 | `StarryNightConstellationDto` | `Public` |
+| 구분            | 이름                                  | 설명                                                 | 타입                            | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------|:---------------------------------------------------|:------------------------------|:--------------------|
+| **Operation** | `toStarryNightDto(Constellation c)` | Constellation 엔티티를 StarryNightConstellationDto로 변환 | `StarryNightConstellationDto` | `Public`            |
 
 ---
 ### Class Diagram #80: MyPageSummaryResDto

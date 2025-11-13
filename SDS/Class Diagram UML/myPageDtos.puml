@@ -1,0 +1,85 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.mypage.dto" {
+
+    ' --- Request DTOs (#FFEEEE) ---
+    class ConfirmPhotoReqDto << (D,#FFEEEE) Req DTO >> {
+        - tempKey: String
+        --
+        + getTempKey(): String
+    }
+
+    class UpdateNicknameReqDto << (D,#FFEEEE) Req DTO >> {
+        - nickname: String
+        --
+        + getNickname(): String
+    }
+
+    ' --- Response DTOs (#EEFFFF) ---
+    class MyPageSummaryResDto << (D,#EEFFFF) Res DTO >> {
+        - profile: UserSummaryResDto
+        - level: LevelResDto
+        - representativeConstellation: StarryNightConstellationDto
+        - monthlyConstellationCounts: List<MonthlyCountResDto>
+        - monthlyEmotionCounts: List<EmotionCountResDto>
+        --
+        + of(...): MyPageSummaryResDto
+    }
+
+    class UserSummaryResDto << (D,#EEFFFF) Res DTO >> {
+        - nickname: String
+        - totalStars: int
+        - totalConstellations: int
+        --
+        + of(user: User, ...): UserSummaryResDto
+    }
+
+    class LevelResDto << (D,#EEFFFF) Res DTO >> {
+        - code: String
+        - name: String
+        - min: Integer
+        - max: Integer
+        - progressToNext: Integer
+        --
+        + LevelResDto(...)
+    }
+
+    class MonthlyCountResDto << (D,#EEFFFF) Res DTO >> {
+        - month: int
+        - count: long
+        --
+        + MonthlyCountResDto(month, count)
+    }
+
+    class EmotionCountResDto << (D,#EEFFFF) Res DTO >> {
+        - emotion: String
+        - count: long
+        --
+        + EmotionCountResDto(emotion, count)
+    }
+
+    class ConfirmPhotoResDto << (D,#EEFFFF) Res DTO >> {
+        - url: String
+        --
+        + of(url: String): ConfirmPhotoResDto
+    }
+
+    class UpdateNicknameResDto << (D,#EEFFFF) Res DTO >> {
+        - nickname: String
+        --
+        + of(nickname: String): UpdateNicknameResDto
+    }
+}
+
+class StarryNightConstellationDto << (D,Gray) External Res DTO >>
+
+' --- Relationships ---
+MyPageSummaryResDto o-- UserSummaryResDto : contains
+MyPageSummaryResDto o-- LevelResDto : contains
+MyPageSummaryResDto o-- StarryNightConstellationDto : contains
+MyPageSummaryResDto o-- MonthlyCountResDto : contains list
+MyPageSummaryResDto o-- EmotionCountResDto : contains list
+
+@enduml
