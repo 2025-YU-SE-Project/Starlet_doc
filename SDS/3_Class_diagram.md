@@ -437,7 +437,7 @@ Class Description: 회원 관련 API 엔드포인트를 정의하는 인터페�
 | **Operation** | `getUser(@PathVariable Long id)`                                      | 회원 고유 ID를 통한 회원 조회  | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `getUserList()`                                                       | 모든 회원 정보 조회         | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `signUp(@Valid @RequestBody SignUpDto dto)`                           | 회원가입 기능             | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `existNickname(@RequestParam String nickname)`                        | 사용 가능한 닉네임 검사       | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `validNickname(@RequestParam String nickname)`                        | 사용 가능한 닉네임 검사       | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `login(@RequestBody LoginDto dto, HttpServletResponse res)`           | 로그인 및 토큰 발급         | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails)` | 현재 로그인 사용자 회원탈퇴(삭제) | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `logout(HttpServletResponse response)`                                | 로그아웃                | `ResponseEntity<?>` | `Public`            |
@@ -456,7 +456,7 @@ Class Description: 사용자(User)의 비즈니스 로직(회원가입, 로그�
 | **Operation** | `getUser(Long id)`                             | ID 기반 사용자 정보 단일 조회    | `UserResDto`       | `Public`            |
 | **Operation** | `getUserList()`                                | 모든 사용자 목록 조회          | `List<UserResDto>` | `Public`            |
 | **Operation** | `signUp(SignUpDto dto)`                        | 회원가입 처리 로직            | `User`             | `Public`            |
-| **Operation** | `existNickname(String nickname)`               | 닉네임 존재 여부 확인          | `boolean`          | `Public`            |
+| **Operation** | `validNickname(String nickname)`               | 닉네임 존재 여부 확인          | `boolean`          | `Public`            |
 | **Operation** | `login(LoginDto dto, HttpServletResponse res)` | 로그인 및 JWT 토큰 발급/쿠키 설정 | `LoginInfoDto`     | `Public`            |
 | **Operation** | `deleteCurrentUser(String email)`              | 이메일 기반 현재 사용자 회원 탈퇴   | `void`             | `Public`            |
 | **Operation** | `findByEmailAddress(String email)`             | 이메일 주소로 User 엔티티 조회   | `User`             | `Public`            |
@@ -493,7 +493,7 @@ Class Description: 사용자 관련 API 요청을 받아 UserService로 전달�
 | **Operation** | `getUser(@PathVariable Long id)`                                      | 회원 ID 조회 엔드포인트  | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `getUserList()`                                                       | 회원 목록 조회 엔드포인트  | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `signUp(@Valid @RequestBody SignUpDto dto)`                           | 회원가입 엔드포인트      | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `existNickname(@RequestParam String nickname)`                        | 닉네임 중복 확인 엔드포인트 | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `validNickname(@RequestParam String nickname)`                        | 닉네임 중복 확인 엔드포인트 | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `login(@Valid @RequestBody LoginDto dto, HttpServletResponse res)`    | 로그인 엔드포인트       | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails)` | 회원탈퇴 엔드포인트      | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `logout(HttpServletResponse response)`                                | 로그아웃 엔드포인트      | `ResponseEntity<?>` | `Public`            |
