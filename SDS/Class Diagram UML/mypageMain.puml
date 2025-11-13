@@ -1,0 +1,88 @@
+@startuml
+!theme toy
+top to bottom direction
+
+' --- External Dependencies (Gray) ---
+class User << (E,Gray) External Entity >>
+class Diary << (E,Gray) External Entity >>
+class Constellation << (E,Gray) External Entity >>
+enum Emotion << (E,Gray) External Enum >>
+class UserRepository << (R,Gray) External Repository >>
+class DiaryRepository << (R,Gray) External Repository >>
+class ConstellationRepository << (R,Gray) External Repository >>
+class StarRepository << (R,Gray) External Repository >>
+class S3StorageService << (S,Gray) External Service >>
+class PublishedObject << (D,Gray) External DTO >>
+class StarryNightConstellationDto << (D,Gray) External Res DTO >>
+class UserDetails << (I,Gray) External Interface >>
+class ResponseEntity << (C,Gray) External Class >>
+
+' --- Controller (#FFCCAA) ---
+class mypageController << (C,#FFCCAA) RestController >> {
+    - myPageService: MyPageService
+    - userRepository: UserRepository
+    --
+    + getSummary(...): ResponseEntity
+    + getUserSummary(...): ResponseEntity
+    + getLevel(...): ResponseEntity
+    + getRepresentative(...): ResponseEntity
+    + getMonthlyCount(...): ResponseEntity
+    + getEmotionCount(...): ResponseEntity
+    + confirmPhoto(...): ResponseEntity
+    + updateNickname(...): ResponseEntity
+    - resolveUserId(principal: UserDetails): Long
+}
+
+' --- Service (#AADDFF) ---
+class MyPageService << (S,#AADDFF) Service >> {
+    - userRepository: UserRepository
+    - diaryRepository: DiaryRepository
+    - constellationRepository: ConstellationRepository
+    - starRepository: StarRepository
+    - constellationMapper: ConstellationMapper
+    - s3StorageService: S3StorageService
+    --
+    + getSummary(...): MyPageSummaryResDto
+    + getUserSummary(userId: Long): UserSummaryResDto
+    + getLevel(userId: Long): LevelResDto
+    + getRepresentativeConstellation(...): StarryNightConstellationDto
+    + getMonthlyCount(...): List<MonthlyCountResDto>
+    + getEmotionCount(...): List<EmotionCountResDto>
+    + confirmProfilePhoto(...): ConfirmPhotoResDto
+    + updateNickname(...): UpdateNicknameResDto
+}
+
+' --- Utility & Mapper (#DDAAFF) ---
+class LevelPolicy << (U,#DDAAFF) Utility >> {
+    - {static} RULES: List<Rule>
+    --
+    + {static} resolve(totalStars: long): LevelResDto
+}
+
+class ConstellationMapper << (C,#DDAAFF) Component >> {
+    + toStarryNightDto(c: Constellation): StarryNightConstellationDto
+}
+
+' --- Relationships ---
+mypageController --> MyPageService : injects/uses
+mypageController ..> UserRepository : uses
+mypageController ..> UserDetails : uses
+
+MyPageService --> UserRepository
+MyPageService --> DiaryRepository
+MyPageService --> ConstellationRepository
+MyPageService --> StarRepository
+MyPageService --> ConstellationMapper
+MyPageService --> S3StorageService
+
+MyPageService ..> LevelPolicy : uses
+MyPageService ..> User : uses
+MyPageService ..> Diary : uses
+MyPageService ..> Emotion : uses
+MyPageService ..> Constellation : uses
+MyPageService ..> PublishedObject : uses
+
+ConstellationMapper ..> Constellation : uses
+ConstellationMapper ..> StarryNightConstellationDto : returns
+
+@enduml

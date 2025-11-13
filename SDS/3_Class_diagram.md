@@ -44,21 +44,23 @@
 
 ### 3.3. 기능별 클래스 다이어그램 (Functional Diagrams)
 
-주요 도메인(기능)별로 Controller, Service, Repository, Command(데이터 전송 클래스), Api(Interface) 간의 관계를 상세히 기술한다.
+주요 도메인 또는 기능별로 Controller, Service, Repository, Command(데이터 전송 클래스), Api(Interface) 간의 관계를 상세히 기술한다.
 
-1. 사용자 - User
+1. User : 사용자
 
-2. 이메일 - Email
+2. Email : 이메일
 
-3. 검증 - Verify
+3. Verify : 인증
 
-4. 일기 - Diary
+4. Diary : 일기
 
-5. 별 - Star
+5. Star : 밤하늘 별
 
-6. 별자리 - Constellation
+6. Constellation : 밤하늘 별자리, 별자리 아카이브
 
-7. 별자리 선 - Connection
+7. Connection : 별자리 선
+
+8. MyPage : 위의 도메인들을 조합한 마이페이지 기능
 
 
 ### 3.4. 외부 서비스 다이어그램 (External Service Diagram)
@@ -1104,6 +1106,163 @@ Class Description: 밤하늘 별자리 조회 시 연결선 정보를 담아 응
 
 
 ---
+## 3.3.8. MyPage
+
+MyPage Main Class<br/>
+![myPageMain.png](Class%20Diagram%20UML/myPageMain.png)
+<br/>
+
+MyPage Command Class(DTO)<br/>
+![myPageDtos.png](Class%20Diagram%20UML/myPageDtos.png)
+
+---
+
+### Class Diagram #76: mypageController
+Class Description: 마이페이지 관련 API 요청을 처리하고 MyPageService로 전달하는 REST Controller이다.
+
+| 구분            | 이름                                                                | 설명                            | 타입                                         | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------|:------------------------------|:-------------------------------------------|:--------------------|
+| **Attribute** | `myPageService`                                                   | 마이페이지 비즈니스 로직 서비스             | `MyPageService`                            | `Private`           |
+| **Attribute** | `userRepository`                                                  | 사용자 엔티티 저장소                   | `UserRepository`                           | `Private`           |
+| **Operation** | `getSummary(UserDetails principal, Integer year, Integer month)`  | 마이페이지 요약 정보(프로필, 레벨, 통계 등) 조회 | `ResponseEntity<MyPageSummaryResDto>`      | `Public`            |
+| **Operation** | `getUserSummary(UserDetails principal)`                           | 사용자 프로필 및 별/별자리 개수 조회         | `ResponseEntity<UserSummaryResDto>`        | `Public`            |
+| **Operation** | `getLevel(UserDetails principal)`                                 | 사용자 레벨 정보 조회                  | `ResponseEntity<LevelResDto>`              | `Public`            |
+| **Operation** | `getRepresentative(UserDetails principal)`                        | 대표 별자리 정보 조회                  | `ResponseEntity<?>`                        | `Public`            |
+| **Operation** | `getMonthlyCount(UserDetails principal, Integer year)`            | 연간 월별 별자리 생성 통계 조회            | `ResponseEntity<List<MonthlyCountResDto>>` | `Public`            |
+| **Operation** | `getEmotionCount(UserDetails principal, int year, int month)`     | 월별 감정 통계 조회                   | `ResponseEntity<List<EmotionCountResDto>>` | `Public`            |
+| **Operation** | `confirmPhoto(UserDetails principal, ConfirmPhotoReqDto req)`     | 임시 프로필 사진을 최종 사진으로 확정         | `ResponseEntity<ConfirmPhotoResDto>`       | `Public`            |
+| **Operation** | `updateNickname(UserDetails principal, UpdateNicknameReqDto req)` | 사용자 닉네임 수정                    | `ResponseEntity<UpdateNicknameResDto>`     | `Public`            |
+| **Operation** | `resolveUserId(UserDetails principal)`                            | UserDetails에서 사용자 ID를 조회      | `Long`                                     | `Private`           |
+
+---
+### Class Diagram #77: MyPageService
+Class Description: 마이페이지 요약, 레벨, 통계, 프로필 수정 등 핵심 비즈니스 로직을 담당하는 서비스이다.
+
+| 구분            | 이름                                                     | 설명                            | 타입                            | 접근 제한자 (Visibility) |
+|:--------------|:-------------------------------------------------------|:------------------------------|:------------------------------|:--------------------|
+| **Attribute** | `userRepository`                                       | 사용자 엔티티 저장소                   | `UserRepository`              | `Private`           |
+| **Attribute** | `diaryRepository`                                      | 일기 엔티티 저장소                    | `DiaryRepository`             | `Private`           |
+| **Attribute** | `constellationRepository`                              | 별자리 엔티티 저장소                   | `ConstellationRepository`     | `Private`           |
+| **Attribute** | `starRepository`                                       | 별 엔티티 저장소                     | `StarRepository`              | `Private`           |
+| **Attribute** | `constellationMapper`                                  | 별자리 DTO 매퍼                    | `ConstellationMapper`         | `Private`           |
+| **Attribute** | `s3StorageService`                                     | S3 스토리지 서비스                   | `S3StorageService`            | `Private`           |
+| **Operation** | `getSummary(Long userId, Integer year, Integer month)` | 마이페이지 요약 정보 전체 조회             | `MyPageSummaryResDto`         | `Public`            |
+| **Operation** | `getUserSummary(Long userId)`                          | 사용자 프로필, 총 별/별자리 개수 조회        | `UserSummaryResDto`           | `Public`            |
+| **Operation** | `getLevel(Long userId)`                                | 총 별 개수 기반으로 레벨 정보 계산 및 조회     | `LevelResDto`                 | `Public`            |
+| **Operation** | `getRepresentativeConstellation(Long userId)`          | 대표 별자리 정보 조회                  | `StarryNightConstellationDto` | `Public`            |
+| **Operation** | `getMonthlyCount(Long userId, int year)`               | 연간 월별 별자리 생성 통계 조회 및 집계       | `List<MonthlyCountResDto>`    | `Public`            |
+| **Operation** | `getEmotionCount(Long userId, int year, int month)`    | 월별 감정별 일기 개수 통계 조회 및 집계       | `List<EmotionCountResDto>`    | `Public`            |
+| **Operation** | `confirmProfilePhoto(Long userId, String tempKey)`     | 임시 S3 키로 프로필 사진 확정 및 URL 업데이트 | `ConfirmPhotoResDto`          | `Public`            |
+| **Operation** | `updateNickname(Long userId, String newNickname)`      | 닉네임 유효성 검사 후 수정               | `UpdateNicknameResDto`        | `Public`            |
+
+---
+### Class Diagram #78: LevelPolicy
+Class Description: 총 별 개수에 따라 사용자 레벨을 결정하고 다음 레벨까지의 진행도를 계산하는 정책 클래스이다.
+
+| 구분            | 이름                         | 설명                            | 타입            | 접근 제한자 (Visibility) |
+|:--------------|:---------------------------|:------------------------------|:--------------|:--------------------|
+| **Attribute** | `RULES`                    | 정의된 레벨 규칙 리스트                 | `List<Rule>`  | `Private`           |
+| **Operation** | `resolve(long totalStars)` | 총 별 개수를 기준으로 현재 레벨 정보 계산 및 반환 | `LevelResDto` | `Public`            |
+
+---
+### Class Diagram #79: ConstellationMapper
+Class Description: Constellation 엔티티를 마이페이지/밤하늘 응답에 필요한 DTO 포맷으로 변환하는 매퍼 클래스이다.
+
+| 구분            | 이름                                  | 설명                                                 | 타입                            | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------|:---------------------------------------------------|:------------------------------|:--------------------|
+| **Operation** | `toStarryNightDto(Constellation c)` | Constellation 엔티티를 StarryNightConstellationDto로 변환 | `StarryNightConstellationDto` | `Public`            |
+
+---
+### Class Diagram #80: MyPageSummaryResDto
+Class Description: 마이페이지에서 요구하는 모든 요약 정보를 통합하여 제공하는 최종 Response DTO이다.
+
+| 구분            | 이름                                                                                                                                                                  | 설명                     | 타입                            | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------|:------------------------------|:--------------------|
+| **Attribute** | `profile`                                                                                                                                                           | 사용자 프로필 요약 정보          | `UserSummaryResDto`           | `Private`           |
+| **Attribute** | `level`                                                                                                                                                             | 사용자 레벨 정보              | `LevelResDto`                 | `Private`           |
+| **Attribute** | `representativeConstellation`                                                                                                                                       | 대표 별자리 정보              | `StarryNightConstellationDto` | `Private`           |
+| **Attribute** | `monthlyConstellationCounts`                                                                                                                                        | 월별 별자리 생성 개수 통계        | `List<MonthlyCountResDto>`    | `Private`           |
+| **Attribute** | `monthlyEmotionCounts`                                                                                                                                              | 월별 감정 기록 개수 통계         | `List<EmotionCountResDto>`    | `Private`           |
+| **Operation** | `of(UserSummaryResDto profile, LevelResDto level, StarryNightConstellationDto rep, List<MonthlyCountResDto> monthlyCounts, List<EmotionCountResDto> emotionCounts)` | 모든 요약 데이터를 포함하여 DTO 생성 | `MyPageSummaryResDto`         | `Public`            |
+
+---
+### Class Diagram #81: UserSummaryResDto
+Class Description: 마이페이지에 표시되는 사용자의 닉네임, 총 별 개수, 총 별자리 개수를 담는 Response DTO이다.
+
+| 구분            | 이름                                                         | 설명                         | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------------------------------|:---------------------------|:--------------------|:--------------------|
+| **Attribute** | `nickname`                                                 | 사용자 닉네임                    | `String`            | `Private`           |
+| **Attribute** | `totalStars`                                               | 총 별 개수                     | `int`               | `Private`           |
+| **Attribute** | `totalConstellations`                                      | 총 별자리 개수                   | `int`               | `Private`           |
+| **Operation** | `of(User user, long totalStars, long totalConstellations)` | User 엔티티 및 통계 데이터를 DTO로 변환 | `UserSummaryResDto` | `Public`            |
+
+---
+### Class Diagram #82: LevelResDto
+Class Description: 사용자의 현재 레벨 코드, 이름, 범위 및 다음 레벨까지의 진행도를 담는 Response DTO이다.
+
+| 구분            | 이름               | 설명                             | 타입        | 접근 제한자 (Visibility) |
+|:--------------|:-----------------|:-------------------------------|:----------|:--------------------|
+| **Attribute** | `code`           | 레벨 코드 (예: STARLIGHT\_EXPLORER) | `String`  | `Private`           |
+| **Attribute** | `name`           | 레벨 이름 (예: 별빛 탐험가)              | `String`  | `Private`           |
+| **Attribute** | `min`            | 현재 레벨의 최소 별 개수                 | `Integer` | `Private`           |
+| **Attribute** | `max`            | 현재 레벨의 최대 별 개수                 | `Integer` | `Private`           |
+| **Attribute** | `progressToNext` | 다음 레벨까지 남은 별 개수                | `Integer` | `Private`           |
+
+---
+### Class Diagram #83: MonthlyCountResDto
+Class Description: 연간 월별 별자리 생성 통계 결과를 담는 Response DTO이다.
+
+| 구분            | 이름      | 설명               | 타입     | 접근 제한자 (Visibility) |
+|:--------------|:--------|:-----------------|:-------|:--------------------|
+| **Attribute** | `month` | 월 (1~12)         | `int`  | `Private`           |
+| **Attribute** | `count` | 해당 월에 생성된 별자리 개수 | `long` | `Private`           |
+
+---
+### Class Diagram #84: EmotionCountResDto
+Class Description: 월별 감정 기록 통계 결과를 담는 Response DTO이다.
+
+| 구분            | 이름        | 설명                   | 타입       | 접근 제한자 (Visibility) |
+|:--------------|:----------|:---------------------|:---------|:--------------------|
+| **Attribute** | `emotion` | 감정 이름 (예: HAPPINESS) | `String` | `Private`           |
+| **Attribute** | `count`   | 해당 감정으로 기록된 일기 개수    | `long`   | `Private`           |
+
+---
+### Class Diagram #85: UpdateNicknameReqDto
+Class Description: 닉네임 수정 요청 시 새로운 닉네임을 담는 Request DTO이다.
+
+| 구분            | 이름         | 설명              | 타입       | 접근 제한자 (Visibility) |
+|:--------------|:-----------|:----------------|:---------|:--------------------|
+| **Attribute** | `nickname` | 새로운 닉네임 (2~10자) | `String` | `Private`           |
+
+---
+### Class Diagram #86: ConfirmPhotoReqDto
+Class Description: 프로필 사진 확정 요청 시 임시 파일 키를 담는 Request DTO이다.
+
+| 구분            | 이름        | 설명             | 타입       | 접근 제한자 (Visibility) |
+|:--------------|:----------|:---------------|:---------|:--------------------|
+| **Attribute** | `tempKey` | S3 임시 업로드 경로 키 | `String` | `Private`           |
+
+---
+### Class Diagram #87: ConfirmPhotoResDto
+Class Description: 프로필 사진 확정 후 최종 이미지 URL을 반환하는 Response DTO이다.
+
+| 구분            | 이름               | 설명                | 타입                   | 접근 제한자 (Visibility) |
+|:--------------|:-----------------|:------------------|:---------------------|:--------------------|
+| **Attribute** | `imageUrl`       | 최종 확정된 프로필 사진 URL | `String`             | `Private`           |
+| **Operation** | `of(String url)` | 최종 URL을 DTO로 변환   | `ConfirmPhotoResDto` | `Public`            |
+
+---
+### Class Diagram #88: UpdateNicknameResDto
+Class Description: 닉네임 수정 후 최종 닉네임 정보를 반환하는 Response DTO이다.
+
+| 구분            | 이름                    | 설명              | 타입                     | 접근 제한자 (Visibility) |
+|:--------------|:----------------------|:----------------|:-----------------------|:--------------------|
+| **Attribute** | `nickname`            | 최종적으로 업데이트된 닉네임 | `String`               | `Private`           |
+| **Operation** | `of(String nickname)` | 닉네임을 DTO로 변환    | `UpdateNicknameResDto` | `Public`            |
+
+
+
+---
 
 ## 3.4. 외부 서비스 다이어그램
 
@@ -1115,7 +1274,7 @@ Class Description: 밤하늘 별자리 조회 시 연결선 정보를 담아 응
 
 ---
 
-### Class Diagram #76: S3tempResDto
+### Class Diagram #89: S3tempResDto
 Class Description: 이미지 업로드를 위해 발급된 임시 URL과 해당 파일 키를 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름                        | 설명                          | 타입             | 접근 제한자 (Visibility) |
@@ -1125,7 +1284,7 @@ Class Description: 이미지 업로드를 위해 발급된 임시 URL과 해당 
 | **Operation** | `of(URL url, String key)` | URL과 키를 데이터 전송 클래스로 변환      | `S3tempResDto` | `Public`            |
 
 ---
-### Class Diagram #77: S3uploadResDto
+### Class Diagram #90: S3uploadResDto
 Class Description: S3 업로드 완료 후 최종적으로 저장된 이미지 URL을 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름               | 설명                  | 타입               | 접근 제한자 (Visibility) |
@@ -1134,7 +1293,7 @@ Class Description: S3 업로드 완료 후 최종적으로 저장된 이미지 U
 | **Operation** | `of(String url)` | URL을 데이터 전송 클래스로 변환 | `S3uploadResDto` | `Public`            |
 
 ---
-### Class Diagram #78: S3StorageService
+### Class Diagram #91: S3StorageService
 Class Description: Amazon S3와의 통신을 담당하며, Pre-signed URL 발급, 파일 복사 및 최종 URL 생성 등의 비즈니스 로직을 처리하는 서비스이다.
 
 | 구분            | 이름                                                | 설명                                        | 타입            | 접근 제한자 (Visibility) |
@@ -1147,7 +1306,7 @@ Class Description: Amazon S3와의 통신을 담당하며, Pre-signed URL 발급
 | **Operation** | `publishProfile(Long userId, String tempKey)`     | 임시 파일(tempKey)을 최종 프로필 경로로 복사 및 최종 URL 반환 | `String`      | `Public`            |
 
 ---
-### Class Diagram #79: S3Controller
+### Class Diagram #92: S3Controller
 Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 전달하고 사용자 인증 및 파일 키 생성을 처리하는 REST Controller이다.
 
 | 구분            | 이름                                                                                          | 설명                              | 타입                 | 접근 제한자 (Visibility) |
@@ -1167,8 +1326,8 @@ Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 
 
 ---
 
-### Class Diagram #80: OpenAiReqDto
-Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO입니다. 채팅 모델 및 메시지 리스트를 포함합니다.
+### Class Diagram #93: OpenAiReqDto
+Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO이다. 채팅 모델 및 메시지 리스트를 포함한다.
 
 | 구분                        | 이름                                                   | 설명                                     | 타입              | 접근 제한자 (Visibility) |
 |:--------------------------|:-----------------------------------------------------|:---------------------------------------|:----------------|:--------------------|
@@ -1181,8 +1340,8 @@ Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO입�
 | **Inner Class Operation** | `Message(String role, String content)`               | 모든 필드를 포함한 생성자                         | `Message`       | `Public`            |
 
 ---
-### Class Diagram #81: OpenAiResDto
-Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response DTO입니다.
+### Class Diagram #94: OpenAiResDto
+Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response DTO이다.
 
 | 구분                        | 이름        | 설명                | 타입             | 접근 제한자 (Visibility) |
 |:--------------------------|:----------|:------------------|:---------------|:--------------------|
@@ -1194,8 +1353,8 @@ Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response D
 | **Inner Class Attribute** | `content` | 메시지 내용            | `String`       | `Private`           |
 
 ---
-### Class Diagram #82: ModerationDto
-Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO들을 정의하는 클래스입니다.
+### Class Diagram #95: ModerationDto
+Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO들을 정의하는 클래스이다.
 
 | 구분                         | 이름                                | 설명                    | 타입                  | 접근 제한자 (Visibility) |
 |:---------------------------|:----------------------------------|:----------------------|:--------------------|:--------------------|
@@ -1216,8 +1375,8 @@ Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO�
 | **Nested Class Attribute** | `sexual`, `hate`, ...             | 각 카테고리 점수             | `double`            | `Private`           |
 
 ---
-### Class Diagram #83: OpenAIService
-Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스입니다. 시스템 및 사용자 프롬프트를 구성하여 응답을 받아옵니다.
+### Class Diagram #96: OpenAIService
+Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스이다. 시스템 및 사용자 프롬프트를 구성하여 응답을 받아옵니다.
 
 | 구분            | 이름                                                      | 설명                                      | 타입             | 접근 제한자 (Visibility) |
 |:--------------|:--------------------------------------------------------|:----------------------------------------|:---------------|:--------------------|
@@ -1227,8 +1386,8 @@ Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스�
 | **Operation** | `getAssistance(String userPrompt, String systemPrompt)` | AI에게 질의하고 텍스트 응답을 반환                    | `String`       | `Public`            |
 
 ---
-### Class Diagram #84: ModerationService
-Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스트의 유해성 검사를 수행하는 서비스입니다.
+### Class Diagram #97: ModerationService
+Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스트의 유해성 검사를 수행하는 서비스이다.
 
 | 구분            | 이름                      | 설명                          | 타입                                 | 접근 제한자 (Visibility) |
 |:--------------|:------------------------|:----------------------------|:-----------------------------------|:--------------------|
@@ -1237,8 +1396,8 @@ Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스�
 | **Operation** | `moderate(String text)` | 텍스트의 유해성 검사를 요청하고 응답 DTO 반환 | `ModerationDto.ModerationResponse` | `Public`            |
 
 ---
-### Class Diagram #85: OpenAiController
-Class Description: OpenAI API 및 Moderation API 호출을 위한 엔드포인트를 제공하는 REST Controller입니다.
+### Class Diagram #98: OpenAiController
+Class Description: OpenAI API 및 Moderation API 호출을 위한 엔드포인트를 제공하는 REST Controller이다.
 
 | 구분            | 이름                                       | 설명                     | 타입                  | 접근 제한자 (Visibility) |
 |:--------------|:-----------------------------------------|:-----------------------|:--------------------|:--------------------|
