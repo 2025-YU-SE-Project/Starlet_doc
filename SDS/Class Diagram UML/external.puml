@@ -1,30 +1,52 @@
 @startuml
 !theme toy
-
 top to bottom direction
 
-package "com.example.starlet_be.domains.S3.Config" {
+' 3.2.3 External Config 에 해당하는 다이어그램
+' S3와 OpenAI 설정을 하나의 다이어그램으로 통합
+package "External Configuration" {
 
-    class S3Config << (C,#FFDDAA) Configuration >> {
-        - region: String (@Value)
-        - accessKey: String (@Value)
-        - secretKey: String (@Value)
-        --
-        + s3Presigner(): S3Presigner (@Bean)
-        + s3Client(): S3Client (@Bean)
+    ' === S3 Configuration ===
+    ' S3Config.java 파일의 패키지 경로 반영
+    package "com.example.starlet_be.S3.Config" {
+        class S3Config << (C,#FFDDAA) Configuration >> {
+            - region: String (@Value)
+            - accessKey: String (@Value)
+            - secretKey: String (@Value)
+            --
+            + s3Presigner(): S3Presigner (@Bean)
+            + s3Client(): S3Client (@Bean)
+        }
     }
 
-    interface S3Presigner
-    interface S3Client
-    class AwsBasicCredentials
-    class StaticCredentialsProvider
-    class Region
+    ' === OpenAI Configuration ===
+    ' OpenAiConfig.java 파일의 패키지 경로 반영
+    package "com.example.starlet_be.openai.config" {
+        class OpenAiConfig << (C,#FFDDAA) Configuration >> {
+            - openAiApiKey: String (@Value)
+            --
+            + restTemplate(): RestTemplate (@Bean)
+        }
+    }
 
-    S3Config .down.> S3Presigner : creates/returns Bean
-    S3Config .down.> S3Client : creates/returns Bean
+    ' === S3 Dependencies (External) ===
+    interface S3Presigner << (I,Gray) AWS SDK >>
+    interface S3Client << (I,Gray) AWS SDK >>
+    class AwsBasicCredentials << (C,Gray) AWS SDK >>
+    class StaticCredentialsProvider << (C,Gray) AWS SDK >>
+    class Region << (C,Gray) AWS SDK >>
 
+    ' === OpenAI Dependencies (External) ===
+    class RestTemplate << (C,Gray) Spring >>
+
+    ' === S3 Relationships ===
+    S3Config .down.> S3Presigner : "creates/returns Bean"
+    S3Config .down.> S3Client : "creates/returns Bean"
     S3Config ..> AwsBasicCredentials : uses
     S3Config ..> StaticCredentialsProvider : uses
     S3Config ..> Region : uses
+
+    ' === OpenAI Relationships ===
+    OpenAiConfig .down.> RestTemplate : "creates/returns Bean"
 }
 @enduml

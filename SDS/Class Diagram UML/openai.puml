@@ -1,0 +1,124 @@
+@startuml
+!theme toy
+top to bottom direction
+
+' 외부 참조 (필드/메소드 생략) '
+class RestTemplate << (U,Gray) Spring >>
+class ObjectMapper << (U,Gray) Jackson >>
+class CustomException << (E,Gray) Exception >>
+enum ErrorCode << (E,Gray) Enum >>
+
+package "com.example.starlet_be.openai" {
+
+    ' DTO (Request) - 중첩 클래스 분리 및 $ 표기법 사용 '
+    class OpenAiReqDto << (D,#FFEEEE) Req DTO >> {
+        - model: String
+        - messages: List<OpenAiReqDto$Message>
+        --
+        + OpenAiReqDto(model: String, messages: List<OpenAiReqDto$Message>)
+    }
+
+    class OpenAiReqDto$Message {
+        - role: String
+        - content: String
+        --
+        + Message(role: String, content: String)
+    }
+    OpenAiReqDto +-- OpenAiReqDto$Message : <<nested>>
+
+    ' Moderation DTO (Req/Res) - 중첩 클래스 분리 및 $ 표기법 사용 '
+    class ModerationDto << (D,#FFEEEE) Req/Res DTO >>
+
+    class ModerationDto$ModerationRequest {
+        - input: String
+        --
+        + ModerationRequest(input: String)
+    }
+    ModerationDto +-- ModerationDto$ModerationRequest : <<nested>>
+
+    class ModerationDto$ModerationResponse {
+        - id: String
+        - model: String
+        - results: List<ModerationDto$ModerationResponse$Result>
+    }
+    ModerationDto +-- ModerationDto$ModerationResponse : <<nested>>
+
+    ' Moderation Nested Classes '
+    class ModerationDto$ModerationResponse$Result {
+        - flagged: boolean
+        - categories: ModerationDto$ModerationResponse$Result$Categories
+        - category_scores: ModerationDto$ModerationResponse$Result$CategoryScores
+    }
+    ModerationDto$ModerationResponse +-- ModerationDto$ModerationResponse$Result : <<nested>>
+
+    class ModerationDto$ModerationResponse$Result$Categories {
+        - sexual: boolean
+        - hate: boolean
+        ...
+    }
+    ModerationDto$ModerationResponse$Result +-- ModerationDto$ModerationResponse$Result$Categories : <<nested>>
+
+    class ModerationDto$ModerationResponse$Result$CategoryScores {
+        - sexual: double
+        - hate: double
+        ...
+    }
+    ModerationDto$ModerationResponse$Result +-- ModerationDto$ModerationResponse$Result$CategoryScores : <<nested>>
+
+
+    ' DTO (Response) - 중첩 클래스 분리 및 $ 표기법 사용 '
+    class OpenAiResDto << (D,#EEFFFF) Res DTO >> {
+        - choices: List<OpenAiResDto$Choice>
+    }
+
+    class OpenAiResDto$Choice {
+        - message: OpenAiResDto$Choice$Message
+    }
+    OpenAiResDto +-- OpenAiResDto$Choice : <<nested>>
+
+    class OpenAiResDto$Choice$Message {
+        - role: String
+        - content: String
+    }
+    OpenAiResDto$Choice +-- OpenAiResDto$Choice$Message : <<nested>>
+
+
+    ' Service '
+    class OpenAIService << (S,#AADDFF) Service >> {
+        - key: String (@Value)
+        - objectMapper: ObjectMapper
+        - API_URL: String (static final)
+        --
+        + getAssistance(userPrompt: String, systemPrompt: String): String
+    }
+    OpenAIService --> RestTemplate : uses
+    OpenAIService --> ObjectMapper : injects
+    OpenAIService ..> OpenAiReqDto : uses
+    OpenAIService ..> OpenAiResDto : returns/uses
+    OpenAIService ..> CustomException : throws
+
+    class ModerationService << (S,#AADDFF) Service >> {
+        - restTemplate: RestTemplate
+        - moderationUrl: String (final)
+        --
+        + moderate(text: String): ModerationDto$ModerationResponse
+    }
+    ModerationService --> RestTemplate : injects/uses
+    ModerationService ..> ModerationDto$ModerationRequest : uses
+    ModerationService ..> ModerationDto$ModerationResponse : returns
+
+    ' Controller '
+    class OpenAiController << (C,#FFCCAA) RestController >> {
+        - openAIService: OpenAIService
+        - moderationService: ModerationService
+        --
+        + openAi(prompt: String): ResponseEntity<?>
+        + moderation(prompt: String): ResponseEntity<?>
+    }
+    OpenAiController --> OpenAIService : injects/uses
+    OpenAiController --> ModerationService : injects/uses
+    OpenAiController ..> CustomException : throws
+    OpenAiController ..> ErrorCode : uses
+    OpenAiController ..> ModerationDto$ModerationResponse : uses
+}
+@enduml
