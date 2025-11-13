@@ -695,6 +695,15 @@ Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 
 | **Attribute** | `date`  | 별이 생성된 날짜 | `LocalDate` | `Private`           |
 | **Attribute** | `color` | 별의 색상     | `Color`     | `Private`           |
 
+
+---
+### Class Diagram #45: DiarySummaryResDto
+Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 전송 클래스의 요소이다.
+
+| 구분            | 이름        | 설명          | 타입       | 접근 제한자 (Visibility) |
+|:--------------|:----------|:------------|:---------|:--------------------|
+| **Attribute** | `summary` | 한달 일기 분석 결과 | `String` | `Private`           |
+
 ---
 ### Class Diagram #45: DiaryApi
 Class Description: 감정 일기 관련 API 엔드포인트를 정의하는 인터페이스이다. (Swagger 문서용 Tag/Operation 정의 포함)
