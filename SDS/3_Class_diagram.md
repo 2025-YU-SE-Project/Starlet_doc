@@ -688,7 +688,7 @@ Class Description: 일기 조회 및 생성/수정 성공 시 응답하는 Respo
 
 ---
 ### Class Diagram #44: StarMonthlyResDto
-Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 전송 클래스의 요소이다.
+Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름      | 설명        | 타입          | 접근 제한자 (Visibility) |
 |:--------------|:--------|:----------|:------------|:--------------------|
@@ -698,7 +698,7 @@ Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 
 
 ---
 ### Class Diagram #45: DiarySummaryResDto
-Class Description: 월별 별 목록 조회 시 응답하는 Response 데이터 전송 클래스의 요소이다.
+Class Description: 한달 일기 분석 결과를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름        | 설명          | 타입       | 접근 제한자 (Visibility) |
 |:--------------|:----------|:------------|:---------|:--------------------|
@@ -838,6 +838,16 @@ Class Description: 별 아카이브 목록 조회에 사용되는 Response 데�
 | **Attribute** | `y`         | Y 좌표                    | `Double`         | `Private`           |
 | **Attribute** | `color`     | 별 색상                    | `String`         | `Private`           |
 | **Operation** | `builder()` | StarArchiveDto 객체 빌더 생성 | `StarArchiveDto` | `Public`            |
+
+
+---
+### Class Diagram #55: StarsIdDto
+Class Description: 별들의 id를 입력받는 Request 데이터 전송 클래스이다.
+
+| 구분            | 이름        | 설명          | 타입           | 접근 제한자 (Visibility) |
+|:--------------|:----------|:------------|:-------------|:--------------------|
+| **Attribute** | `starIds` | 별 고유 ID 리스트 | `List<Long>` | `Private`           |
+
 
 ---
 ### Class Diagram #55: StarApi
