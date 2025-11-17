@@ -966,6 +966,8 @@ Class Description: 밤하늘 별자리 조회 시 반환되는 별자리 정보�
 | **Attribute** | `userId`          | 사용자 고유 ID                            | `Long`                           | `Private`           |
 | **Attribute** | `x`               | 별자리 X 좌표                             | `Double`                         | `Private`           |
 | **Attribute** | `y`               | 별자리 Y 좌표                             | `Double`                         | `Private`           |
+| **Attribute** | `name`            | 별자리의 이름                              | `String`                         | `Private`           |
+| **Attribute** | `createAt`        | 별자리의 생성일                             | `LocalDate`                      | `Private`           |
 | **Attribute** | `belongDate`      | 별자리가 소속된 월의 날짜                       | `LocalDate`                      | `Private`           |
 | **Attribute** | `stars`           | 구성 별 정보 리스트                          | `List<StarryNightStarDto>`       | `Private`           |
 | **Attribute** | `connections`     | 연결선 정보 리스트                           | `List<StarryNightConnectionDto>` | `Private`           |
