@@ -83,7 +83,7 @@ S3와 OpenAi와 관련된 클래스들을 상세히 기술한다.
 ## 3.1. 엔티티 클래스 다이어그램
 
 ### Entity Relation Diagram
-![alt text](Class%20Diagram%20UML/erd.png)
+![starlet_erd.png](Class%20Diagram%20UML/starlet_erd.png)
 
 
 ### Entity Class Diagram
