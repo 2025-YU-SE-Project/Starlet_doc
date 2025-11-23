@@ -1,0 +1,144 @@
+@startuml
+!theme toy
+top to bottom direction
+
+package "com.example.starlet_be.domains.friend" {
+
+    class User << (E,Gray) External Entity >>
+    class S3StorageService << (S,Gray) External Service >>
+
+    enum FriendStatus << (E,#FFDDCC) Enum >> {
+        PENDING
+        ACCEPTED
+        NONE
+    }
+
+    class FriendReqDto << (D,#FFEEEE) Req DTO >> {
+        - receiverNickname: String
+        --
+        + getReceiverNickname(): String
+    }
+
+    class FriendAcceptReqDto << (D,#FFEEEE) Req DTO >> {
+        - friendId: Long
+        --
+        + getFriendId(): Long
+    }
+
+    class FriendRejectReqDto << (D,#FFEEEE) Req DTO >> {
+        - friendId: Long
+        --
+        + getFriendId(): Long
+    }
+
+    class FriendSearchResDto << (D,#EEFFFF) Res DTO >> {
+        - nickname: String
+        - profileUrl: String
+        - status: String
+        - remainingSeconds: Long
+        --
+        + FriendSearchResDto(...) (Builder)
+        + of(...): FriendSearchResDto
+    }
+
+    class FriendListItemResDto << (D,#EEFFFF) Res DTO >> {
+        - id: Long
+        - userId: Long
+        - nickname: String
+        - profileUrl: String
+        - totalStars: Long
+        - totalConstellations: Long
+        - level: String
+        --
+        + FriendListItemResDto(...) (Builder)
+        + of(...): FriendListItemResDto
+    }
+
+    class FriendReqItemResDto << (D,#EEFFFF) Res DTO >> {
+        - id: Long
+        - nickname: String
+        - profileUrl: String
+        - remainingSeconds: Long
+        - dDayLabel: String
+        --
+        + FriendReqItemResDto(...) (Builder)
+        + of(...): FriendReqItemResDto
+    }
+
+    class Friend << (E,#FFFFAA) Entity >> {
+        - id: Long
+        - requester: User
+        - receiver: User
+        - status: FriendStatus
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        - expiredAt: LocalDateTime
+        --
+        + createPending(User, User, LocalDateTime): Friend
+        + accept(): void
+        + isPendingAndNotExpired(): boolean
+        + getRemainingSeconds(): Long
+    }
+    Friend o-- FriendStatus
+
+    interface FriendRepository << (R,#CCFFCC) JpaRepository >> {
+        + findTop1ByRequesterAndReceiverOrderByCreatedAtDesc(User req, User recv): Optional<Friend>
+        + findLatestBetween(User u1, User u2): Optional<Friend>
+        + findAllByReceiverAndStatusOrderByCreatedAtDesc(User recv, FriendStatus status): List<Friend>
+        + findAllByStatusAndRequesterOrStatusAndReceiver(...): List<Friend>
+    }
+    FriendRepository --> Friend : manages
+
+    class FriendEmailService << (S,#AADDFF) Service >> {
+        - mailSender: JavaMailSender
+        - baseUrl: String
+        --
+        + sendFriendRequestMail(User requester, User receiver, Friend request)
+        + sendFriendAcceptedMail(User requester, User receiver)
+        - buildFriendRequestHtml(...)
+        - buildFriendAcceptedHtml(...)
+    }
+
+    class FriendService << (S,#AADDFF) Service >> {
+        - userRepository: UserRepository
+        - friendRepository: FriendRepository
+        - friendEmailService: FriendEmailService
+        - s3StorageService: S3StorageService
+        - starRepository: StarRepository
+        - constellationRepository: ConstellationRepository
+        --
+        + searchFriend(userId: Long, nickname: String): FriendSearchResDto
+        + requestFriend(requesterId: Long, receiverNickname: String)
+        + acceptFriend(receiverId: Long, friendId: Long)
+        + rejectFriend(receiverId: Long, friendId: Long)
+        + getMyFriendRequests(userId: Long): List<FriendReqItemResDto>
+        + getMyFriends(userId: Long): List<FriendListItemResDto>
+        + deleteFriend(userId: Long, friendId: Long)
+        - toDDayLabel(LocalDateTime now, LocalDateTime expiredAt): String
+    }
+    FriendService --> FriendRepository : injects/uses
+    FriendService --> FriendEmailService : injects/uses
+    FriendService --> S3StorageService : uses
+    FriendService ..> FriendSearchResDto : returns
+    FriendService ..> FriendReqItemResDto : returns
+    FriendService ..> FriendListItemResDto : returns
+
+    class FriendController << (C,#FFCCAA) RestController >> {
+        - friendService: FriendService
+        - userRepository: UserRepository
+        --
+        + searchFriend(...): ResponseEntity<FriendSearchResDto>
+        + requestFriend(...): ResponseEntity<?>
+        + acceptFriend(...): ResponseEntity<?>
+        + rejectFriend(...): ResponseEntity<?>
+        + getMyFriends(...): ResponseEntity<List<FriendListItemResDto>>
+        + getMyFriendRequest(...): ResponseEntity<List<FriendReqItemResDto>>
+        + deleteFriend(...): ResponseEntity<?>
+    }
+
+    FriendController --> FriendService : injects/uses
+    FriendController ..> FriendReqDto : uses
+    FriendController ..> FriendAcceptReqDto : uses
+    FriendController ..> FriendRejectReqDto : uses
+}
+@enduml
