@@ -26,6 +26,8 @@
 
 7. 별자리 선 - Connection
 
+8. 친구 - Friend
+
 
 ### 3.2. 공통 인프라 다이어그램 (Common Infrastructure Diagram)
 
@@ -61,6 +63,8 @@
 7. Connection : 별자리 선
 
 8. MyPage : 위의 도메인들을 조합한 마이페이지 기능
+
+9. Friend : 친구
 
 
 ### 3.4. 외부 서비스 다이어그램 (External Service Diagram)
@@ -210,6 +214,25 @@ Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 | **Attribute** | `start`         | 시작 별                | `Star`          | `Private`           |
 | **Attribute** | `end`           | 끝 별                 | `Star`          | `Private`           |
 | **Operation** | `builder()`     | Connection 객체 빌더 생성 | `Connection`    | `Public`            |
+
+---
+
+### Class Diagram #8: Friend
+Class Description: 사용자 간의 친구 관계(요청, 수락, 상태 관리)를 나타내는 Entity
+
+| 구분            | 이름                                                                      | 설명                           | 타입              | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------------|:-----------------------------|:----------------|:--------------------|
+| **Attribute** | `id`                                                                    | 친구 관계의 고유 식별자                | `Long`          | `Private`           |
+| **Attribute** | `requester`                                                             | 친구 요청을 보낸 사용자                | `User`          | `Private`           |
+| **Attribute** | `receiver`                                                              | 친구 요청을 받은 사용자                | `User`          | `Private`           |
+| **Attribute** | `status`                                                                | 친구 관계 상태 (PENDING, ACCEPTED) | `FriendStatus`  | `Private`           |
+| **Attribute** | `createdAt`                                                             | 생성 일시                        | `LocalDateTime` | `Private`           |
+| **Attribute** | `updatedAt`                                                             | 수정 일시 (수락 시 갱신)              | `LocalDateTime` | `Private`           |
+| **Attribute** | `expiredAt`                                                             | 요청 만료 일시                     | `LocalDateTime` | `Private`           |
+| **Operation** | `createPending(User requester, User receiver, LocalDateTime expiredAt)` | 대기 상태의 친구 요청 객체 생성           | `Friend`        | `Public`            |
+| **Operation** | `accept()`                                                              | 친구 요청 수락 (상태 변경 및 시간 갱신)     | `void`          | `Public`            |
+| **Operation** | `isPendingAndNotExpired()`                                              | 요청이 대기 중이고 만료되지 않았는지 검사      | `boolean`       | `Public`            |
+| **Operation** | `getRemainingSeconds()`                                                 | 만료까지 남은 시간(초) 계산             | `Long`          | `Public`            |
 
 ---
 
@@ -1262,7 +1285,127 @@ Class Description: 닉네임 수정 후 최종 닉네임 정보를 반환하는 
 | **Attribute** | `nickname`            | 최종적으로 업데이트된 닉네임 | `String`               | `Private`           |
 | **Operation** | `of(String nickname)` | 닉네임을 DTO로 변환    | `UpdateNicknameResDto` | `Public`            |
 
+---
 
+### 3.3.9. Friend
+![friend.png](Class%20Diagram%20UML%2Ffriend.png)
+
+---
+
+### Class Diagram #89: FriendReqDto
+Class Description: 친구 요청을 보낼 때 수신자의 닉네임을 담는 Request 데이터 전송 클래스이다.
+
+| 구분            | 이름                 | 설명                 | 타입       | 접근 제한자 (Visibility) |
+|:--------------|:-------------------|:-------------------|:---------|:--------------------|
+| **Attribute** | `receiverNickname` | 친구 요청을 받을 사용자의 닉네임 | `String` | `Private`           |
+
+---
+### Class Diagram #90: FriendAcceptReqDto
+Class Description: 친구 요청을 수락할 때 해당 친구 요청(Friend Entity)의 ID를 담는 Request 데이터 전송 클래스이다.
+
+| 구분            | 이름         | 설명               | 타입     | 접근 제한자 (Visibility) |
+|:--------------|:-----------|:-----------------|:-------|:--------------------|
+| **Attribute** | `friendId` | 수락할 친구 요청의 고유 ID | `Long` | `Private`           |
+
+---
+### Class Diagram #91: FriendRejectReqDto
+Class Description: 친구 요청을 거절할 때 해당 친구 요청(Friend Entity)의 ID를 담는 Request 데이터 전송 클래스이다.
+
+| 구분            | 이름         | 설명               | 타입     | 접근 제한자 (Visibility) |
+|:--------------|:-----------|:-----------------|:-------|:--------------------|
+| **Attribute** | `friendId` | 거절할 친구 요청의 고유 ID | `Long` | `Private`           |
+
+---
+### Class Diagram #92: FriendSearchResDto
+Class Description: 친구 검색 시 검색된 사용자의 정보와 현재 나와의 친구 상태를 담아 반환하는 Response 데이터 전송 클래스이다.
+
+| 구분            | 이름                                                                             | 설명                                        | 타입                   | 접근 제한자 (Visibility) |
+|:--------------|:-------------------------------------------------------------------------------|:------------------------------------------|:---------------------|:--------------------|
+| **Attribute** | `nickname`                                                                     | 검색된 사용자의 닉네임                              | `String`             | `Private`           |
+| **Attribute** | `profileUrl`                                                                   | 검색된 사용자의 프로필 이미지 URL                      | `String`             | `Private`           |
+| **Attribute** | `status`                                                                       | 나와의 친구 상태 (NONE, PENDING, ACCEPTED)       | `String`             | `Private`           |
+| **Attribute** | `remainingSeconds`                                                             | PENDING 상태일 경우 남은 유효 시간(초)                | `Long`               | `Private`           |
+| **Operation** | `of(String nickname, String profileUrl, String status, Long remainingSeconds)` | FriendSearchResDto 객체 생성 (Static Factory) | `FriendSearchResDto` | `Public`            |
+
+---
+### Class Diagram #93: FriendReqItemResDto
+Class Description: 받은 친구 요청 목록을 조회할 때, 요청 보낸 사용자의 정보와 만료 관련 정보를 담는 Response 데이터 전송 클래스이다.
+
+| 구분            | 이름                                                                                         | 설명                                         | 타입                    | 접근 제한자 (Visibility) |
+|:--------------|:-------------------------------------------------------------------------------------------|:-------------------------------------------|:----------------------|:--------------------|
+| **Attribute** | `id`                                                                                       | 친구 요청(Friend)의 고유 ID                       | `Long`                | `Private`           |
+| **Attribute** | `nickname`                                                                                 | 요청을 보낸 사용자의 닉네임                            | `String`              | `Private`           |
+| **Attribute** | `profileUrl`                                                                               | 요청을 보낸 사용자의 프로필 이미지 URL                    | `String`              | `Private`           |
+| **Attribute** | `remainingSeconds`                                                                         | 요청 만료까지 남은 시간(초)                           | `Long`                | `Private`           |
+| **Attribute** | `dDayLabel`                                                                                | D-Day 라벨 (예: D-2, EXPIRED)                 | `String`              | `Private`           |
+| **Operation** | `of(Long id, String nickname, String profileUrl, Long remainingSeconds, String dDayLabel)` | FriendReqItemResDto 객체 생성 (Static Factory) | `FriendReqItemResDto` | `Public`            |
+
+---
+### Class Diagram #94: FriendListItemResDto
+Class Description: 친구 목록 조회 시 친구의 프로필 정보와 활동 통계(별 개수, 레벨 등)를 담는 Response 데이터 전송 클래스이다.
+
+| 구분            | 이름                                                                                                                      | 설명                                          | 타입                     | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------|:-----------------------|:--------------------|
+| **Attribute** | `id`                                                                                                                    | 친구 관계(Friend)의 고유 ID                        | `Long`                 | `Private`           |
+| **Attribute** | `userId`                                                                                                                | 친구인 사용자의 고유 ID                              | `Long`                 | `Private`           |
+| **Attribute** | `nickname`                                                                                                              | 친구의 닉네임                                     | `String`               | `Private`           |
+| **Attribute** | `profileUrl`                                                                                                            | 친구의 프로필 이미지 URL                             | `String`               | `Private`           |
+| **Attribute** | `totalStars`                                                                                                            | 친구가 보유한 총 별의 개수                             | `Long`                 | `Private`           |
+| **Attribute** | `totalConstellations`                                                                                                   | 친구가 생성한 총 별자리의 개수                           | `Long`                 | `Private`           |
+| **Attribute** | `level`                                                                                                                 | 친구의 레벨 이름                                   | `String`               | `Private`           |
+| **Operation** | `of(Long id, Long userId, String nickname, String profileUrl, Long totalStars, Long totalConstellations, String level)` | FriendListItemResDto 객체 생성 (Static Factory) | `FriendListItemResDto` | `Public`            |
+
+---
+### Class Diagram #95: FriendRepository
+Class Description: Friend 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
+
+| 구분            | 이름                                                                                                                          | 설명                             | 타입                 | 접근 제한자 (Visibility) |
+|:--------------|:----------------------------------------------------------------------------------------------------------------------------|:-------------------------------|:-------------------|:--------------------|
+| **Operation** | `findLatestBetween(User u1, User u2)`                                                                                       | 두 사용자 간의 가장 최근 친구 요청(상태 무관) 조회 | `Optional<Friend>` | `Public`            |
+| **Operation** | `findAllByReceiverAndStatusOrderByCreatedAtDesc(User receiver, FriendStatus status)`                                        | 받은 친구 요청 목록 조회                 | `List<Friend>`     | `Public`            |
+| **Operation** | `findAllByStatusAndRequesterOrStatusAndReceiver(FriendStatus status1, User requester, FriendStatus status2, User receiver)` | 친구(ACCEPTED) 목록 전체 조회          | `List<Friend>`     | `Public`            |
+
+---
+### Class Diagram #96: FriendEmailService
+Class Description: 친구 요청 및 수락 시 사용자에게 알림 이메일을 발송하는 기능을 담당하는 서비스 클래스이다.
+
+| 구분            | 이름                                                                     | 설명                        | 타입               | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------------------------------------------|:--------------------------|:-----------------|:--------------------|
+| **Attribute** | `mailSender`                                                           | 이메일 전송을 위한 JavaMailSender | `JavaMailSender` | `Private`           |
+| **Operation** | `sendFriendRequestMail(User requester, User receiver, Friend request)` | 친구 요청 도착 알림 메일 전송         | `void`           | `Public`            |
+| **Operation** | `sendFriendAcceptedMail(User requester, User receiver)`                | 친구 요청 수락 알림 메일 전송         | `void`           | `Public`            |
+
+---
+### Class Diagram #97: FriendService
+Class Description: 친구 검색, 요청, 수락, 거절, 목록 조회 및 삭제 등 친구 관계 관리의 핵심 비즈니스 로직을 담당하는 서비스이다.
+
+| 구분            | 이름                                                         | 설명                     | 타입                           | 접근 제한자 (Visibility) |
+|:--------------|:-----------------------------------------------------------|:-----------------------|:-----------------------------|:--------------------|
+| **Attribute** | `friendRepository`                                         | Friend 엔티티 저장소         | `FriendRepository`           | `Private`           |
+| **Attribute** | `friendEmailService`                                       | 이메일 알림 서비스             | `FriendEmailService`         | `Private`           |
+| **Attribute** | `s3StorageService`                                         | 프로필 이미지 URL 변환 서비스     | `S3StorageService`           | `Private`           |
+| **Operation** | `searchFriend(Long userId, String nickname)`               | 닉네임으로 친구 검색 및 관계 상태 확인 | `FriendSearchResDto`         | `Public`            |
+| **Operation** | `requestFriend(Long requesterId, String receiverNickname)` | 친구 요청 생성 및 알림 메일 발송    | `void`                       | `Public`            |
+| **Operation** | `acceptFriend(Long receiverId, Long friendId)`             | 친구 요청 수락 및 관계 성립 처리    | `void`                       | `Public`            |
+| **Operation** | `rejectFriend(Long receiverId, Long friendId)`             | 친구 요청 거절 (삭제)          | `void`                       | `Public`            |
+| **Operation** | `getMyFriendRequests(Long userId)`                         | 받은 친구 요청 중 유효한 목록 조회   | `List<FriendReqItemResDto>`  | `Public`            |
+| **Operation** | `getMyFriends(Long userId)`                                | 친구 목록 및 친구들의 상세 정보 조회  | `List<FriendListItemResDto>` | `Public`            |
+| **Operation** | `deleteFriend(Long userId, Long friendId)`                 | 맺어진 친구 관계 삭제           | `void`                       | `Public`            |
+
+---
+### Class Diagram #98: FriendController
+Class Description: 친구 관련 API 요청을 받아 FriendService로 전달하는 REST Controller이다.
+
+| 구분            | 이름                                                            | 설명                   | 타입                                           | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------------|:---------------------|:---------------------------------------------|:--------------------|
+| **Attribute** | `friendService`                                               | 친구 관리 서비스            | `FriendService`                              | `Private`           |
+| **Operation** | `searchFriend(UserDetails principal, String searchNickname)`  | 사용자 검색 엔드포인트         | `ResponseEntity<FriendSearchResDto>`         | `Public`            |
+| **Operation** | `requestFriend(UserDetails principal, FriendReqDto dto)`      | 친구 요청 엔드포인트          | `ResponseEntity<?>`                          | `Public`            |
+| **Operation** | `acceptFriend(UserDetails principal, FriendAcceptReqDto dto)` | 친구 수락 엔드포인트          | `ResponseEntity<?>`                          | `Public`            |
+| **Operation** | `rejectFriend(UserDetails principal, FriendRejectReqDto dto)` | 친구 거절 엔드포인트          | `ResponseEntity<?>`                          | `Public`            |
+| **Operation** | `getMyFriends(UserDetails principal)`                         | 내 친구 목록 조회 엔드포인트     | `ResponseEntity<List<FriendListItemResDto>>` | `Public`            |
+| **Operation** | `getMyFriendRequest(UserDetails principal)`                   | 받은 친구 요청 목록 조회 엔드포인트 | `ResponseEntity<List<FriendReqItemResDto>>`  | `Public`            |
+| **Operation** | `deleteFriend(UserDetails principal, Long friendId)`          | 친구 삭제 엔드포인트          | `ResponseEntity<?>`                          | `Public`            |
 
 ---
 
@@ -1276,7 +1419,7 @@ Class Description: 닉네임 수정 후 최종 닉네임 정보를 반환하는 
 
 ---
 
-### Class Diagram #89: S3tempResDto
+### Class Diagram #99: S3tempResDto
 Class Description: 이미지 업로드를 위해 발급된 임시 URL과 해당 파일 키를 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름                        | 설명                          | 타입             | 접근 제한자 (Visibility) |
@@ -1286,7 +1429,7 @@ Class Description: 이미지 업로드를 위해 발급된 임시 URL과 해당 
 | **Operation** | `of(URL url, String key)` | URL과 키를 데이터 전송 클래스로 변환      | `S3tempResDto` | `Public`            |
 
 ---
-### Class Diagram #90: S3uploadResDto
+### Class Diagram #100: S3uploadResDto
 Class Description: S3 업로드 완료 후 최종적으로 저장된 이미지 URL을 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름               | 설명                  | 타입               | 접근 제한자 (Visibility) |
@@ -1295,7 +1438,7 @@ Class Description: S3 업로드 완료 후 최종적으로 저장된 이미지 U
 | **Operation** | `of(String url)` | URL을 데이터 전송 클래스로 변환 | `S3uploadResDto` | `Public`            |
 
 ---
-### Class Diagram #91: S3StorageService
+### Class Diagram #101: S3StorageService
 Class Description: Amazon S3와의 통신을 담당하며, Pre-signed URL 발급, 파일 복사 및 최종 URL 생성 등의 비즈니스 로직을 처리하는 서비스이다.
 
 | 구분            | 이름                                                | 설명                                        | 타입            | 접근 제한자 (Visibility) |
@@ -1308,7 +1451,7 @@ Class Description: Amazon S3와의 통신을 담당하며, Pre-signed URL 발급
 | **Operation** | `publishProfile(Long userId, String tempKey)`     | 임시 파일(tempKey)을 최종 프로필 경로로 복사 및 최종 URL 반환 | `String`      | `Public`            |
 
 ---
-### Class Diagram #92: S3Controller
+### Class Diagram #102: S3Controller
 Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 전달하고 사용자 인증 및 파일 키 생성을 처리하는 REST Controller이다.
 
 | 구분            | 이름                                                                                          | 설명                              | 타입                 | 접근 제한자 (Visibility) |
@@ -1328,7 +1471,7 @@ Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 
 
 ---
 
-### Class Diagram #93: OpenAiReqDto
+### Class Diagram #103: OpenAiReqDto
 Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO이다. 채팅 모델 및 메시지 리스트를 포함한다.
 
 | 구분                        | 이름                                                   | 설명                                     | 타입              | 접근 제한자 (Visibility) |
@@ -1342,7 +1485,7 @@ Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO이�
 | **Inner Class Operation** | `Message(String role, String content)`               | 모든 필드를 포함한 생성자                         | `Message`       | `Public`            |
 
 ---
-### Class Diagram #94: OpenAiResDto
+### Class Diagram #104: OpenAiResDto
 Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response DTO이다.
 
 | 구분                        | 이름        | 설명                | 타입             | 접근 제한자 (Visibility) |
@@ -1355,7 +1498,7 @@ Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response D
 | **Inner Class Attribute** | `content` | 메시지 내용            | `String`       | `Private`           |
 
 ---
-### Class Diagram #95: ModerationDto
+### Class Diagram #105: ModerationDto
 Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO들을 정의하는 클래스이다.
 
 | 구분                         | 이름                                | 설명                    | 타입                  | 접근 제한자 (Visibility) |
@@ -1377,7 +1520,7 @@ Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO�
 | **Nested Class Attribute** | `sexual`, `hate`, ...             | 각 카테고리 점수             | `double`            | `Private`           |
 
 ---
-### Class Diagram #96: OpenAIService
+### Class Diagram #106: OpenAIService
 Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스이다. 시스템 및 사용자 프롬프트를 구성하여 응답을 받아옵니다.
 
 | 구분            | 이름                                                      | 설명                                      | 타입             | 접근 제한자 (Visibility) |
@@ -1388,7 +1531,7 @@ Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스�
 | **Operation** | `getAssistance(String userPrompt, String systemPrompt)` | AI에게 질의하고 텍스트 응답을 반환                    | `String`       | `Public`            |
 
 ---
-### Class Diagram #97: ModerationService
+### Class Diagram #107: ModerationService
 Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스트의 유해성 검사를 수행하는 서비스이다.
 
 | 구분            | 이름                      | 설명                          | 타입                                 | 접근 제한자 (Visibility) |
@@ -1398,7 +1541,7 @@ Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스�
 | **Operation** | `moderate(String text)` | 텍스트의 유해성 검사를 요청하고 응답 DTO 반환 | `ModerationDto.ModerationResponse` | `Public`            |
 
 ---
-### Class Diagram #98: OpenAiController
+### Class Diagram #108: OpenAiController
 Class Description: OpenAI API 및 Moderation API 호출을 위한 엔드포인트를 제공하는 REST Controller이다.
 
 | 구분            | 이름                                       | 설명                     | 타입                  | 접근 제한자 (Visibility) |
