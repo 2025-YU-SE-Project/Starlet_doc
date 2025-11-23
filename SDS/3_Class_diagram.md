@@ -26,6 +26,8 @@
 
 7. 별자리 선 - Connection
 
+8. 친구 - Friend
+
 
 ### 3.2. 공통 인프라 다이어그램 (Common Infrastructure Diagram)
 
@@ -61,6 +63,8 @@
 7. Connection : 별자리 선
 
 8. MyPage : 위의 도메인들을 조합한 마이페이지 기능
+
+9. Friend : 친구
 
 
 ### 3.4. 외부 서비스 다이어그램 (External Service Diagram)
@@ -210,6 +214,25 @@ Class Description: 별자리 내의 별들을 잇는 연결선 Entity
 | **Attribute** | `start`         | 시작 별                | `Star`          | `Private`           |
 | **Attribute** | `end`           | 끝 별                 | `Star`          | `Private`           |
 | **Operation** | `builder()`     | Connection 객체 빌더 생성 | `Connection`    | `Public`            |
+
+---
+
+### Class Diagram #8: Friend
+Class Description: 사용자 간의 친구 관계(요청, 수락, 상태 관리)를 나타내는 Entity
+
+| 구분            | 이름                                                                      | 설명                           | 타입              | 접근 제한자 (Visibility) |
+|:--------------|:------------------------------------------------------------------------|:-----------------------------|:----------------|:--------------------|
+| **Attribute** | `id`                                                                    | 친구 관계의 고유 식별자                | `Long`          | `Private`           |
+| **Attribute** | `requester`                                                             | 친구 요청을 보낸 사용자                | `User`          | `Private`           |
+| **Attribute** | `receiver`                                                              | 친구 요청을 받은 사용자                | `User`          | `Private`           |
+| **Attribute** | `status`                                                                | 친구 관계 상태 (PENDING, ACCEPTED) | `FriendStatus`  | `Private`           |
+| **Attribute** | `createdAt`                                                             | 생성 일시                        | `LocalDateTime` | `Private`           |
+| **Attribute** | `updatedAt`                                                             | 수정 일시 (수락 시 갱신)              | `LocalDateTime` | `Private`           |
+| **Attribute** | `expiredAt`                                                             | 요청 만료 일시                     | `LocalDateTime` | `Private`           |
+| **Operation** | `createPending(User requester, User receiver, LocalDateTime expiredAt)` | 대기 상태의 친구 요청 객체 생성           | `Friend`        | `Public`            |
+| **Operation** | `accept()`                                                              | 친구 요청 수락 (상태 변경 및 시간 갱신)     | `void`          | `Public`            |
+| **Operation** | `isPendingAndNotExpired()`                                              | 요청이 대기 중이고 만료되지 않았는지 검사      | `boolean`       | `Public`            |
+| **Operation** | `getRemainingSeconds()`                                                 | 만료까지 남은 시간(초) 계산             | `Long`          | `Public`            |
 
 ---
 
