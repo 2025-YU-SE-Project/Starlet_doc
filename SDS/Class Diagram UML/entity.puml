@@ -1,0 +1,176 @@
+@startuml
+!theme toy
+left to right direction
+
+' ====================================================================
+' 외부 참조 및 Enum 정의 (편의를 위해 별도 정의)
+' ====================================================================
+class UserResDto << (D,Gray) External DTO >>
+enum VerifyType << (E,#AAFFAA) Enum >> {
+    VERIFY
+    EMAIL_VERIFICATION
+    REQUEST_PASSWORD_RESET
+    CHANGING_PASSWORD
+}
+enum Emotion << (E,#FFFFAA) Enum >> {
+    HAPPINESS
+    FUNNY
+    NEUTRAL
+    SURPRISING
+    ANGER
+    SADNESS
+}
+enum Color << (E,#FFDDCC) Enum >>
+enum Factor << (E,#DDEEFF) Enum >>
+enum FriendStatus << (E,#FFDDCC) Enum >> {
+    PENDING
+    ACCEPTED
+    NONE
+}
+
+' ====================================================================
+' 1. 사용자 및 인증 도메인
+' ====================================================================
+package "User & Verify Domain" {
+
+    class User << (E,#FFFFAA) User Entity >> {
+        - id: Long
+        - nickname: String
+        - password: String
+        - profilePhotoUrl: String
+        --
+        + User(...) (Builder)
+        + toResDto(): UserResDto
+        + changePassword(encodedPassword: String): void
+        + changeProfilePhotoUrl(profilePhotoUrl: String): void
+        + changeNickname(nickname: String): void
+    }
+
+    class Email << (E,#FFFFAA) Email Entity >> {
+        - id: Long
+        - address: String
+        --
+        + Email(...) (Builder)
+    }
+
+    class Verify << (E,#FFFFAA) Verify Entity >> {
+        - id: Long
+        - token: String
+        - type: VerifyType
+        - expireTime: LocalDateTime
+        --
+        + Verify(...) (Builder)
+        + updateStatus(token: String, type: VerifyType, expireTime: LocalDateTime): void
+    }
+}
+
+' ====================================================================
+' 2. 일기 및 별 도메인
+' ====================================================================
+package "Diary & Star Domain" {
+
+    class Diary << (E,#CCCFFF) Diary Entity >> {
+        - id: Long
+        - emotion: Emotion
+        - factors: List<Factor> (ElementCollection)
+        - content: String
+        - createAt: LocalDate
+        - version: Long (@Version)
+        --
+        + Diary(...) (Builder)
+        + updateContent(newContent: String): void
+    }
+    Diary o-- Emotion : <<uses>>
+    Diary o-- Factor : <<uses>>
+
+    class Star << (E,#FFFFAA) Star Entity >> {
+        - id: Long
+        - color: Color
+        - x: Double
+        - y: Double
+        - connectionsAsStart: List<Connection> (OneToMany)
+        - connectionsAsEnd: List<Connection> (OneToMany)
+        --
+        + Star(...) (Builder)
+        + joinConstellation(constellation: Constellation): void
+        + changePosition(x: Double, y: Double): void
+    }
+    Star o-- Color : <<uses>>
+}
+
+' ====================================================================
+' 3. 별자리 및 연결 도메인
+' ====================================================================
+package "Constellation Domain" {
+
+    class Constellation << (E,#FFFFAA) Constellation Entity >> {
+        - id: Long
+        - name: String
+        - description: String
+        - createAt: LocalDate
+        - belongDate: LocalDate
+        - isRepresentative: boolean
+        - x: Double
+        - y: Double
+        --
+        + Constellation(...) (Builder)
+        + changeRepresentative(): void
+        + changePosition(x: Double, y: Double): void
+        + updateInfo(name: String, description: String): void
+        + setBelongDate(belongDate: LocalDate): void
+    }
+
+    class Connection << (E,#FFFFAA) Connection Entity >> {
+        - id: Long
+        --
+        + Connection(constellation: Constellation, start: Star, end: Star) (Builder)
+    }
+}
+
+' ====================================================================
+' 4. 친구 도메인
+' ====================================================================
+package "Friend Domain" {
+
+    class Friend << (E,#FFFFAA) Friend Entity >> {
+        - id: Long
+        - status: FriendStatus
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        - expiredAt: LocalDateTime
+        --
+        + {static} createPending(User requester, User receiver, LocalDateTime expiredAt): Friend
+        + accept(): void
+        + isPendingAndNotExpired(): boolean
+        + getRemainingSeconds(): Long
+    }
+    Friend o-- FriendStatus : <<uses>>
+}
+
+' ====================================================================
+' 관계 (Relationships)
+' ====================================================================
+
+' 1. User & Verify Relationships
+User "1" *-- "1" Email : email (OneToOne)
+Email "1" *-- "1" Verify : verify (OneToOne)
+
+' 2. User & Diary & Star Relationships
+User "1" o-- "0..*" Diary : diaries (OneToMany)
+User "1" o-- "0..*" Star : stars (OneToMany)
+Diary "1" *-- "1" Star : star (OneToOne)
+
+' 3. Constellation & Star Relationships
+User "1" o-- "0..*" Constellation : constellations (OneToMany)
+Constellation "0..1" o-- "0..*" Star : constellation (ManyToOne)
+
+' 4. Constellation & Connection Relationships
+Constellation "1" o-- "0..*" Connection : connections (OneToMany)
+Star "1" o-- "0..*" Connection : start (ManyToOne)
+Star "1" o-- "0..*" Connection : end (ManyToOne)
+
+' 5. Friend Relationships
+User "1" o-- "0..*" Friend : requester (ManyToOne)
+User "1" o-- "0..*" Friend : receiver (ManyToOne)
+
+@enduml

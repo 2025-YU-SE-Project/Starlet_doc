@@ -93,7 +93,7 @@ S3와 OpenAi와 관련된 클래스들을 상세히 기술한다.
 
 
 ### Entity Class Diagram
-![entity.png](Class%20Diagram%20UML/entity.png)
+![entity.png](Class%20Diagram%20UML/entity_starumlver.png)
 
 ---
 
@@ -113,6 +113,7 @@ Class Description : 플랫폼의 사용자 Entity
 | **Operation** | `builder()`                                     | User 객체 빌더 생성    | `User`                | `Public`            |
 | **Operation** | `toResDto()`                                    | 응답 데이터 전송 객체로 변환 | `UserResDto`          | `Public`            |
 | **Operation** | `changePassword(String encodedPassword)`        | 비밀번호 변경          | `void`                | `Public`            |
+| **Operation** | `changeNickname(String nickname)`               | 닉네임 변경           | `void`                | `Public`            |
 | **Operation** | `changeProfilePhotoUrl(String profilePhotoUrl)` | 프로필 사진 URL 변경    | `void`                | `Public`            |
 ---
 
@@ -994,7 +995,7 @@ Class Description: 별자리 위치 최신화 요청 시 필요한 X, Y 좌표�
 | **Attribute** | `y` | 별자리의 Y 좌표 | `Double` | `Private`           |
 
 ---
-### Class Diagram #68: UpdateConstellationInfo
+### Class Diagram #68: UpdateConstellationDto
 Class Description: 별자리의 이름 및 설명을 수정할 때 사용되는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명         | 타입       | 접근 제한자 (Visibility) |
