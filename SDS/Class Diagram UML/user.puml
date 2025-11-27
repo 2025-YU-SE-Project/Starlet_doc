@@ -79,6 +79,8 @@ package "com.example.starlet_be.domains.user" {
         - emailService: EmailService
         - moderationService: ModerationService
         --
+        + getUser(id: Long) : UserResDto
+        + getUserList() : List<UserResDto>
         + signUp(dto: SignUpDto): User
         + validNickname(nickname: String): void
         + login(dto: LoginDto, res: HttpServletResponse): LoginInfoDto
@@ -88,6 +90,8 @@ package "com.example.starlet_be.domains.user" {
     }
 
     interface UserApi << (I,#CCCCCC) Tag/Interface >> {
+        + getUser(id: Long) : ResponseEntity<?>
+        + getUserList() : ResponseEntity<?>
         + signUp(dto: SignUpDto): ResponseEntity<?>
         + validNickname(nickname: String): ResponseEntity<?>
         + login(dto: LoginDto, res: HttpServletResponse): ResponseEntity<?>
@@ -99,6 +103,8 @@ package "com.example.starlet_be.domains.user" {
         - userService: UserService
         - emailService: EmailService
         --
+        + getUser(id: Long) : ResponseEntity<?>
+        + getUserList() : ResponseEntity<?>
         + signUp(dto: SignUpDto): ResponseEntity<?>
         + validNickname(nickname: String): ResponseEntity<?>
         + login(dto: LoginDto, res: HttpServletResponse): ResponseEntity<?>
