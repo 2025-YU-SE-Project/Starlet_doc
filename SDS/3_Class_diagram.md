@@ -58,7 +58,9 @@
 
 5. Star : 별
 
-6. Constellation : 별자리 - StarryNight : 밤하늘 페이지, Archive : 별자리 아카이브
+6. Constellation : 별자리 
+   - StarryNight : 밤하늘 페이지
+   - Archive : 별자리 아카이브
 
 7. Connection : 별자리 선
 
@@ -459,8 +461,6 @@ Class Description: 회원 관련 API 엔드포인트를 정의하는 인터페�
 
 | 구분            | 이름                                                                    | 설명                  | 타입                  | 접근 제한자 (Visibility) |
 |:--------------|:----------------------------------------------------------------------|:--------------------|:--------------------|:--------------------|
-| **Operation** | `getUser(@PathVariable Long id)`                                      | 회원 고유 ID를 통한 회원 조회  | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `getUserList()`                                                       | 모든 회원 정보 조회         | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `signUp(@Valid @RequestBody SignUpDto dto)`                           | 회원가입 기능             | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `validNickname(@RequestParam String nickname)`                        | 사용 가능한 닉네임 검사       | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `login(@RequestBody LoginDto dto, HttpServletResponse res)`           | 로그인 및 토큰 발급         | `ResponseEntity<?>` | `Public`            |
