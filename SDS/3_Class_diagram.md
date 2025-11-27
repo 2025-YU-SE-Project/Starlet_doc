@@ -58,7 +58,7 @@
 
 5. Star : 별
 
-6. Constellation : 별자리 
+6. Constellation : 별자리 공통 기능
    - StarryNight : 밤하늘 페이지
    - Archive : 별자리 아카이브
 
