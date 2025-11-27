@@ -922,59 +922,63 @@ Class Description: 별 정보 조회, 밤하늘 별 조회, 별 위치 최신화
 
 ---
 
-### Class Diagram: StarryNightApi
-Class Description: 밤하늘 페이지 관련 API의 인터페이스입니다.
-
-|      구분       |                                     이름                                      |                      설명                      |         타입          | 접근 제한자 (Visibility) |
-|:-------------:|:---------------------------------------------------------------------------:|:--------------------------------------------:|:-------------------:|:-------------------:|
-| **Operation** |     `getStarryNightStar(UserDetails userDetails, int year, int month)`      |         밤하늘에 표시할 별들을 두 달 단위로 조회합니다.          | `ResponseEntity<?>` |      `Public`       |
-| **Operation** |               `repositionStar(Long id, StarPositionDto dto)`                | 밤하늘에서 별의 위치를 업데이트합니다. (좌표 범위: 0 이상 1 이하 실수값) | `ResponseEntity<?>` |      `Public`       |
-| **Operation** | `getStarryNightConstellation(UserDetails userDetails, int year, int month)` |        밤하늘에 표시할 별자리들을 두 달 단위로 조회합니다.         | `ResponseEntity<?>` |      `Public`       |
-| **Operation** | `createConstellation(UserDetails userDetails, CreateConstellationDto dto)`  |             사용자의 별자리 생성을 처리합니다.              | `ResponseEntity<?>` |      `Public`       |
-| **Operation** |      `repositionConstellation(Long id, ConstellationPositionDto dto)`       |              별자리의 위치를 업데이트합니다.               | `ResponseEntity<?>` |      `Public`       |
-| **Operation** |                 `suggestConstellationName(StarsIdDto dto)`                  |  별들에 연결된 일기 정보를 기반으로 별자리의 이름 및 설명을 추천받습니다.   | `ResponseEntity<?>` |      `Public`       |
+### 3.3.6. Constellation - StarryNight, Archive
+![constellation.png](Class%20Diagram%20UML/constellation.png)
 
 ---
-### Class Diagram: StarryNightController
-Class Description: 밤하늘 페이지의 별 및 별자리 관련 요청을 처리하는 REST Controller입니다. (`/api/v1` 경로)
 
-|      구분       |                                     이름                                      |                                     설명                                     |           타입           | 접근 제한자 (Visibility) |
-|:-------------:|:---------------------------------------------------------------------------:|:--------------------------------------------------------------------------:|:----------------------:|:-------------------:|
-| **Attribute** |                                `starService`                                |                              별 관련 비즈니스 로직 서비스                              |     `StarService`      |      `Private`      |
-| **Attribute** |                           `constellationService`                            |                             별자리 관련 비즈니스 로직 서비스                             | `ConstellationService` |      `Private`      |
-| **Operation** |     `getStarryNightStar(UserDetails userDetails, int year, int month)`      |                 `GET /api/v1/star` 엔드포인트로 별 조회 요청을 처리합니다.                  |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** |               `repositionStar(Long id, StarPositionDto dto)`                |      `PATCH /api/v1/star/reposition/{id}` 엔드포인트로 별 위치 최신화 요청을 처리합니다.       |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** | `getStarryNightConstellation(UserDetails userDetails, int year, int month)` |            `GET /api/v1/constellation` 엔드포인트로 별자리 조회 요청을 처리합니다.            |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** | `createConstellation(UserDetails userDetails, CreateConstellationDto dto)`  |           `POST /api/v1/constellation` 엔드포인트로 별자리 생성 요청을 처리합니다.            |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** |      `repositionConstellation(Long id, ConstellationPositionDto dto)`       | `PATCH /api/v1/constellation/reposition/{id}` 엔드포인트로 별자리 위치 최신화 요청을 처리합니다. |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** |                 `suggestConstellationName(StarsIdDto dto)`                  |      `POST /api/v1/constellation/suggest` 엔드포인트로 별자리 이름 추천 요청을 처리합니다.      |  `ResponseEntity<?>`   |      `Public`       |
+### Class Diagram #61: StarryNightApi
+Class Description: 밤하늘 페이지 관련 API 엔드포인트를 정의하는 인터페이스이다.
 
----
-### Class Diagram: ArchiveApi
-Class Description: 별자리 아카이브 페이지 관련 API의 인터페이스입니다.
-
-|      구분       |                                  이름                                   |                  설명                  |         타입          | 접근 제한자 (Visibility) |
-|:-------------:|:---------------------------------------------------------------------:|:------------------------------------:|:-------------------:|:-------------------:|
-| **Operation** |               `getArchiveList(UserDetails userDetails)`               |      사용자가 생성한 모든 별자리 목록을 조회합니다.      | `ResponseEntity<?>` |      `Public`       |
-| **Operation** |    `getArchivePaging(UserDetails userDetails, Pageable pageable)`     |     사용자가 생성한 별자리를 페이지 단위로 조회합니다.     | `ResponseEntity<?>` |      `Public`       |
-| **Operation** |                      `getArchiveDetail(Long id)`                      | 특정 별자리의 상세 정보(별 구성, 감정 통계 등)를 조회합니다. | `ResponseEntity<?>` |      `Public`       |
-| **Operation** |    `updateConstellationInfo(Long id, UpdateConstellationDto dto)`     |        특정 별자리의 이름과 설명을 수정합니다.        | `ResponseEntity<?>` |      `Public`       |
-| **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)` |     특정 별자리를 대표 별자리로 설정하거나 해제합니다.     | `ResponseEntity<?>` |      `Public`       |
+| 구분            | 이름                                                                      | 설명                                   | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------------------------|:-------------------------------------|:--------------------|:--------------------|
+| **Operation** | `getStarryNightStar(UserDetails userDetails, int year, int month)`        | 밤하늘 별 조회 (2달 단위)                  | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `repositionStar(Long id, StarPositionDto dto)`                            | 밤하늘 별 위치 업데이트                      | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `getStarryNightConstellation(UserDetails userDetails, int year, int month)` | 밤하늘 별자리 조회 (2달 단위)                | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `createConstellation(UserDetails userDetails, CreateConstellationDto dto)`  | 별자리 생성                            | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `repositionConstellation(Long id, ConstellationPositionDto dto)`          | 별자리 위치 업데이트                         | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `suggestConstellationName(StarsIdDto dto)`                                | 별자리 이름 및 설명 추천                   | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram: ArchiveController
-Class Description: 별자리 아카이브 페이지의 요청을 처리하는 REST Controller입니다. (`/api/v1/constellation` 경로)
+### Class Diagram #62: StarryNightController
+Class Description: 밤하늘 페이지의 별 및 별자리 관련 API 요청을 처리하는 REST Controller이다.
 
-|      구분       |                                  이름                                   |                                           설명                                            |           타입           | 접근 제한자 (Visibility) |
-|:-------------:|:---------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|:----------------------:|:-------------------:|
-| **Attribute** |                        `constellationService`                         |                                   별자리 관련 비즈니스 로직 서비스                                    | `ConstellationService` |      `Private`      |
-| **Operation** |               `getArchiveList(UserDetails userDetails)`               |          `GET /api/v1/constellation/archive` 엔드포인트로 별자리 아카이브 전체 조회 요청을 처리합니다.           |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** |    `getArchivePaging(UserDetails userDetails, Pageable pageable)`     |      `GET /api/v1/constellation/archive/paging` 엔드포인트로 별자리 아카이브 페이지 조회 요청을 처리합니다.       |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** |                      `getArchiveDetail(Long id)`                      |        `GET /api/v1/constellation/archive/{id}` 엔드포인트로 별자리 아카이브 상세 조회 요청을 처리합니다.        |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** |    `updateConstellationInfo(Long id, UpdateConstellationDto dto)`     |         `PATCH /api/v1/constellation/{id}` 엔드포인트로 별자리 정보(이름, 설명) 수정 요청을 처리합니다.          |  `ResponseEntity<?>`   |      `Public`       |
-| **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)` | `POST /api/v1/constellation/archive/{id}/representative` 엔드포인트로 대표 별자리 설정/해제 요청을 처리합니다. |  `ResponseEntity<?>`   |      `Public`       |
+| 구분            | 이름                                                                      | 설명                         | 타입                     | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------------------------|:---------------------------|:-----------------------|:--------------------|
+| **Attribute** | `starService`                                                             | 별 관련 비즈니스 로직 서비스         | `StarService`         | `Private`           |
+| **Attribute** | `constellationService`                                                    | 별자리 관련 비즈니스 로직 서비스       | `ConstellationService` | `Private`           |
+| **Operation** | `getStarryNightStar(UserDetails userDetails, int year, int month)`        | 밤하늘 별 조회 엔드포인트            | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `repositionStar(Long id, StarPositionDto dto)`                            | 밤하늘 별 위치 최신화 엔드포인트       | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `getStarryNightConstellation(UserDetails userDetails, int year, int month)` | 밤하늘 별자리 조회 엔드포인트          | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `createConstellation(UserDetails userDetails, CreateConstellationDto dto)`  | 별자리 생성 엔드포인트               | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `repositionConstellation(Long id, ConstellationPositionDto dto)`          | 별자리 위치 최신화 엔드포인트          | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `suggestConstellationName(StarsIdDto dto)`                                | 별자리 이름 추천 엔드포인트            | `ResponseEntity<?>`    | `Public`            |
 
-### Class Diagram #61: CreateConstellationDto
+---
+### Class Diagram #63: ArchiveApi
+Class Description: 별자리 아카이브 관련 API 엔드포인트를 정의하는 인터페이스이다.
+
+| 구분            | 이름                                                                  | 설명                     | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------------------|:-----------------------|:--------------------|:--------------------|
+| **Operation** | `getArchiveList(UserDetails userDetails)`                           | 별자리 아카이브 목록 전체 조회     | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `getArchivePaging(UserDetails userDetails, Pageable pageable)`      | 별자리 아카이브 목록 페이지네이션 조회 | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `getArchiveDetail(Long id)`                                         | 별자리 아카이브 상세 조회        | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `updateConstellationInfo(Long id, UpdateConstellationDto dto)`      | 별자리 정보 수정             | `ResponseEntity<?>` | `Public`            |
+| **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)` | 대표 별자리 설정/해제          | `ResponseEntity<?>` | `Public`            |
+
+---
+### Class Diagram #64: ArchiveController
+Class Description: 별자리 아카이브 관련 API 요청을 처리하는 REST Controller이다.
+
+| 구분            | 이름                                                                  | 설명                           | 타입                     | 접근 제한자 (Visibility) |
+|:--------------|:--------------------------------------------------------------------|:-----------------------------|:-----------------------|:--------------------|
+| **Attribute** | `constellationService`                                              | 별자리 관련 비즈니스 로직 서비스         | `ConstellationService` | `Private`           |
+| **Operation** | `getArchiveList(UserDetails userDetails)`                           | 별자리 아카이브 전체 조회 엔드포인트       | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `getArchivePaging(UserDetails userDetails, Pageable pageable)`      | 별자리 아카이브 페이지네이션 조회 엔드포인트 | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `getArchiveDetail(Long id)`                                         | 별자리 아카이브 상세 조회 엔드포인트     | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `updateConstellationInfo(Long id, UpdateConstellationDto dto)`      | 별자리 정보 수정 엔드포인트            | `ResponseEntity<?>`    | `Public`            |
+| **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)` | 대표 별자리 설정/해제 엔드포인트         | `ResponseEntity<?>`    | `Public`            |
+### Class Diagram #65: CreateConstellationDto
 Class Description: 별자리 생성 요청 시 필요한 정보(이름, 설명, 구성 별 및 연결선)를 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명            | 타입                      | 접근 제한자 (Visibility) |
@@ -985,7 +989,7 @@ Class Description: 별자리 생성 요청 시 필요한 정보(이름, 설명, 
 | **Attribute** | `connections` | 별자리 연결선 목록    | `List<ConnectionDto>`   | `Private`           |
 
 ---
-### Class Diagram #62: ConstellationPositionDto
+### Class Diagram #66: ConstellationPositionDto
 Class Description: 별자리 위치 최신화 요청 시 필요한 X, Y 좌표를 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름  | 설명        | 타입       | 접근 제한자 (Visibility) |
@@ -994,7 +998,7 @@ Class Description: 별자리 위치 최신화 요청 시 필요한 X, Y 좌표�
 | **Attribute** | `y` | 별자리의 Y 좌표 | `Double` | `Private`           |
 
 ---
-### Class Diagram #63: UpdateConstellationInfo
+### Class Diagram #67: UpdateConstellationInfo
 Class Description: 별자리의 이름 및 설명을 수정할 때 사용되는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명         | 타입       | 접근 제한자 (Visibility) |
@@ -1003,7 +1007,7 @@ Class Description: 별자리의 이름 및 설명을 수정할 때 사용되는 
 | **Attribute** | `description` | 수정할 별자리 설명 | `String` | `Private`           |
 
 ---
-### Class Diagram #64: ConstellationApi
+### Class Diagram #68: ConstellationApi
 Class Description: 별자리 관련 API 엔드포인트를 정의하는 인터페이스이다. (Swagger 문서용 Tag/Operation 정의 포함)
 
 | 구분            | 이름                                                                                                                               | 설명                     | 타입                  | 접근 제한자 (Visibility) |
@@ -1018,7 +1022,7 @@ Class Description: 별자리 관련 API 엔드포인트를 정의하는 인터�
 | **Operation** | `suggestConstellationName(@RequestBody StarsIdDto dto)`                                                                          | 별자리 이름 추천              | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram #65: ConstellationRepository
+### Class Diagram #69: ConstellationRepository
 Class Description: Constellation 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
 
 | 구분            | 이름                                                                                  | 설명                                         | 타입                        | 접근 제한자 (Visibility) |
@@ -1028,7 +1032,7 @@ Class Description: Constellation 엔티티의 영속성 관리를 위한 JPA Rep
 | **Operation** | `findByUserAndIsRepresentative(User user, boolean isRepresentative)`                | 사용자별 대표 별자리 조회                             | `Optional<Constellation>` | `Public`            |
 
 ---
-### Class Diagram #66: StarryNightConstellationDto
+### Class Diagram #70: StarryNightConstellationDto
 Class Description: 밤하늘 별자리 조회 시 반환되는 별자리 정보를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                | 설명                                   | 타입                               | 접근 제한자 (Visibility) |
@@ -1045,7 +1049,7 @@ Class Description: 밤하늘 별자리 조회 시 반환되는 별자리 정보�
 | **Operation** | `builder()`       | StarryNightConstellationDto 객체 빌더 생성 | `StarryNightConstellationDto`    | `Public`            |
 
 ---
-### Class Diagram #67: ArchiveDto
+### Class Diagram #71: ArchiveDto
 Class Description: 별자리 아카이브 목록 조회 시 반환되는 별자리 요약 정보를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                 | 설명                  | 타입                     | 접근 제한자 (Visibility) |
@@ -1060,7 +1064,7 @@ Class Description: 별자리 아카이브 목록 조회 시 반환되는 별자�
 | **Operation** | `builder()`        | ArchiveDto 객체 빌더 생성 | `ArchiveDto`           | `Public`            |
 
 ---
-### Class Diagram #68: ArchiveDetailDto
+### Class Diagram #72: ArchiveDetailDto
 Class Description: 별자리 아카이브 상세 조회 시 반환되는 별자리 정보와 감정별 별 개수를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                 | 설명                        | 타입                           | 접근 제한자 (Visibility) |
@@ -1080,7 +1084,7 @@ Class Description: 별자리 아카이브 상세 조회 시 반환되는 별자�
 | **Attribute** | `sadnessCount`     | 슬픔 감정 별 개수                | `Integer`                    | `Private`           |
 | **Operation** | `builder()`        | ArchiveDetailDto 객체 빌더 생성 | `ArchiveDetailDto`           | `Public`            |
 ---
-### Class Diagram #69: ConstellationNameSuggestDto
+### Class Diagram #73: ConstellationNameSuggestDto
 Class Description: 추천받은 별자리의 이름과 설명을 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명        | 타입       | 접근 제한자 (Visibility) |
@@ -1090,7 +1094,7 @@ Class Description: 추천받은 별자리의 이름과 설명을 담는 Response
 
 
 ---
-### Class Diagram #70: ConstellationController
+### Class Diagram #74: ConstellationController
 Class Description: 별자리 관련 API 요청을 받아 ConstellationService로 전달하는 REST Controller이다.
 
 | 구분            | 이름                                                                                                                               | 설명                   | 타입                     | 접근 제한자 (Visibility) |
@@ -1107,7 +1111,7 @@ Class Description: 별자리 관련 API 요청을 받아 ConstellationService로
 
 
 ---
-### Class Diagram #71: ConstellationService
+### Class Diagram #75: ConstellationService
 Class Description: 별자리 생성, 조회, 위치 최신화, 아카이브 관리 등 별자리 관련 핵심 비즈니스 로직을 담당하는 서비스이다.
 
 | 구분            | 이름                                                                          | 설명                                | 타입                                  | 접근 제한자 (Visibility) |
