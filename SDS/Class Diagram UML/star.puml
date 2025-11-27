@@ -5,7 +5,6 @@ top to bottom direction
 package "com.example.starlet_be.domains.star" {
 
     enum Color << (E,#FFDDCC) Enum >> {
-        // RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, GRAY
         // ... (상수 생략)
         --
         + values()
@@ -16,12 +15,6 @@ package "com.example.starlet_be.domains.star" {
     class Diary << (E,Gray) External Entity >>
     class Constellation << (E,Gray) External Entity >>
     class Connection << (E,Gray) External Entity >>
-
-    class DiaryToStarReqDto << (D,#FFEEEE) Req DTO >> {
-        - date: String
-        --
-        + getDate(): String
-    }
 
     class StarPositionDto << (D,#FFEEEE) Req DTO >> {
         - starId: Long
@@ -87,7 +80,6 @@ package "com.example.starlet_be.domains.star" {
         + Star(...) (Builder)
         + joinConstellation(constellation: Constellation)
         + changePosition(x: Double, y: Double)
-        + leaveConstellation()
     }
     Star o-- Color : <<uses>>
 
@@ -105,7 +97,7 @@ package "com.example.starlet_be.domains.star" {
         --
         + getStar(id: Long): StarInfoDto
         + getStarryNightStar(userDetails: UserDetails, year: int, month: int): List<StarryNightStarDto>
-        + repositionStar(id: Long, dto: StarPositionDto)
+        + repositionStar(id: Long, dto: StarPositionDto): void
     }
     StarService --> StarRepository : injects/uses
     StarService ..> StarPositionDto : uses
@@ -113,20 +105,15 @@ package "com.example.starlet_be.domains.star" {
 
     interface StarApi << (I,#CCCCCC) Tag/Interface >> {
         + getStar(id: Long): ResponseEntity<?>
-        + getStarryNightStar(userDetails, year, month): ResponseEntity<?>
-        + repositionStar(id: Long, dto: StarPositionDto): ResponseEntity<?>
     }
 
     class StarController << (C,#FFCCAA) RestController >> {
         - starService: StarService
         --
         + getStar(id: Long): ResponseEntity<?>
-        + getStarryNightStar(userDetails, year, month): ResponseEntity<?>
-        + repositionStar(id: Long, dto: StarPositionDto): ResponseEntity<?>
     }
 
     StarController .up.|> StarApi : implements
     StarController --> StarService : injects/uses
-    StarController ..> StarPositionDto : uses
 }
 @enduml
