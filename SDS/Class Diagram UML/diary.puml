@@ -5,24 +5,25 @@ top to bottom direction
 package "com.example.starlet_be.domains.diary" {
 
     enum Color << (E,#FFDDCC) Color >> {
-        RED // 분노
-        ORANGE // 불안
-        YELLOW // 행복
-        GREEN // 편안
-        BLUE // 슬픔
-        PURPLE // 우울
-        GRAY // 무감정
+        BLUE
+        RED
+        YELLOW
+        GREEN
+        PURPLE
+        ORANGE
         --
         + values()
         + valueOf()
     }
 
     enum Factor << (E,#DDEEFF) Factor >> {
-        FRIEND
-        FAMILY
         WORK
-        STUDY
-        LOVE
+        EDUCATION
+        FRIEND
+        TRIP
+        HOBBY
+        LOVER
+        FAMILY
         HEALTH
         ETC
         --
@@ -31,18 +32,18 @@ package "com.example.starlet_be.domains.diary" {
     }
 
     class Emotion << (E,#FFFFAA) Emotion Enum >> {
-        - color: Color
-        - description: String
         --
-        + Emotion(color: Color, description: String)
         + getColor(): Color
-        + getDescription(): String
         --
-        // 상수는 내부적으로 존재하며, Color를 가집니다.
-        HAPPINESS(Color.YELLOW, "...")
-        SADNESS(Color.BLUE, "...")
-        ...
+        // 상수는 내부적으로 존재합니다.
+        HAPPINESS
+        FUNNY
+        NEUTRAL
+        SURPRISING
+        ANGER
+        SADNESS
     }
+    Emotion ..> Color
 
     class DiaryCreateReqDto << (D,#FFEEEE) Req DTO >> {
         - emotion: Emotion
@@ -62,6 +63,13 @@ package "com.example.starlet_be.domains.diary" {
         --
         + getDate(): LocalDate
         + getContent(): String
+    }
+
+    class DiarySummaryResDto << (D,#EEFFFF) Res DTO >> {
+        - summary: String
+        --
+        + getSummary(): String
+        + DiarySummaryResDto(...) (Builder)
     }
 
     class DiaryResDto << (D,#EEFFFF) Res DTO >> {
@@ -97,9 +105,10 @@ package "com.example.starlet_be.domains.diary" {
         - content: String
         - createAt: LocalDate
         - star: Star (OneToOne)
+        - version: Long
         --
         + Diary(...) (Builder)
-        + update(content: String)
+        + updateContent(newContent: String): void
     }
     Diary o-- Emotion : <<uses>>
     Diary o-- Factor : <<uses>>
@@ -110,6 +119,7 @@ package "com.example.starlet_be.domains.diary" {
         + findByUser_IdAndCreateAt(userId: Long, date: LocalDate): Optional<Diary>
         + findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId: Long, from: LocalDate, to: LocalDate): List<Diary>
         + findByIdAndUser_Id(diaryId: Long, userId: Long): Optional<Diary>
+        + findAllByUserAndCreateAtBetween(user: User, start: LocalDate, end: LocalDate): List<Diary>
     }
     DiaryRepository --> Diary : manages
 
@@ -118,36 +128,43 @@ package "com.example.starlet_be.domains.diary" {
         - userRepository: UserRepository
         - starRepository: StarRepository
         - entityManager: EntityManager
+        - moderationService: ModerationService
+        - openAIService: OpenAIService
         --
-        + create(userId: Long, dto: DiaryCreateReqDto): DiaryResDto
-        + update(userId: Long, diaryId: Long, dto: DiaryUpdateReqDto)
+        + create(userId: Long, req: DiaryCreateReqDto): DiaryResDto
+        + update(userId: Long, req: DiaryUpdateReqDto): DiaryResDto
         + getByDate(userId: Long, date: LocalDate): DiaryResDto
         + getMonthlyStars(userId: Long, ym: YearMonth): List<StarMonthlyResDto>
-        + delete(userId: Long, diaryId: Long)
+        + delete(userId: Long, diaryId: Long): void
+        + getDiaryMonthSummary(details: UserDetails, year: Integer, month: Integer): DiarySummaryResDto
+        - safeFactors(in: List<Factor>): List<Factor>
     }
     DiaryService --> DiaryRepository : injects/uses
     DiaryService ..> DiaryCreateReqDto : uses
     DiaryService ..> DiaryUpdateReqDto : uses
     DiaryService ..> DiaryResDto : returns
     DiaryService ..> StarMonthlyResDto : returns List
+    DiaryService ..> DiarySummaryResDto : returns
 
     interface DiaryApi << (I,#CCCCCC) Tag/Interface >> {
-        + createDiary(...): ResponseEntity<?>
-        + updateDiary(...): ResponseEntity<?>
-        + getDiaryByDate(...): ResponseEntity<DiaryResDto>
-        + getMonthlyStars(...): ResponseEntity<List<StarMonthlyResDto>>
-        + removeDiary(...): ResponseEntity<?>
+        + createDiary(principal: UserDetails, req: DiaryCreateReqDto): ResponseEntity<?>
+        + updateDiary(principal: UserDetails, req: DiaryUpdateReqDto): ResponseEntity<?>
+        + getDiary(principal: UserDetails, date: LocalDate): ResponseEntity<DiaryResDto>
+        + getMonthlyStars(principal: UserDetails, year: int, month: int): ResponseEntity<List<StarMonthlyResDto>>
+        + removeDiary(principal: UserDetails, diaryId: Long): ResponseEntity<?>
+        + getDiaryMonthSummary(details: UserDetails, year: Integer, month: Integer): ResponseEntity<?>
     }
 
     class DiaryController << (C,#FFCCAA) RestController >> {
         - diaryService: DiaryService
         - userRepository: UserRepository
         --
-        + createDiary(principal, dto): ResponseEntity<?>
-        + updateDiary(principal, diaryId, dto): ResponseEntity<?>
-        + getDiaryByDate(principal, date): ResponseEntity<DiaryResDto>
-        + getMonthlyStars(principal, year, month): ResponseEntity<List<StarMonthlyResDto>>
-        + removeDiary(principal, diaryId): ResponseEntity<Object>
+        + createDiary(principal: UserDetails, req: DiaryCreateReqDto): ResponseEntity<DiaryResDto>
+        + updateDiary(principal: UserDetails, req: DiaryUpdateReqDto): ResponseEntity<DiaryResDto>
+        + getDiary(principal: UserDetails, date: LocalDate): ResponseEntity<DiaryResDto>
+        + getMonthlyStars(principal: UserDetails, year: int, month: int): ResponseEntity<List<StarMonthlyResDto>>
+        + removeDiary(principal: UserDetails, diaryId: Long): ResponseEntity<Object>
+        + getDiaryMonthSummary(details: UserDetails, year: Integer, month: Integer): ResponseEntity<?>
         - resolveUserId(principal: UserDetails): Long
     }
 
