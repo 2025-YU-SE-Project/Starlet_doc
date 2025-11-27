@@ -479,8 +479,6 @@ Class Description: 사용자(User)의 비즈니스 로직(회원가입, 로그�
 | **Attribute** | `verifyRepository`                             | 인증 엔티티 저장소            | `VerifyRepository`  | `Private`           |
 | **Attribute** | `emailService`                                 | 이메일 관련 서비스            | `EmailService`      | `Private`           |
 | **Attribute** | `moderationService`                            | moderation 서비스 Bean   | `ModerationService` | `Private`           |
-| **Operation** | `getUser(Long id)`                             | ID 기반 사용자 정보 단일 조회    | `UserResDto`        | `Public`            |
-| **Operation** | `getUserList()`                                | 모든 사용자 목록 조회          | `List<UserResDto>`  | `Public`            |
 | **Operation** | `signUp(SignUpDto dto)`                        | 회원가입 처리 로직            | `User`              | `Public`            |
 | **Operation** | `validNickname(String nickname)`               | 닉네임 존재 여부 확인          | `boolean`           | `Public`            |
 | **Operation** | `login(LoginDto dto, HttpServletResponse res)` | 로그인 및 JWT 토큰 발급/쿠키 설정 | `LoginInfoDto`      | `Public`            |
@@ -516,8 +514,6 @@ Class Description: 사용자 관련 API 요청을 받아 UserService로 전달�
 |:--------------|:----------------------------------------------------------------------|:----------------|:--------------------|:--------------------|
 | **Attribute** | `userService`                                                         | 사용자 관리 서비스      | `UserService`       | `Private`           |
 | **Attribute** | `emailService`                                                        | 이메일 관련 서비스      | `EmailService`      | `Private`           |
-| **Operation** | `getUser(@PathVariable Long id)`                                      | 회원 ID 조회 엔드포인트  | `ResponseEntity<?>` | `Public`            |
-| **Operation** | `getUserList()`                                                       | 회원 목록 조회 엔드포인트  | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `signUp(@Valid @RequestBody SignUpDto dto)`                           | 회원가입 엔드포인트      | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `validNickname(@RequestParam String nickname)`                        | 닉네임 중복 확인 엔드포인트 | `ResponseEntity<?>` | `Public`            |
 | **Operation** | `login(@Valid @RequestBody LoginDto dto, HttpServletResponse res)`    | 로그인 엔드포인트       | `ResponseEntity<?>` | `Public`            |
