@@ -30,7 +30,7 @@ package "com.example.starlet_be.domains.verify" {
         - email: Email (OneToOne, mappedBy)
         --
         + Verify(...) (Builder)
-        + updateStatus(token: String, type: VerifyType, expireTime: LocalDateTime)
+        + updateStatus(token: String, type: VerifyType, expireTime: LocalDateTime): void
         + getToken(): String
         + getType(): VerifyType
     }
@@ -47,12 +47,14 @@ package "com.example.starlet_be.domains.verify" {
         - emailRepository: EmailRepository
         - passwordEncoder: PasswordEncoder
         --
-        + createVerifyEntity(email: Email, verifyType: VerifyType): Verify
-        + validateToken(token: String, requiredType: VerifyType): Verify
-        + emailVerification(token: String)
-        + passwordResetVerification(token: String)
-        + updatePassword(dto: PasswordResetConfirmDto)
-        + removeExpiredVerifyEntities() (@Scheduled)
+        + createToken(): String
+        + createVerify(): Verify
+        # validateToken(token: String, requiredType: VerifyType): Verify
+        + emailVerification(token: String): void
+        + passwordResetVerification(token: String): void
+        + updatePassword(dto: PasswordResetConfirmDto): void
+        + passwordResetRequestStatus(email: Email): void
+        + cleanExpiredVerify(): void (@Scheduled)
     }
 
     interface VerifyApi << (I,#CCCCCC) Tag/Interface >> {

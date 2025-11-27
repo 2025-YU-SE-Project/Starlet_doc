@@ -24,7 +24,7 @@ package "com.example.starlet_be.security" {
     }
 
     class JwtUtil << (U,#DDAAFF) Utility >> {
-        - secretKey: String
+        - secretKey: SecretKey
         - accessValid: long (1시간)
         - refreshValid: long (7일)
         --
@@ -32,7 +32,6 @@ package "com.example.starlet_be.security" {
         + createRefreshToken(email: String): String
         - generateToken(email: String, validTime: long): String
         + getEmailFromToken(token: String): String
-        + validateToken(token: String): boolean
         + resolveToken(request: HttpServletRequest): String
         + extractRefreshTokenFromCookie(request: HttpServletRequest): String
     }
@@ -45,8 +44,7 @@ package "com.example.starlet_be.security" {
         - corsConfigurationSource: CorsConfigurationSource
         --
         + passwordEncoder(): PasswordEncoder
-        + authenticationManager(config): AuthenticationManager
-        + authenticationProvider(): AuthenticationProvider
+        + authenticationManager(config: AuthenticationConfiguration): AuthenticationManager
         + securityFilterChain(http: HttpSecurity): SecurityFilterChain
     }
 
@@ -57,6 +55,7 @@ package "com.example.starlet_be.security" {
     class CustomAccessDeniedHandler
     class CustomAuthenticationEntryPoint
     class HttpSecurity
+    class AuthenticationConfiguration
 
     CustomUserDetailService .up.|> UserDetailsService : implements
     JwtAuthenticationFilter .up.|> OncePerRequestFilter : extends

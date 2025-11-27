@@ -12,6 +12,7 @@ class DiaryRepository << (R,Gray) External Repository >>
 class ConstellationRepository << (R,Gray) External Repository >>
 class StarRepository << (R,Gray) External Repository >>
 class S3StorageService << (S,Gray) External Service >>
+class ModerationService << (S,Gray) External Service >>
 class PublishedObject << (D,Gray) External DTO >>
 class StarryNightConstellationDto << (D,Gray) External Res DTO >>
 class UserDetails << (I,Gray) External Interface >>
@@ -22,14 +23,15 @@ class mypageController << (C,#FFCCAA) RestController >> {
     - myPageService: MyPageService
     - userRepository: UserRepository
     --
-    + getSummary(...): ResponseEntity
-    + getUserSummary(...): ResponseEntity
-    + getLevel(...): ResponseEntity
-    + getRepresentative(...): ResponseEntity
-    + getMonthlyCount(...): ResponseEntity
-    + getEmotionCount(...): ResponseEntity
-    + confirmPhoto(...): ResponseEntity
-    + updateNickname(...): ResponseEntity
+    + getSummary(principal: UserDetails, year: Integer, month: Integer): ResponseEntity<MyPageSummaryResDto>
+    + getUserSummary(principal: UserDetails): ResponseEntity<UserSummaryResDto>
+    + getLevel(principal: UserDetails): ResponseEntity<LevelResDto>
+    + getRepresentative(principal: UserDetails): ResponseEntity<?>
+    + getMonthlyCount(principal: UserDetails, year: Integer): ResponseEntity<List<MonthlyCountResDto>>
+    + getEmotionCount(principal: UserDetails, year: int, month: int): ResponseEntity<List<EmotionCountResDto>>
+    + confirmPhoto(principal: UserDetails, req: ConfirmPhotoReqDto): ResponseEntity<ConfirmPhotoResDto>
+    + updateNickname(principal: UserDetails, req: UpdateNicknameReqDto): ResponseEntity<UpdateNicknameResDto>
+    + checkNickname(principal: UserDetails, newNickname: String): ResponseEntity<?>
     - resolveUserId(principal: UserDetails): Long
 }
 
@@ -41,15 +43,17 @@ class MyPageService << (S,#AADDFF) Service >> {
     - starRepository: StarRepository
     - constellationMapper: ConstellationMapper
     - s3StorageService: S3StorageService
+    - moderationService: ModerationService
     --
-    + getSummary(...): MyPageSummaryResDto
+    + getSummary(userId: Long, year: Integer, month: Integer): MyPageSummaryResDto
     + getUserSummary(userId: Long): UserSummaryResDto
     + getLevel(userId: Long): LevelResDto
-    + getRepresentativeConstellation(...): StarryNightConstellationDto
-    + getMonthlyCount(...): List<MonthlyCountResDto>
-    + getEmotionCount(...): List<EmotionCountResDto>
-    + confirmProfilePhoto(...): ConfirmPhotoResDto
-    + updateNickname(...): UpdateNicknameResDto
+    + getRepresentativeConstellation(userId: Long): StarryNightConstellationDto
+    + getMonthlyCount(userId: Long, year: int): List<MonthlyCountResDto>
+    + getEmotionCount(userId: Long, year: int, month: int): List<EmotionCountResDto>
+    + confirmProfilePhoto(userId: Long, tempKey: String): ConfirmPhotoResDto
+    + updateNickname(userId: Long, newNickname: String): UpdateNicknameResDto
+    + checkNickname(userId: Long, newNickname: String): void
 }
 
 ' --- Utility & Mapper (#DDAAFF) ---
@@ -74,6 +78,7 @@ MyPageService --> ConstellationRepository
 MyPageService --> StarRepository
 MyPageService --> ConstellationMapper
 MyPageService --> S3StorageService
+MyPageService --> ModerationService
 
 MyPageService ..> LevelPolicy : uses
 MyPageService ..> User : uses

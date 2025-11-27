@@ -42,21 +42,19 @@ package "com.example.starlet_be.domains.email" {
     class EmailService << (S,#AADDFF) Service >> {
         - emailRepository: EmailRepository
         - verifyRepository: VerifyRepository
-        - userService: UserService
+        - userRepository: UserRepository
         - verifyService: VerifyService
-        - javaMailSender: JavaMailSender
-        - frontendUrl: String (@Value)
-        - emailIconPath: String (@Value)
+        - mailSender: JavaMailSender
+        - baseUrl: String (@Value)
         --
         + existsEmailAddress(address: String): boolean
         + getVerificationStatus(address: String): EmailInfoDto
-        + findByAddress(email: String): Email
-        + initEmail(dto: EmailAddressDto)
-        + requestPasswordReset(dto: EmailAddressDto)
-        + updateEmailVerify(email: Email, verifyType: VerifyType)
-        + sendEmail(to: String, subject: String, content: String)
-        - createHtmlContent(token: String, subject: String, message: String, buttonText: String, urlPath: String): String
-        - setMimeMessageHelper(message: MimeMessage, content: String): MimeMessageHelper
+        + findEmailByAddress(address: String): Email
+        + initEmail(dto: EmailAddressDto): void
+        + requestPasswordReset(dto: EmailAddressDto): void
+        # createEmail(address: String, verify: Verify): Email
+        # sendVerificationEmail(email: Email, token: String): void
+        # sendPasswordResetEmail(email: Email, token: String): void
     }
 
     interface EmailAPI << (I,#CCCCCC) Tag/Interface >> {
@@ -67,9 +65,7 @@ package "com.example.starlet_be.domains.email" {
     }
 
     class EmailController << (C,#FFCCAA) RestController >> {
-        - userService: UserService
         - emailService: EmailService
-        - verifyService: VerifyService
         --
         + checkDuplication(address: String): ResponseEntity<?>
         + getVerificationStatus(address: String): ResponseEntity<?>
@@ -83,6 +79,9 @@ package "com.example.starlet_be.domains.email" {
     EmailService --> EmailRepository : injects/uses
     EmailService ..> EmailAddressDto : uses (Req DTO)
     EmailService ..> EmailInfoDto : returns (Res DTO)
+    EmailService --> VerifyService : injects/uses
+    EmailService --> UserRepository : injects/uses
+    EmailService --> VerifyRepository : injects/uses
 
     EmailController .up.|> EmailAPI : implements
     EmailController --> EmailService : injects/uses

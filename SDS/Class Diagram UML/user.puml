@@ -60,37 +60,36 @@ package "com.example.starlet_be.domains.user" {
         + toResDto(): UserResDto
         + changePassword(encodedPassword: String)
         + changeProfilePhotoUrl(profilePhotoUrl: String)
+        + changeNickname(nickname: String)
     }
 
     interface UserRepository << (R,#CCFFCC) JpaRepository >> {
         + existsByEmailAddress(email: String): boolean
         + existsByNickname(nickname: String): boolean
         + findByEmailAddress(email: String): Optional<User>
+        + findByNickname(nickname: String): Optional<User>
+        + existsByNicknameAndIdNot(nickname: String, id: Long): boolean
     }
 
     class UserService << (S,#AADDFF) Service >> {
         - userRepository: UserRepository
-        - emailRepository: EmailRepository
-        - emailService: EmailService
         - verifyRepository: VerifyRepository
         - jwtUtil: JwtUtil
         - passwordEncoder: PasswordEncoder
+        - emailService: EmailService
+        - moderationService: ModerationService
         --
-        + getUser(id: Long): UserResDto
-        + getUserList(): List<UserResDto>
         + signUp(dto: SignUpDto): User
-        + existNickname(nickname: String): boolean
+        + validNickname(nickname: String): void
         + login(dto: LoginDto, res: HttpServletResponse): LoginInfoDto
-        + deleteCurrentUser(email: String)
+        + deleteCurrentUser(email: String): void
         + findByEmailAddress(email: String): User
-        + logout(res: HttpServletResponse)
+        + logout(res: HttpServletResponse): void
     }
 
     interface UserApi << (I,#CCCCCC) Tag/Interface >> {
-        + getUser(id: Long): ResponseEntity<?>
-        + getUserList(): ResponseEntity<?>
         + signUp(dto: SignUpDto): ResponseEntity<?>
-        + existNickname(nickname: String): ResponseEntity<?>
+        + validNickname(nickname: String): ResponseEntity<?>
         + login(dto: LoginDto, res: HttpServletResponse): ResponseEntity<?>
         + deleteCurrentUser(userDetails: UserDetails): ResponseEntity<?>
         + logout(response: HttpServletResponse): ResponseEntity<?>
@@ -100,10 +99,8 @@ package "com.example.starlet_be.domains.user" {
         - userService: UserService
         - emailService: EmailService
         --
-        + getUser(id: Long): ResponseEntity<?>
-        + getUserList(): ResponseEntity<?>
         + signUp(dto: SignUpDto): ResponseEntity<?>
-        + existNickname(nickname: String): ResponseEntity<?>
+        + validNickname(nickname: String): ResponseEntity<?>
         + login(dto: LoginDto, res: HttpServletResponse): ResponseEntity<?>
         + deleteCurrentUser(userDetails: UserDetails): ResponseEntity<?>
         + logout(response: HttpServletResponse): ResponseEntity<?>
@@ -119,6 +116,8 @@ package "com.example.starlet_be.domains.user" {
     UserService ..> LoginDto : uses (Req DTO)
     UserService ..> LoginInfoDto : returns (Res DTO)
     UserService ..> UserResDto : returns (Res DTO)
+    UserService --> EmailService : uses
+    UserService --> ModerationService : uses
 
     UserRepository .up.|> JpaRepository : extends
     UserRepository --> User : manages
@@ -129,7 +128,6 @@ package "com.example.starlet_be.domains.user" {
 
     UserService ..> JwtUtil : uses (Token)
     UserService ..> PasswordEncoder : uses (Encoding)
-    UserService ..> EmailService : uses
     User o-- Email : contains (OneToOne)
     User "1" o-- "0..*" Star : contains (OneToMany)
     User "1" o-- "0..*" Diary : contains (OneToMany)
