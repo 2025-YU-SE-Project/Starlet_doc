@@ -93,7 +93,7 @@ S3와 OpenAi와 관련된 클래스들을 상세히 기술한다.
 
 
 ### Entity Class Diagram
-![entity.png](Class%20Diagram%20UML/entity_starumlver.png)
+![entity.png](Class%20Diagram%20UML/entity.png)
 
 ---
 
