@@ -197,9 +197,7 @@
 
 ---
 
-<<<<<<< HEAD:SDS/6_User_interface_prototype.md
 ### 6.7.2 별자리 생성 모달
-=======
 ### 밤하늘 모달 1
 
 ![그림: 밤하늘 모달 1)](./User%20interface%20prototype%20image/image-starsky-apply-modal.png)
@@ -209,7 +207,6 @@
 ---
 
 ### 별자리 생성 모달
->>>>>>> bd18971 (edit : 문서 수정):SDS/User interface prototype.md
 
 ![그림: 별자리 선 잇기 모달](./User%20interface%20prototype%20image/image-constellaion-line-modal.png)
 
