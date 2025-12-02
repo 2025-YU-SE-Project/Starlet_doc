@@ -314,9 +314,9 @@
 - 프로필 이미지와 닉네임을 변경할 수 있고, 닉네임은 중복 확인을 통해 검증된다.  
 - ‘완료’ 버튼을 누르면 수정이 저장된다.
 
-## 6.9. 친구
+## 6.10. 친구
 
-### 친구 리스트
+### 6.10.1 친구 리스트
 
 ![그림: 친구 리스트](./User%20interface%20prototype%20image/image-friendlist.png)
 
@@ -328,7 +328,7 @@
 
 ---
 
-### 친구 검색
+### 6.10.2 친구 검색
 
 ![그림: 친구 검색(신청)](./User%20interface%20prototype%20image/image-friend-search.png)
 
@@ -349,7 +349,7 @@
 
 ---
 
-### 친구 요청
+### 6.10.3 친구 요청
 
 ![그림: 친구 요청](./User%20interface%20prototype%20image/image-friend-request.png)
 
