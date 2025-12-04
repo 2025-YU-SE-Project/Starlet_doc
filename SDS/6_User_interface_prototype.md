@@ -1,7 +1,5 @@
 # Starlet: 소프트웨어 설계 명세서 (SDS)
 
----어
-
 ## 6. User Interface Prototype
 
 ## 6.1. 로그인
