@@ -733,8 +733,23 @@ Class Description: 한달 일기 분석 결과를 담는 Response 데이터 전�
 |:--------------|:----------|:------------|:---------|:--------------------|
 | **Attribute** | `summary` | 한달 일기 분석 결과 | `String` | `Private`           |
 
+
 ---
-### Class Diagram #47: DiaryApi
+### Class Diagram #47: DiaryByDateResDto
+Class Description: 특정 날짜의 일기 조회 결과를 담는 Response 데이터 전송 클래스이다. 일기 존재 여부(`hasDiary`)와 실제 일기 내용(`diary`)을 포함한다.
+
+| 구분            | 이름                      | 설명                                 | 타입                  | 접근 제한자 (Visibility) |
+|:--------------|:------------------------|:-----------------------------------|:--------------------|:--------------------|
+| **Attribute** | `hasDiary`              | 해당 날짜 일기 존재 여부                     | `boolean`           | `Private`           |
+| **Attribute** | `date`                  | 조회 대상 날짜                           | `LocalDate`         | `Private`           |
+| **Attribute** | `diary`                 | 조회된 일기 상세 정보                       | `DiaryResDto`       | `Private`           |
+| **Operation** | `empty(LocalDate date)` | 일기가 없을 때 DTO 생성 (hasDiary=false)   | `DiaryByDateResDto` | `Public`            |
+| **Operation** | `of(Diary diary)`       | Diary 엔티티를 DTO로 변환 (hasDiary=true) | `DiaryByDateResDto` | `Public`            |
+
+
+
+---
+### Class Diagram #48: DiaryApi
 Class Description: 감정 일기 관련 API 엔드포인트를 정의하는 인터페이스이다. (Swagger 문서용 Tag/Operation 정의 포함)
 
 | 구분            | 이름                                                                                                                            | 설명              | 타입                                        | 접근 제한자 (Visibility) |
@@ -748,7 +763,7 @@ Class Description: 감정 일기 관련 API 엔드포인트를 정의하는 인�
 
 
 ---
-### Class Diagram #48: DiaryRepository
+### Class Diagram #49: DiaryRepository
 Class Description: Diary 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
 
 | 구분            | 이름                                                                                                | 설명                                      | 타입                | 접근 제한자 (Visibility) |
@@ -759,7 +774,7 @@ Class Description: Diary 엔티티의 영속성 관리를 위한 JPA Repository 
 | **Operation** | `findByIdAndUser_Id(Long diaryId, Long userId)`                                                   | 일기 ID와 사용자 ID로 일기 조회                    | `Optional<Diary>` | `Public`            |
 
 ---
-### Class Diagram #49: DiaryService
+### Class Diagram #50: DiaryService
 Class Description: 감정 일기(Diary) 생성, 수정, 조회 및 월별 별 조회 등 핵심 비즈니스 로직을 담당하는 서비스이다.
 
 | 구분            | 이름                                                                       | 설명                                | 타입                        | 접근 제한자 (Visibility) |
@@ -780,7 +795,7 @@ Class Description: 감정 일기(Diary) 생성, 수정, 조회 및 월별 별 �
 
 
 ---
-### Class Diagram #50: DiaryController
+### Class Diagram #51: DiaryController
 Class Description: 감정 일기 관련 API 요청을 받는 REST Controller이다.
 
 | 구분            | 이름                                                                                                                            | 설명                       | 타입                                        | 접근 제한자 (Visibility) |
@@ -801,7 +816,7 @@ Class Description: 감정 일기 관련 API 요청을 받는 REST Controller이�
 ### 3.3.5. Star
 ![star.png](Class%20Diagram%20UML/star.png)
 
-### Class Diagram #51: DiaryToStarReqDto
+### Class Diagram #52: DiaryToStarReqDto
 Class Description: 일기 날짜를 통해 별을 조회하기 위한 요청 데이터 전송 클래스이다.
 
 | 구분            | 이름     | 설명    | 타입       | 접근 제한자 (Visibility) |
@@ -809,7 +824,7 @@ Class Description: 일기 날짜를 통해 별을 조회하기 위한 요청 데
 | **Attribute** | `date` | 일기 날짜 | `String` | `Private`           |
 
 ---
-### Class Diagram #52: StarPositionDto
+### Class Diagram #53: StarPositionDto
 Class Description: 별의 새로운 위치 좌표를 담는 요청 데이터 전송 클래스이다.
 
 | 구분            | 이름       | 설명      | 타입       | 접근 제한자 (Visibility) |
@@ -819,7 +834,7 @@ Class Description: 별의 새로운 위치 좌표를 담는 요청 데이터 전
 | **Attribute** | `y`      | Y 좌표    | `Double` | `Private`           |
 
 ---
-### Class Diagram #53: StarInfoDto
+### Class Diagram #54: StarInfoDto
 Class Description: 별 상세 조회 시 별과 연관 관계의 ID를 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름          | 설명                   | 타입            | 접근 제한자 (Visibility) |
@@ -830,7 +845,7 @@ Class Description: 별 상세 조회 시 별과 연관 관계의 ID를 담아 �
 | **Operation** | `builder()` | StarInfoDto 객체 빌더 생성 | `StarInfoDto` | `Public`            |
 
 ---
-### Class Diagram #54: StarryNightStarDto
+### Class Diagram #55: StarryNightStarDto
 Class Description: 밤하늘 별 조회 시 별의 기본 정보를 담아 응답하는 응답 데이터 전송 클래스의 요소이다.
 
 | 구분            | 이름          | 설명                          | 타입                   | 접근 제한자 (Visibility) |
@@ -844,7 +859,7 @@ Class Description: 밤하늘 별 조회 시 별의 기본 정보를 담아 응�
 | **Operation** | `builder()` | StarryNightStarDto 객체 빌더 생성 | `StarryNightStarDto` | `Public`            |
 
 ---
-### Class Diagram #55: StarArchiveDetailDto
+### Class Diagram #56: StarArchiveDetailDto
 Class Description: 별 아카이브 상세 조회에 사용되는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름          | 설명                            | 타입                     | 접근 제한자 (Visibility) |
@@ -857,7 +872,7 @@ Class Description: 별 아카이브 상세 조회에 사용되는 응답 데이�
 | **Operation** | `builder()` | StarArchiveDetailDto 객체 빌더 생성 | `StarArchiveDetailDto` | `Public`            |
 
 ---
-### Class Diagram #56: StarArchiveDto
+### Class Diagram #57: StarArchiveDto
 Class Description: 별 아카이브 목록 조회에 사용되는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름          | 설명                      | 타입               | 접근 제한자 (Visibility) |
@@ -870,7 +885,7 @@ Class Description: 별 아카이브 목록 조회에 사용되는 Response 데�
 
 
 ---
-### Class Diagram #57: StarsIdDto
+### Class Diagram #58: StarsIdDto
 Class Description: 별들의 id를 입력받는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름        | 설명          | 타입           | 접근 제한자 (Visibility) |
@@ -879,7 +894,7 @@ Class Description: 별들의 id를 입력받는 Request 데이터 전송 클래�
 
 
 ---
-### Class Diagram #58: StarApi
+### Class Diagram #59: StarApi
 Class Description: 별 관련 API 엔드포인트를 정의하는 인터페이스이다. (Swagger 문서용 Tag/Operation 정의 포함)
 
 | 구분            | 이름                                                                                                                      | 설명                               | 타입                  | 접근 제한자 (Visibility) |
@@ -887,7 +902,7 @@ Class Description: 별 관련 API 엔드포인트를 정의하는 인터페이�
 | **Operation** | `getStar(@PathVariable Long id)`                                                                                        | 별과 연관관계 ID 조회                    | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram #59: StarRepository
+### Class Diagram #60: StarRepository
 Class Description: Star 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
 
 | 구분            | 이름                                                                                                            | 설명                            | 타입           | 접근 제한자 (Visibility) |
@@ -898,7 +913,7 @@ Class Description: Star 엔티티의 영속성 관리를 위한 JPA Repository �
 | **Operation** | `countByConstellationAndColor(Constellation constellation, Color color)`                                      | 별자리 내 특정 색상 별 개수 카운트          | `Integer`    | `Public`            |
 
 ---
-### Class Diagram #60: StarController
+### Class Diagram #61: StarController
 Class Description: 별 관련 API 요청을 받아 StarService로 전달하는 REST Controller이다.
 
 | 구분            | 이름                                                                                                                      | 설명             | 타입                  | 접근 제한자 (Visibility) |
@@ -907,7 +922,7 @@ Class Description: 별 관련 API 요청을 받아 StarService로 전달하는 R
 | **Operation** | `getStar(@PathVariable Long id)`                                                                                        | 별 상세조회 엔드포인트   | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram #61: StarService
+### Class Diagram #62: StarService
 Class Description: 별 정보 조회, 밤하늘 별 조회, 별 위치 최신화 등 별 관련 비즈니스 로직을 담당하는 서비스이다.
 
 | 구분            | 이름                                                                 | 설명                                  | 타입                         | 접근 제한자 (Visibility) |
@@ -930,7 +945,8 @@ Class Description: 별 정보 조회, 밤하늘 별 조회, 별 위치 최신화
 
 ---
 
-### Class Diagram #62: StarryNightApi
+### Class Diagram #63: StarryNightApi
+
 Class Description: 밤하늘 페이지 관련 API 엔드포인트를 정의하는 인터페이스이다.
 
 | 구분            | 이름                                                                      | 설명                                   | 타입                  | 접근 제한자 (Visibility) |
@@ -943,7 +959,7 @@ Class Description: 밤하늘 페이지 관련 API 엔드포인트를 정의하�
 | **Operation** | `suggestConstellationName(StarsIdDto dto)`                                | 별자리 이름 및 설명 추천                   | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram #63: StarryNightController
+### Class Diagram #64: StarryNightController
 Class Description: 밤하늘 페이지의 별 및 별자리 관련 API 요청을 처리하는 REST Controller이다.
 
 | 구분            | 이름                                                                      | 설명                         | 타입                     | 접근 제한자 (Visibility) |
@@ -958,7 +974,7 @@ Class Description: 밤하늘 페이지의 별 및 별자리 관련 API 요청을
 | **Operation** | `suggestConstellationName(StarsIdDto dto)`                                | 별자리 이름 추천 엔드포인트            | `ResponseEntity<?>`    | `Public`            |
 
 ---
-### Class Diagram #64: ArchiveApi
+### Class Diagram #65: ArchiveApi
 Class Description: 별자리 아카이브 관련 API 엔드포인트를 정의하는 인터페이스이다.
 
 | 구분            | 이름                                                                  | 설명                     | 타입                  | 접근 제한자 (Visibility) |
@@ -970,7 +986,7 @@ Class Description: 별자리 아카이브 관련 API 엔드포인트를 정의�
 | **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)` | 대표 별자리 설정/해제          | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram #65: ArchiveController
+### Class Diagram #66: ArchiveController
 Class Description: 별자리 아카이브 관련 API 요청을 처리하는 REST Controller이다.
 
 | 구분            | 이름                                                                  | 설명                           | 타입                     | 접근 제한자 (Visibility) |
@@ -981,7 +997,7 @@ Class Description: 별자리 아카이브 관련 API 요청을 처리하는 REST
 | **Operation** | `getArchiveDetail(Long id)`                                         | 별자리 아카이브 상세 조회 엔드포인트     | `ResponseEntity<?>`    | `Public`            |
 | **Operation** | `updateConstellationInfo(Long id, UpdateConstellationDto dto)`      | 별자리 정보 수정 엔드포인트            | `ResponseEntity<?>`    | `Public`            |
 | **Operation** | `changeRepresentativeConstellation(Long id, UserDetails userDetails)` | 대표 별자리 설정/해제 엔드포인트         | `ResponseEntity<?>`    | `Public`            |
-### Class Diagram #66: CreateConstellationDto
+### Class Diagram #67: CreateConstellationDto
 Class Description: 별자리 생성 요청 시 필요한 정보(이름, 설명, 구성 별 및 연결선)를 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명            | 타입                      | 접근 제한자 (Visibility) |
@@ -992,7 +1008,7 @@ Class Description: 별자리 생성 요청 시 필요한 정보(이름, 설명, 
 | **Attribute** | `connections` | 별자리 연결선 목록    | `List<ConnectionDto>`   | `Private`           |
 
 ---
-### Class Diagram #67: ConstellationPositionDto
+### Class Diagram #68: ConstellationPositionDto
 Class Description: 별자리 위치 최신화 요청 시 필요한 X, Y 좌표를 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름  | 설명        | 타입       | 접근 제한자 (Visibility) |
@@ -1001,7 +1017,7 @@ Class Description: 별자리 위치 최신화 요청 시 필요한 X, Y 좌표�
 | **Attribute** | `y` | 별자리의 Y 좌표 | `Double` | `Private`           |
 
 ---
-### Class Diagram #68: UpdateConstellationDto
+### Class Diagram #69: UpdateConstellationDto
 Class Description: 별자리의 이름 및 설명을 수정할 때 사용되는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명         | 타입       | 접근 제한자 (Visibility) |
@@ -1010,7 +1026,7 @@ Class Description: 별자리의 이름 및 설명을 수정할 때 사용되는 
 | **Attribute** | `description` | 수정할 별자리 설명 | `String` | `Private`           |
 
 ---
-### Class Diagram #69: ConstellationApi
+### Class Diagram #70: ConstellationApi
 Class Description: 별자리 관련 API 엔드포인트를 정의하는 인터페이스이다. (Swagger 문서용 Tag/Operation 정의 포함)
 
 | 구분            | 이름                                                                                                                               | 설명                     | 타입                  | 접근 제한자 (Visibility) |
@@ -1025,7 +1041,7 @@ Class Description: 별자리 관련 API 엔드포인트를 정의하는 인터�
 | **Operation** | `suggestConstellationName(@RequestBody StarsIdDto dto)`                                                                          | 별자리 이름 추천              | `ResponseEntity<?>` | `Public`            |
 
 ---
-### Class Diagram #70: ConstellationRepository
+### Class Diagram #71: ConstellationRepository
 Class Description: Constellation 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
 
 | 구분            | 이름                                                                                  | 설명                                         | 타입                        | 접근 제한자 (Visibility) |
@@ -1035,7 +1051,7 @@ Class Description: Constellation 엔티티의 영속성 관리를 위한 JPA Rep
 | **Operation** | `findByUserAndIsRepresentative(User user, boolean isRepresentative)`                | 사용자별 대표 별자리 조회                             | `Optional<Constellation>` | `Public`            |
 
 ---
-### Class Diagram #71: StarryNightConstellationDto
+### Class Diagram #72: StarryNightConstellationDto
 Class Description: 밤하늘 별자리 조회 시 반환되는 별자리 정보를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                | 설명                                   | 타입                               | 접근 제한자 (Visibility) |
@@ -1052,7 +1068,7 @@ Class Description: 밤하늘 별자리 조회 시 반환되는 별자리 정보�
 | **Operation** | `builder()`       | StarryNightConstellationDto 객체 빌더 생성 | `StarryNightConstellationDto`    | `Public`            |
 
 ---
-### Class Diagram #72: ArchiveDto
+### Class Diagram #73: ArchiveDto
 Class Description: 별자리 아카이브 목록 조회 시 반환되는 별자리 요약 정보를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                 | 설명                  | 타입                     | 접근 제한자 (Visibility) |
@@ -1067,7 +1083,7 @@ Class Description: 별자리 아카이브 목록 조회 시 반환되는 별자�
 | **Operation** | `builder()`        | ArchiveDto 객체 빌더 생성 | `ArchiveDto`           | `Public`            |
 
 ---
-### Class Diagram #73: ArchiveDetailDto
+### Class Diagram #74: ArchiveDetailDto
 Class Description: 별자리 아카이브 상세 조회 시 반환되는 별자리 정보와 감정별 별 개수를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                 | 설명                        | 타입                           | 접근 제한자 (Visibility) |
@@ -1087,7 +1103,7 @@ Class Description: 별자리 아카이브 상세 조회 시 반환되는 별자�
 | **Attribute** | `sadnessCount`     | 슬픔 감정 별 개수                | `Integer`                    | `Private`           |
 | **Operation** | `builder()`        | ArchiveDetailDto 객체 빌더 생성 | `ArchiveDetailDto`           | `Public`            |
 ---
-### Class Diagram #74: ConstellationNameSuggestDto
+### Class Diagram #75: ConstellationNameSuggestDto
 Class Description: 추천받은 별자리의 이름과 설명을 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명        | 타입       | 접근 제한자 (Visibility) |
@@ -1097,7 +1113,7 @@ Class Description: 추천받은 별자리의 이름과 설명을 담는 Response
 
 
 ---
-### Class Diagram #75: ConstellationController
+### Class Diagram #76: ConstellationController
 Class Description: 별자리 관련 API 요청을 받아 ConstellationService로 전달하는 REST Controller이다.
 
 | 구분            | 이름                                                                                                                               | 설명                   | 타입                     | 접근 제한자 (Visibility) |
@@ -1114,7 +1130,7 @@ Class Description: 별자리 관련 API 요청을 받아 ConstellationService로
 
 
 ---
-### Class Diagram #76: ConstellationService
+### Class Diagram #77: ConstellationService
 Class Description: 별자리 생성, 조회, 위치 최신화, 아카이브 관리 등 별자리 관련 핵심 비즈니스 로직을 담당하는 서비스이다.
 
 | 구분            | 이름                                                                          | 설명                                | 타입                                  | 접근 제한자 (Visibility) |
@@ -1142,7 +1158,8 @@ Class Description: 별자리 생성, 조회, 위치 최신화, 아카이브 관�
 
 ---
 
-### Class Diagram #77: Connection
+### Class Diagram #78: Connection
+
 Class Description: 별자리 내에서 두 별을 연결하는 선(관계)을 나타내는 Entity이다.
 
 | 구분            | 이름              | 설명                  | 타입              | 접근 제한자 (Visibility) |
@@ -1154,7 +1171,7 @@ Class Description: 별자리 내에서 두 별을 연결하는 선(관계)을 �
 | **Operation** | `builder()`     | Connection 객체 빌더 생성 | `Connection`    | `Public`            |
 
 ---
-### Class Diagram #78: ConnectionRepository
+### Class Diagram #79: ConnectionRepository
 Class Description: Connection 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
 
 | 구분            | 이름                                                 | 설명                      | 타입                 | 접근 제한자 (Visibility) |
@@ -1162,7 +1179,7 @@ Class Description: Connection 엔티티의 영속성 관리를 위한 JPA Reposi
 | **Operation** | `findByConstellation(Constellation constellation)` | 특정 별자리에 속한 모든 연결선 목록 조회 | `List<Connection>` | `Public`            |
 
 ---
-### Class Diagram #79: ConnectionDto
+### Class Diagram #80: ConnectionDto
 Class Description: 별자리 생성 시 요청 본문에서 연결선의 시작/끝 별 ID를 담는 요청 데이터 전송 클래스이다.
 
 | 구분            | 이름            | 설명                     | 타입              | 접근 제한자 (Visibility) |
@@ -1172,7 +1189,7 @@ Class Description: 별자리 생성 시 요청 본문에서 연결선의 시작/
 | **Operation** | `builder()`   | ConnectionDto 객체 빌더 생성 | `ConnectionDto` | `Public`            |
 
 ---
-### Class Diagram #80: StarryNightConnectionDto
+### Class Diagram #81: StarryNightConnectionDto
 Class Description: 밤하늘 별자리 조회 시 연결선 정보를 담아 응답하는 응답 데이터 전송 클래스의 요소이다.
 
 | 구분            | 이름             | 설명                                | 타입                         | 접근 제한자 (Visibility) |
@@ -1195,7 +1212,7 @@ MyPage Command Class(DTO)<br/>
 
 ---
 
-### Class Diagram #81: mypageController
+### Class Diagram #82: mypageController
 Class Description: 마이페이지 관련 API 요청을 처리하고 MyPageService로 전달하는 REST Controller이다.
 
 | 구분            | 이름                                                                | 설명                            | 타입                                         | 접근 제한자 (Visibility) |
@@ -1213,7 +1230,7 @@ Class Description: 마이페이지 관련 API 요청을 처리하고 MyPageServi
 | **Operation** | `resolveUserId(UserDetails principal)`                            | UserDetails에서 사용자 ID를 조회      | `Long`                                     | `Private`           |
 
 ---
-### Class Diagram #82: MyPageService
+### Class Diagram #83: MyPageService
 Class Description: 마이페이지 요약, 레벨, 통계, 프로필 수정 등 핵심 비즈니스 로직을 담당하는 서비스이다.
 
 | 구분            | 이름                                                     | 설명                            | 타입                            | 접근 제한자 (Visibility) |
@@ -1234,7 +1251,7 @@ Class Description: 마이페이지 요약, 레벨, 통계, 프로필 수정 등 
 | **Operation** | `updateNickname(Long userId, String newNickname)`      | 닉네임 유효성 검사 후 수정               | `UpdateNicknameResDto`        | `Public`            |
 
 ---
-### Class Diagram #83: LevelPolicy
+### Class Diagram #84: LevelPolicy
 Class Description: 총 별 개수에 따라 사용자 레벨을 결정하고 다음 레벨까지의 진행도를 계산하는 정책 클래스이다.
 
 | 구분            | 이름                         | 설명                            | 타입            | 접근 제한자 (Visibility) |
@@ -1243,7 +1260,7 @@ Class Description: 총 별 개수에 따라 사용자 레벨을 결정하고 다
 | **Operation** | `resolve(long totalStars)` | 총 별 개수를 기준으로 현재 레벨 정보 계산 및 반환 | `LevelResDto` | `Public`            |
 
 ---
-### Class Diagram #84: ConstellationMapper
+### Class Diagram #85: ConstellationMapper
 Class Description: Constellation 엔티티를 마이페이지/밤하늘 응답에 필요한 DTO 포맷으로 변환하는 매퍼 클래스이다.
 
 | 구분            | 이름                                  | 설명                                                 | 타입                            | 접근 제한자 (Visibility) |
@@ -1251,7 +1268,7 @@ Class Description: Constellation 엔티티를 마이페이지/밤하늘 응답�
 | **Operation** | `toStarryNightDto(Constellation c)` | Constellation 엔티티를 StarryNightConstellationDto로 변환 | `StarryNightConstellationDto` | `Public`            |
 
 ---
-### Class Diagram #85: MyPageSummaryResDto
+### Class Diagram #86: MyPageSummaryResDto
 Class Description: 마이페이지에서 요구하는 모든 요약 정보를 통합하여 제공하는 최종 Response DTO이다.
 
 | 구분            | 이름                                                                                                                                                                  | 설명                     | 타입                            | 접근 제한자 (Visibility) |
@@ -1264,7 +1281,7 @@ Class Description: 마이페이지에서 요구하는 모든 요약 정보를 �
 | **Operation** | `of(UserSummaryResDto profile, LevelResDto level, StarryNightConstellationDto rep, List<MonthlyCountResDto> monthlyCounts, List<EmotionCountResDto> emotionCounts)` | 모든 요약 데이터를 포함하여 DTO 생성 | `MyPageSummaryResDto`         | `Public`            |
 
 ---
-### Class Diagram #86: UserSummaryResDto
+### Class Diagram #87: UserSummaryResDto
 Class Description: 마이페이지에 표시되는 사용자의 닉네임, 총 별 개수, 총 별자리 개수를 담는 Response DTO이다.
 
 | 구분            | 이름                                                         | 설명                         | 타입                  | 접근 제한자 (Visibility) |
@@ -1275,7 +1292,7 @@ Class Description: 마이페이지에 표시되는 사용자의 닉네임, 총 �
 | **Operation** | `of(User user, long totalStars, long totalConstellations)` | User 엔티티 및 통계 데이터를 DTO로 변환 | `UserSummaryResDto` | `Public`            |
 
 ---
-### Class Diagram #87: LevelResDto
+### Class Diagram #88: LevelResDto
 Class Description: 사용자의 현재 레벨 코드, 이름, 범위 및 다음 레벨까지의 진행도를 담는 Response DTO이다.
 
 | 구분            | 이름               | 설명                             | 타입        | 접근 제한자 (Visibility) |
@@ -1287,7 +1304,7 @@ Class Description: 사용자의 현재 레벨 코드, 이름, 범위 및 다음 
 | **Attribute** | `progressToNext` | 다음 레벨까지 남은 별 개수                | `Integer` | `Private`           |
 
 ---
-### Class Diagram #88: MonthlyCountResDto
+### Class Diagram #89: MonthlyCountResDto
 Class Description: 연간 월별 별자리 생성 통계 결과를 담는 Response DTO이다.
 
 | 구분            | 이름      | 설명               | 타입     | 접근 제한자 (Visibility) |
@@ -1296,7 +1313,7 @@ Class Description: 연간 월별 별자리 생성 통계 결과를 담는 Respon
 | **Attribute** | `count` | 해당 월에 생성된 별자리 개수 | `long` | `Private`           |
 
 ---
-### Class Diagram #89: EmotionCountResDto
+### Class Diagram #90: EmotionCountResDto
 Class Description: 월별 감정 기록 통계 결과를 담는 Response DTO이다.
 
 | 구분            | 이름        | 설명                   | 타입       | 접근 제한자 (Visibility) |
@@ -1305,7 +1322,7 @@ Class Description: 월별 감정 기록 통계 결과를 담는 Response DTO이�
 | **Attribute** | `count`   | 해당 감정으로 기록된 일기 개수    | `long`   | `Private`           |
 
 ---
-### Class Diagram #90: UpdateNicknameReqDto
+### Class Diagram #91: UpdateNicknameReqDto
 Class Description: 닉네임 수정 요청 시 새로운 닉네임을 담는 Request DTO이다.
 
 | 구분            | 이름         | 설명              | 타입       | 접근 제한자 (Visibility) |
@@ -1313,7 +1330,7 @@ Class Description: 닉네임 수정 요청 시 새로운 닉네임을 담는 Req
 | **Attribute** | `nickname` | 새로운 닉네임 (2~10자) | `String` | `Private`           |
 
 ---
-### Class Diagram #91: ConfirmPhotoReqDto
+### Class Diagram #92: ConfirmPhotoReqDto
 Class Description: 프로필 사진 확정 요청 시 임시 파일 키를 담는 Request DTO이다.
 
 | 구분            | 이름        | 설명             | 타입       | 접근 제한자 (Visibility) |
@@ -1321,7 +1338,7 @@ Class Description: 프로필 사진 확정 요청 시 임시 파일 키를 담�
 | **Attribute** | `tempKey` | S3 임시 업로드 경로 키 | `String` | `Private`           |
 
 ---
-### Class Diagram #92: ConfirmPhotoResDto
+### Class Diagram #93: ConfirmPhotoResDto
 Class Description: 프로필 사진 확정 후 최종 이미지 URL을 반환하는 Response DTO이다.
 
 | 구분            | 이름               | 설명                | 타입                   | 접근 제한자 (Visibility) |
@@ -1330,7 +1347,7 @@ Class Description: 프로필 사진 확정 후 최종 이미지 URL을 반환하
 | **Operation** | `of(String url)` | 최종 URL을 DTO로 변환   | `ConfirmPhotoResDto` | `Public`            |
 
 ---
-### Class Diagram #93: UpdateNicknameResDto
+### Class Diagram #94: UpdateNicknameResDto
 Class Description: 닉네임 수정 후 최종 닉네임 정보를 반환하는 Response DTO이다.
 
 | 구분            | 이름                    | 설명              | 타입                     | 접근 제한자 (Visibility) |
@@ -1345,7 +1362,8 @@ Class Description: 닉네임 수정 후 최종 닉네임 정보를 반환하는 
 
 ---
 
-### Class Diagram #94: FriendReqDto
+### Class Diagram #95: FriendReqDto
+
 Class Description: 친구 요청을 보낼 때 수신자의 닉네임을 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름                 | 설명                 | 타입       | 접근 제한자 (Visibility) |
@@ -1353,7 +1371,7 @@ Class Description: 친구 요청을 보낼 때 수신자의 닉네임을 담는 
 | **Attribute** | `receiverNickname` | 친구 요청을 받을 사용자의 닉네임 | `String` | `Private`           |
 
 ---
-### Class Diagram #95: FriendAcceptReqDto
+### Class Diagram #96: FriendAcceptReqDto
 Class Description: 친구 요청을 수락할 때 해당 친구 요청(Friend Entity)의 ID를 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름         | 설명               | 타입     | 접근 제한자 (Visibility) |
@@ -1361,7 +1379,7 @@ Class Description: 친구 요청을 수락할 때 해당 친구 요청(Friend En
 | **Attribute** | `friendId` | 수락할 친구 요청의 고유 ID | `Long` | `Private`           |
 
 ---
-### Class Diagram #96: FriendRejectReqDto
+### Class Diagram #97: FriendRejectReqDto
 Class Description: 친구 요청을 거절할 때 해당 친구 요청(Friend Entity)의 ID를 담는 Request 데이터 전송 클래스이다.
 
 | 구분            | 이름         | 설명               | 타입     | 접근 제한자 (Visibility) |
@@ -1369,7 +1387,7 @@ Class Description: 친구 요청을 거절할 때 해당 친구 요청(Friend En
 | **Attribute** | `friendId` | 거절할 친구 요청의 고유 ID | `Long` | `Private`           |
 
 ---
-### Class Diagram #97: FriendSearchResDto
+### Class Diagram #98: FriendSearchResDto
 Class Description: 친구 검색 시 검색된 사용자의 정보와 현재 나와의 친구 상태를 담아 반환하는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                                                                             | 설명                                        | 타입                   | 접근 제한자 (Visibility) |
@@ -1381,7 +1399,7 @@ Class Description: 친구 검색 시 검색된 사용자의 정보와 현재 나
 | **Operation** | `of(String nickname, String profileUrl, String status, Long remainingSeconds)` | FriendSearchResDto 객체 생성 (Static Factory) | `FriendSearchResDto` | `Public`            |
 
 ---
-### Class Diagram #98: FriendReqItemResDto
+### Class Diagram #99: FriendReqItemResDto
 Class Description: 받은 친구 요청 목록을 조회할 때, 요청 보낸 사용자의 정보와 만료 관련 정보를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                                                                                         | 설명                                         | 타입                    | 접근 제한자 (Visibility) |
@@ -1394,7 +1412,7 @@ Class Description: 받은 친구 요청 목록을 조회할 때, 요청 보낸 �
 | **Operation** | `of(Long id, String nickname, String profileUrl, Long remainingSeconds, String dDayLabel)` | FriendReqItemResDto 객체 생성 (Static Factory) | `FriendReqItemResDto` | `Public`            |
 
 ---
-### Class Diagram #99: FriendListItemResDto
+### Class Diagram #100: FriendListItemResDto
 Class Description: 친구 목록 조회 시 친구의 프로필 정보와 활동 통계(별 개수, 레벨 등)를 담는 Response 데이터 전송 클래스이다.
 
 | 구분            | 이름                                                                                                                      | 설명                                          | 타입                     | 접근 제한자 (Visibility) |
@@ -1409,7 +1427,7 @@ Class Description: 친구 목록 조회 시 친구의 프로필 정보와 활동
 | **Operation** | `of(Long id, Long userId, String nickname, String profileUrl, Long totalStars, Long totalConstellations, String level)` | FriendListItemResDto 객체 생성 (Static Factory) | `FriendListItemResDto` | `Public`            |
 
 ---
-### Class Diagram #100: FriendRepository
+### Class Diagram #101: FriendRepository
 Class Description: Friend 엔티티의 영속성 관리를 위한 JPA Repository 인터페이스이다.
 
 | 구분            | 이름                                                                                                                          | 설명                             | 타입                 | 접근 제한자 (Visibility) |
@@ -1419,7 +1437,7 @@ Class Description: Friend 엔티티의 영속성 관리를 위한 JPA Repository
 | **Operation** | `findAllByStatusAndRequesterOrStatusAndReceiver(FriendStatus status1, User requester, FriendStatus status2, User receiver)` | 친구(ACCEPTED) 목록 전체 조회          | `List<Friend>`     | `Public`            |
 
 ---
-### Class Diagram #101: FriendEmailService
+### Class Diagram #102: FriendEmailService
 Class Description: 친구 요청 및 수락 시 사용자에게 알림 이메일을 발송하는 기능을 담당하는 서비스 클래스이다.
 
 | 구분            | 이름                                                                     | 설명                        | 타입               | 접근 제한자 (Visibility) |
@@ -1429,7 +1447,7 @@ Class Description: 친구 요청 및 수락 시 사용자에게 알림 이메일
 | **Operation** | `sendFriendAcceptedMail(User requester, User receiver)`                | 친구 요청 수락 알림 메일 전송         | `void`           | `Public`            |
 
 ---
-### Class Diagram #102: FriendService
+### Class Diagram #103: FriendService
 Class Description: 친구 검색, 요청, 수락, 거절, 목록 조회 및 삭제 등 친구 관계 관리의 핵심 비즈니스 로직을 담당하는 서비스이다.
 
 | 구분            | 이름                                                         | 설명                     | 타입                           | 접근 제한자 (Visibility) |
@@ -1446,7 +1464,7 @@ Class Description: 친구 검색, 요청, 수락, 거절, 목록 조회 및 삭�
 | **Operation** | `deleteFriend(Long userId, Long friendId)`                 | 맺어진 친구 관계 삭제           | `void`                       | `Public`            |
 
 ---
-### Class Diagram #103: FriendController
+### Class Diagram #104: FriendController
 Class Description: 친구 관련 API 요청을 받아 FriendService로 전달하는 REST Controller이다.
 
 | 구분            | 이름                                                            | 설명                   | 타입                                           | 접근 제한자 (Visibility) |
@@ -1472,7 +1490,8 @@ Class Description: 친구 관련 API 요청을 받아 FriendService로 전달하
 
 ---
 
-### Class Diagram #104: S3tempResDto
+### Class Diagram #105: S3tempResDto
+
 Class Description: 이미지 업로드를 위해 발급된 임시 URL과 해당 파일 키를 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름                        | 설명                          | 타입             | 접근 제한자 (Visibility) |
@@ -1482,7 +1501,7 @@ Class Description: 이미지 업로드를 위해 발급된 임시 URL과 해당 
 | **Operation** | `of(URL url, String key)` | URL과 키를 데이터 전송 클래스로 변환      | `S3tempResDto` | `Public`            |
 
 ---
-### Class Diagram #105: S3uploadResDto
+### Class Diagram #106: S3uploadResDto
 Class Description: S3 업로드 완료 후 최종적으로 저장된 이미지 URL을 담아 응답하는 응답 데이터 전송 클래스이다.
 
 | 구분            | 이름               | 설명                  | 타입               | 접근 제한자 (Visibility) |
@@ -1491,7 +1510,7 @@ Class Description: S3 업로드 완료 후 최종적으로 저장된 이미지 U
 | **Operation** | `of(String url)` | URL을 데이터 전송 클래스로 변환 | `S3uploadResDto` | `Public`            |
 
 ---
-### Class Diagram #106: S3StorageService
+### Class Diagram #107: S3StorageService
 Class Description: Amazon S3와의 통신을 담당하며, Pre-signed URL 발급, 파일 복사 및 최종 URL 생성 등의 비즈니스 로직을 처리하는 서비스이다.
 
 | 구분            | 이름                                                | 설명                                        | 타입            | 접근 제한자 (Visibility) |
@@ -1504,7 +1523,7 @@ Class Description: Amazon S3와의 통신을 담당하며, Pre-signed URL 발급
 | **Operation** | `publishProfile(Long userId, String tempKey)`     | 임시 파일(tempKey)을 최종 프로필 경로로 복사 및 최종 URL 반환 | `String`      | `Public`            |
 
 ---
-### Class Diagram #107: S3Controller
+### Class Diagram #108: S3Controller
 Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 전달하고 사용자 인증 및 파일 키 생성을 처리하는 REST Controller이다.
 
 | 구분            | 이름                                                                                          | 설명                              | 타입                 | 접근 제한자 (Visibility) |
@@ -1524,7 +1543,10 @@ Class Description: S3 업로드 관련 API 요청을 받아 S3StorageService로 
 
 ---
 
-### Class Diagram #108: OpenAiReqDto
+
+### Class Diagram #109: OpenAiReqDto
+
+
 Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO이다. 채팅 모델 및 메시지 리스트를 포함한다.
 
 | 구분                        | 이름                                                   | 설명                                     | 타입              | 접근 제한자 (Visibility) |
@@ -1538,7 +1560,7 @@ Class Description: OpenAI API에 보낼 요청 본문을 담는 Request DTO이�
 | **Inner Class Operation** | `Message(String role, String content)`               | 모든 필드를 포함한 생성자                         | `Message`       | `Public`            |
 
 ---
-### Class Diagram #109: OpenAiResDto
+### Class Diagram #110: OpenAiResDto
 Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response DTO이다.
 
 | 구분                        | 이름        | 설명                | 타입             | 접근 제한자 (Visibility) |
@@ -1551,7 +1573,7 @@ Class Description: OpenAI API로부터 받은 응답 본문을 담는 Response D
 | **Inner Class Attribute** | `content` | 메시지 내용            | `String`       | `Private`           |
 
 ---
-### Class Diagram #110: ModerationDto
+### Class Diagram #111: ModerationDto
 Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO들을 정의하는 클래스이다.
 
 | 구분                         | 이름                                | 설명                    | 타입                  | 접근 제한자 (Visibility) |
@@ -1573,7 +1595,7 @@ Class Description: OpenAI Moderation API 요청 및 응답 본문을 위한 DTO�
 | **Nested Class Attribute** | `sexual`, `hate`, ...             | 각 카테고리 점수             | `double`            | `Private`           |
 
 ---
-### Class Diagram #111: OpenAIService
+### Class Diagram #112: OpenAIService
 Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스이다. 시스템 및 사용자 프롬프트를 구성하여 응답을 받아옵니다.
 
 | 구분            | 이름                                                      | 설명                                      | 타입             | 접근 제한자 (Visibility) |
@@ -1584,7 +1606,7 @@ Class Description: OpenAI Chat Completions API 호출을 담당하는 서비스�
 | **Operation** | `getAssistance(String userPrompt, String systemPrompt)` | AI에게 질의하고 텍스트 응답을 반환                    | `String`       | `Public`            |
 
 ---
-### Class Diagram #112: ModerationService
+### Class Diagram #113: ModerationService
 Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스트의 유해성 검사를 수행하는 서비스이다.
 - ⚠️ 주의사항: Moderation 서비스는 응답 속도와 운영 비용 효율성을 위해 설계된 경량 AI 기반의 1차 필터링 도구이다. 
   이 서비스는 모든 종류의 유해 콘텐츠를 완벽하게 차단하는 데 목적을 두기보다, 명백한 유해 요청을 API 접근 이전에 빠르게 감지 및 사전 배제함으로써,
@@ -1597,7 +1619,7 @@ Class Description: OpenAI Moderation API 호출을 담당하여, 입력 텍스�
 | **Operation** | `moderate(String text)` | 텍스트의 유해성 검사를 요청하고 응답 DTO 반환 | `ModerationDto.ModerationResponse` | `Public`            |
 
 ---
-### Class Diagram #113: OpenAiController
+### Class Diagram #114: OpenAiController
 Class Description: OpenAI API 및 Moderation API 호출을 위한 엔드포인트를 제공하는 REST Controller이다.
 
 | 구분            | 이름                                       | 설명                     | 타입                  | 접근 제한자 (Visibility) |
