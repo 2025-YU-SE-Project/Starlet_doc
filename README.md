@@ -18,7 +18,7 @@ Starlet 프로젝트 문서
 
 |       이름        |              보고 문서 (Document)               |                                                          개발 (Development)                                                           |        협업 문서        |
 |:---------------:|:-------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------:|:-------------------:|
-|     **임태현**     | SDS: Introduction, User interface prototype |                                                밤하늘 별자리 페이지 UI, FE 서버 배포 및 CI/CD 활성화                                                 |    Figma Design     |
+|     **임태현**     | SDS: Introduction, User interface prototype |                                                밤하늘 별자리 페이지, 친구 기능, FE 서버 배포 및 CI/CD 활성화                                                 |    Figma Design     |
 |     **조민서**     |           SDS: Use case analysis            |                                                로그인, 회원가입, 이메일 인증 등 회원관련 전체, 별자리 아카이브                                                |    Figma Design     |
 |     **조은별**     |         SDS: State machine diagram          |                                                      감정일기 달력 및 작성 관련 전체, 마이페이지                                                      |    Figma Design     |
 |     **이나현**     |  SRS All,<br> SDS: Title, Sequence diagram  |                     Diary API, MyPage API, AWS S3 Setting, MySQL RDBMS management, Continuous Testing Reporting                     |    Figma Design     |
