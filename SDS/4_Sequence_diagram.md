@@ -69,90 +69,158 @@
 
 ## 4.1 User Sequence diagram
 ### SD-4.1.1 회원가입(입력 검증)
-<img width="1029" height="922" alt="4-1-1 회원가입(입력 검증)" src="https://github.com/user-attachments/assets/759a012e-b34e-48d5-94dc-18a12fa92d73" />
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant UC as UserController
+    participant VS as Validation(BeanValidation)
+    participant GE as GlobalExceptionHandler
 
-사용자가 회원가입을 시도할 때, 서버는 입력된 **이메일, 닉네임, 비밀번호의 유효성 검증**을 수행한다.  
-이 단계에서는 실제 사용자 생성은 이루어지지 않으며, 클라이언트에서 전달된 정보가 형식적 조건을 충족하는지 확인한다.  
-검증은 `UserController`에서 DTO 단위의 Bean Validation(`@NotBlank`, `@Email`, `@Length` 등)을 통해 수행되며,  
-검증 실패 시 `GlobalExceptionHandler`에 의해 `400 BAD_REQUEST` 응답이 반환된다.  
-또한 이메일 또는 닉네임이 이미 사용 중인지 확인하여 중복 예외(`EMAIL_CONFLICT`, `NICKNAME_CONFLICT`)를 발생시킨다.
+    Client->>UC: POST /api/v1/user/signup\n{ email, nickname, password }
+    UC->>VS: Bean Validation 수행 (@NotBlank, @Email 등)
+
+    alt 유효성 실패
+        VS-->>GE: MethodArgumentNotValidException
+        GE-->>Client: 400 Bad Request\n(입력 형식 오류)
+    else 성공
+        UC-->>Client: 200 OK (다음 단계 진행 가능)
+    end
+```
+
+SD-4.1.1은 회원가입 요청에서 가장 처음 수행되는 단계로,
+DB 조회나 비즈니스 로직 없이 오직 입력 형식 검증만 이루어지는 단계다.
+서버는 DTO에 선언된
+- @NotBlank
+- @Email
+- @Length
+등의 Bean Validation을 수행하며,
+형식이 틀리면 컨트롤러 로직 실행 전 예외가 발생한다.
+예외는 GlobalExceptionHandler에 의해 가로채져
+400 Bad Request + Validation 메시지가 반환된다.
+정상적으로 통과하면 서버는 회원가입 로직(SD-4.1.2)으로 넘어갈 수 있음을 의미한다.
 
 
 **흐름 요약**
 1. **Client → UserController** : `POST /api/v1/user/signup` 요청 (SignUpDto)
-2. **UserController** : DTO 유효성 검사(Bean Validation) 수행
-3. **GlobalExceptionHandler** : 유효성 실패 시 `400 BAD_REQUEST` 반환
-4. **UserService** : `EmailService.existsEmailAddress()` 및 `UserRepository.existsByNickname()` 호출
-5. **중복 시 예외 발생** → `EMAIL_CONFLICT` 또는 `NICKNAME_CONFLICT`
-6. **모든 검증 통과 시** 다음 단계(`SD-4.1.2 회원가입(이메일 인증 포함)`)로 진입
+2. **Controller → Bean Validation** : DTO의 유효성 검사 수행
+3. **유효성 실패 시** → GlobalExceptionHandler
+- MethodArgumentNotValidException 발생
+- 400 Bad Request 반환
+4. **검증 통과 시**
+- 본격 회원가입 처리 과정인 SD-4.1.2로 이어짐
 <br>
 
 ### SD-4.1.2 회원가입(이메일 인증 포함)
-<img width="1469" height="963" alt="image" src="https://github.com/user-attachments/assets/fe752911-b0ab-46ab-a6cf-39fe97f300f4" />
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant UC as UserController
+    participant US as UserService
+    participant ES as EmailService
+    participant VR as VerifyRepository
+    participant UR as UserRepository
+    participant PE as PasswordEncoder
 
-이 기능은 이메일 인증이 완료된 사용자가 실제로 회원가입을 완료하는 단계이다.  
-사용자가 입력한 이메일·닉네임·비밀번호 정보를 기반으로  
-`UserController.signup()` → `UserService.signUp()` 순서로 호출된다.
+    Client->>UC: POST /api/v1/user/signup\n{ email, nickname, password }
+    UC->>US: signUp(dto)
 
-`UserService.signUp()`은 먼저 `EmailService.findEmailByAddress()`를 통해  
-해당 이메일이 존재하는지 확인하고,  
-그 이메일의 `VerifyType`이 `VERIFY` 상태인지 검증한다.  
-만약 인증이 완료되지 않았거나(`NOT_VERIFY_USER`),  
-존재하지 않는 이메일(`EMAIL_NOT_FOUND`),  
-닉네임이 중복(`NICKNAME_CONFLICT`)된 경우에는 예외를 발생시킨다.  
+    US->>ES: findEmailByAddress(dto.email)
+    ES-->>US: Email 객체
 
-모든 검증이 통과하면 비밀번호를 암호화하여 `UserRepository.save()`로 사용자 정보를 저장하고,  
-201 Created 응답과 함께 신규 사용자 URI(`/api/v1/user/{id}`)를 반환한다.
+    US->>VR: 이메일 인증 상태 확인 (verify.type)
+    alt 인증 미완료
+        US-->>UC: throw NOT_VERIFY_USER
+        UC-->>Client: 400 Bad Request
+    end
+
+    US->>US: validNickname(nickname)\n(중복검사 + 모더레이션)
+    
+    US->>PE: 비밀번호 암호화
+    PE-->>US: encodedPassword
+
+    US->>UR: save(User)
+    UR-->>US: User 저장됨
+
+    US-->>UC: UserResDto
+    UC-->>Client: 201 Created
+```
+
+사용자가 이메일 인증을 마친 상태에서 최종 회원가입 요청을 보내면, 서버는 먼저 EmailService.findEmailByAddress()로 해당 이메일 엔티티를 조회하고, 그 안에 연결된 Verify의 타입이 VERIFY인지 확인한다. 인증 상태가 VERIFY가 아니면 NOT_VERIFY_USER 예외를 던져 400 응답을 돌려준다. 인증이 완료된 경우에는 validNickname()으로 닉네임 중복과 OpenAI 모더레이션 검사를 수행하고, 문제가 없으면 비밀번호를 암호화한 뒤 UserRepository.save()로 새 유저를 저장한다. 저장이 성공하면 201 Created와 함께 사용자 정보를 응답한다.
 
 **흐름 요약**
-1. **Client → UserController** : `POST /api/v1/user/signup` (요청 본문: `SignUpDto`)
+1. **Client → UserController** : `POST /api/v1/user/signup`
 2. **UserController → UserService** : `signUp(dto)` 호출
-3. **UserService → EmailService** : `findEmailByAddress(dto.email)`  
-   - 이메일 존재 확인 (`EmailRepository.findByAddress()`)
-4. **EmailService → UserService** : 이메일 엔티티 반환  
-   - 인증 상태(`VerifyType`) 검사
-5. **UserService → UserRepository** : 닉네임 중복 검사 (`existsByNickname`)
-6. **조건 분기**  
-   - `NOT_VERIFY_USER` → 이메일 인증 미완료  
-   - `NICKNAME_CONFLICT` → 닉네임 중복  
-   - `EMAIL_NOT_FOUND` → 이메일 존재하지 않음
-7. **UserService → PasswordEncoder** : 비밀번호 암호화 수행  
-8. **UserService → UserRepository** : 신규 사용자 저장 (`save(User)`)
-9. **UserController → Client** : `201 Created` 응답 + Location Header(`/api/v1/user/{id}`)
+3. **UserService → EmailService** : `findEmailByAddress(email)`  
+   - 이메일 존재 확인
+4. **UserService 내부** : email.getVerify().getType()이 VERIFY인지 검사
+- 아니면 NOT_VERIFY_USER → 400 반환
+5. **UserService → validNickname(nickname)** : 닉네임 중복 및 유해성(모더레이션) 검사
+6. **UserService → PasswordEncoder** : 비밀번호 암호화
+7. **UserService → UserRepository** : save(User)로 새 유저 저장
+8. **UserController → Client** : 201 Created + 생성된 사용자 정보(or 최소 식별자) 응답
 <br>
 
 ### SD-4.1.3 닉네임 중복 확인
-<img width="1218" height="540" alt="image" src="https://github.com/user-attachments/assets/934b2040-3f1c-416f-9376-e4b830650961" />
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant UC as UserController
+    participant US as UserService
+    participant UR as UserRepository
 
-회원가입 단계에서 입력된 닉네임이 이미 사용 중인지 확인하는 기능이다.  
-`UserController.existNickname()`이 `UserService.existNickname()`을 호출하여,  
-해당 닉네임이 DB에 존재하는지 여부를 검사한다.  
-이미 존재하는 닉네임일 경우 `CustomException(ErrorCode.NICKNAME_CONFLICT)`를 발생시켜  
-`409 CONFLICT` 응답을 반환하며, 사용 가능한 닉네임일 경우 `200 OK` 응답을 반환한다.  
+    Client->>UC: GET /api/v1/user/signup/nickname_available?nickname=...
+    UC->>US: existNickname(nickname)
 
-이 기능은 회원가입 입력 검증 단계(`SD-4.1.1`)와 동일한 검증 로직을 수행하지만,  
-**별도의 단일 API**로 분리되어 프론트엔드에서 실시간 중복 체크용으로 사용된다.
+    US->>UR: existsByNickname(nickname.strip())
+    UR-->>US: true / false
+
+    alt 중복 있음(true)
+        US-->>UC: throw NICKNAME_CONFLICT
+        UC-->>Client: 409 Conflict
+    else 중복 없음(false)
+        UC-->>Client: 200 OK
+    end
+```
+
+회원가입 화면에서 사용자가 닉네임을 입력했을 때, 해당 닉네임이 이미 다른 유저가 사용 중인지 사전에 확인하는 API이다. 컨트롤러는 UserService.existNickname()을 호출하고, 서비스에서는 전달받은 닉네임을 strip()으로 공백 제거한 뒤 UserRepository.existsByNickname()으로 DB에 존재하는지 확인한다. 존재할 경우 NICKNAME_CONFLICT 예외를 던져 409를 반환하고, 존재하지 않으면 200 OK로 “사용 가능” 상태를 알려준다.
 
 **흐름요약**
 1. **Client → UserController** : `GET /api/v1/user/signup/nickname_available?nickname={nickname}`
 2. **UserController → UserService** : `existNickname(nickname)` 호출
-3. **UserService → UserRepository** : `existsByNickname(nickname)` 실행
-4. **UserRepository → UserService** : `true`(중복) / `false`(미중복)
-5. **중복 시** : `CustomException(NICKNAME_CONFLICT)` → `409 CONFLICT`
-6. **중복이 아닐 시** : `ResponseEntity.ok().build()` → `200 OK`
+3. **UserService 내부** : nickname.strip()으로 공백 제거
+4. **UserService → UserRepository** : `existsByNickname(nickname)` 실행
+5. **UserRepository → UserService** : `true`(중복) / `false`(미중복)
+6. **중복 시** : `CustomException(NICKNAME_CONFLICT)` → `409 CONFLICT`
+7. **중복이 아닐 시** : `ResponseEntity.ok().build()` → `200 OK`
 <br>
 
 ### SD-4.1.4 이메일 중복 확인
-<img width="1105" height="540" alt="image" src="https://github.com/user-attachments/assets/05530cb0-889d-41c4-b084-e8b3caee1ac4" />
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant EC as EmailController
+    participant ES as EmailService
+    participant ER as EmailRepository
 
-회원가입 과정에서 입력된 이메일 주소가 이미 존재하는지 확인하는 기능이다.  
-`EmailController.checkDuplication()`이 `EmailService.existsEmailAddress()`를 호출하여,  
-해당 이메일이 DB에 등록되어 있는지 여부를 검사한다.  
-이미 존재하는 이메일일 경우 `CustomException(ErrorCode.EMAIL_CONFLICT)`를 발생시켜  
-`409 CONFLICT` 응답을 반환하며, 사용 가능한 이메일일 경우 `200 OK` 응답을 반환한다.  
+    Client->>EC: GET /api/v1/email/check-duplication?address=...
+    EC->>ES: existsEmailAddress(address)
 
-이 기능은 회원가입 입력 검증 단계(`SD-4.1.1`)와 동일한 검증 로직을 수행하지만,  
-**별도의 단일 API**로 분리되어 프론트엔드에서 실시간 중복 체크용으로 사용된다.
+    ES->>ER: existsByAddress(address)
+    ER-->>ES: true / false
+
+    alt 중복 있음(true)
+        ES-->>EC: throw EMAIL_CONFLICT
+        EC-->>Client: 409 Conflict
+    else 중복 없음(false)
+        EC-->>Client: 200 OK
+    end
+```
+
+이메일 중복 확인 API는 회원가입 전에 사용자가 입력한 이메일이 이미 시스템에 등록되어 있는지를 체크하는 역할을 한다. EmailController에서 EmailService.existsEmailAddress()를 호출하고, 서비스는 EmailRepository.existsByAddress()로 이메일 존재 여부를 판단한다. 이미 사용 중인 이메일이면 EMAIL_CONFLICT 예외를 발생시켜 409를 반환하고, 사용 가능한 이메일일 경우 별도의 본문 없이 200 OK를 돌려준다.
 
 **흐름요약**
 1. **Client → EmailController** : `GET /api/v1/email/check-duplication?address={email}`
@@ -221,32 +289,12 @@
 <br>
 
 ### SD-4.2.3 이메일 인증 확인
-
-사용자가 이메일로 받은 인증 링크를 클릭하면, 해당 링크에 포함된 `token`을 통해 인증을 완료하는 기능이다.  
-`VerifyService.emailVerification(token)`이 호출되어 토큰의 유효성과 타입을 검증한 뒤,  
-인증 상태(`VerifyType.VERIFY`)로 업데이트한다.  
-토큰이 존재하지 않거나 타입이 일치하지 않으면 각각 `VERIFY_NOT_FOUND`, `VERIFY_TYPE_NOT_MATCHED` 예외가 발생한다.  
-정상적으로 인증이 완료되면 사용자의 이메일이 “인증 완료 상태”로 전환되며, 프론트엔드에서 완료 페이지를 표시한다.
-
-**흐름요약**
-1. **Client → VerifyController (또는 View 요청)** : `GET /view/v1/verify/init?token={token}`
-2. **Controller → VerifyService** : `emailVerification(token)` 호출
-3. **VerifyService → VerifyRepository** : `findByToken(token)` 실행
-4. **토큰 없음** : `VERIFY_NOT_FOUND` → `404 NOT_FOUND`
-5. **타입 불일치** : `VERIFY_TYPE_NOT_MATCHED` → `400 BAD_REQUEST`
-6. **정상 흐름**
-   - `verify.updateStatus(null, VERIFY, null)`  
-   - `verifyRepository.save(verify)`
-7. **정상 응답** : `200 OK`
-<br>
-
-### SD-4.2.3 이메일 인증 확인
 <img width="1117" height="788" alt="image" src="https://github.com/user-attachments/assets/528b694e-568c-41c0-a634-8e74ef22618e" />
 
 사용자가 이메일로 받은 인증 링크를 클릭하면, 해당 링크에 포함된 `token`을 통해 인증을 완료하는 기능이다.  
 `VerifyService.emailVerification(token)`이 호출되어 토큰의 유효성과 타입을 검증한 뒤,  
 인증 상태(`VerifyType.VERIFY`)로 업데이트한다.  
-토큰이 존재하지 않거나 타입이 일치하지 않으면 각각 `VERIFY_NOT_FOUND`, `VERIFY_TYPE_NOT_MATCHED` 예외가 발생한다.  
+토큰이 존재하지 않거나(만료 정리 배치에 의해 삭제된 경우 포함) 타입이 일치하지 않으면 각각 VERIFY_NOT_FOUND, VERIFY_TYPE_NOT_MATCHED 예외가 발생한다. 
 정상적으로 인증이 완료되면 사용자의 이메일이 “인증 완료 상태”로 전환되며, 프론트엔드에서 완료 페이지를 표시한다.
 
 **흐름요약**
@@ -384,8 +432,8 @@
 정상적인 요청일 경우 인증 상태를 `CHANGING_PASSWORD`로 변경한다.  
 
 이 과정을 통해 사용자는 새 비밀번호를 입력할 수 있는 상태로 전환되며,  
-성공 시 `password-reset-success` 뷰가 렌더링되고  
-토큰이 유효하지 않거나 만료된 경우 `verification-error` 페이지로 이동한다.  
+성공 시 `password-reset-success` 뷰가 렌더링되고,  
+토큰이 유효하지 않거나 이미 정리되어 조회할 수 없는 경우(만료 정리 이후 포함) `verification-error` 페이지로 이동한다.
 
 **흐름요약**  
 1. **Client → VerifyViewController** : `GET /view/v1/verify/password-reset/confirm?token={token}`  
