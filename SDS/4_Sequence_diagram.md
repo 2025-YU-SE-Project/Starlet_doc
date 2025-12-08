@@ -1141,7 +1141,7 @@ sequenceDiagram
 
 <br>
 
-### SD-4.6.6 별자리 아카이브 목록 조회  
+### SD-4.6.5 별자리 아카이브 목록 조회  
 
 ```mermaid
 sequenceDiagram
@@ -1205,7 +1205,7 @@ sequenceDiagram
 
 <br>
 
-### SD-4.6.7 별자리 아카이브 상세 조회  
+### SD-4.6.6 별자리 아카이브 상세 조회  
 
 ```mermaid
 sequenceDiagram
@@ -1268,7 +1268,7 @@ sequenceDiagram
 
 <br>
 
-### SD-4.6.8 대표 별자리 설정  
+### SD-4.6.7 대표 별자리 설정  
 
 ```mermaid
 sequenceDiagram
@@ -1334,7 +1334,7 @@ sequenceDiagram
 
 <br>
 
-### SD-4.6.9 별자리 위치 재배치  
+### SD-4.6.8 별자리 위치 재배치  
 
 ```mermaid
 sequenceDiagram
