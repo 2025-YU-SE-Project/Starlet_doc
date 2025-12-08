@@ -569,7 +569,6 @@ DiaryService.update() 내부에서는
 7. 수정된 Diary는 JPA dirty checking으로 자동 반영된다
 
 **흐름요약** <br>
-흐름요약
 1. Client → DiaryController : PATCH /api/v1/calendar/diary 요청 (date, content)
 2. DiaryController → DiaryService : update(userId, req) 호출
 3. DiaryService → DiaryRepository : findByUser_IdAndCreateAt() 조회
