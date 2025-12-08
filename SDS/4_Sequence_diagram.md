@@ -62,6 +62,8 @@
 | **SD-4.6** | Constellation | 별자리 생성, 수정, 아카이브, 대표 설정 |
 | **SD-4.7** | S3 | 프로필 이미지 업로드, Presigned URL 발급, 최종 이미지 확정 |
 | **SD-4.8** | MyPage | 사용자 요약 정보, 감정별 통계, 대표 별자리 조회 등 |
+| **SD-4.9** | Friend | 친구 검색, 친구 요청/수락/거절, 친구/요청 목록 조회, 친구 삭제 및 만료 요청 정리 배치 등 |
+
 
 ---
 
@@ -425,239 +427,60 @@
 ---
 
 ## SD-4.4 Diary Sequence diagram
-### SD-4.4.1 감정 선택 단계  
-
+### SD-4.4.1 일기 생성 단계
 ```mermaid
 sequenceDiagram
     autonumber
     actor Client as Client
     participant DC as DiaryController
     participant DS as DiaryService
-
-    Client->>DC: (준비) POST /api/v1/calendar/diary\n{ emotion }
-    DC->>DS: create(userId, req)
-    DS->>DS: req.getEmotion() Enum 유효성 검사
-
-    alt 유효하지 않은 Enum
-        DS-->>DC: CustomException(INVALID_EMOTION)
-        DC-->>Client: 400 Bad Request
-    else 정상 Enum
-        note over DS,DC: 이 단계에서는 저장 수행 X\n(Repository 호출 없음)
-        DS-->>DC: OK (다음 단계 진행)
-        DC-->>Client: 다음 단계(요인 선택)로 이동
-    end
-```
-사용자가 감정 일기를 작성하기 전에 자신의 감정을 선택하는 초기 단계이다.  
-프론트엔드에서는 `Emotion Enum` 값 중 하나(`HAPPINESS`, `FUNNY`, `NEUTRAL`, `SURPRISING`, `ANGER`, `SADNESS`)를 선택하며,  
-선택된 감정은 `DiaryCreateReqDto`의 `emotion` 필드로 전달되어 최종 `/api/v1/calendar/diary` 요청에 포함된다.  
-
-이 단계에서 서버는 별도의 DB 저장을 수행하지 않으며,  
-단지 선택된 감정 값이 **유효한 Enum 값인지 검증**하는 수준의 검증만 수행한다.  
-실제 저장은 일기 작성 완료(`SD-4.4.4 일기 저장`) 단계에서 이루어진다.  
-
-**흐름요약**  
-1. **Client → DiaryController** : 감정 선택 값(`Emotion Enum`)을 포함한 `/api/v1/calendar/diary` 요청 준비  
-2. **DiaryController → DiaryService** : `create(userId, req)` 호출  
-3. **DiaryService** : `req.getEmotion()` 값 검증 (Enum 값 유효성 체크)  
-4. **DiaryService** : `Diary.builder().emotion(req.getEmotion())` 로 객체 생성  
-5. **DiaryRepository** : 저장 호출은 아직 발생하지 않음 (이 단계는 선택 로직만 담당)  
-6. **정상 감정 Enum** : 다음 단계(요인 선택 단계)로 이동  
-7. **유효하지 않은 Enum 값** : `CustomException(ErrorCode.INVALID_EMOTION)` 발생  
-
-<br>
-
-### SD-4.4.2 요인 선택 단계  
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as Client
-    participant DC as DiaryController
-    participant DS as DiaryService
-
-    Client->>Client: Emotion 선택 후 Factor 다중 선택
-    note over Client: 아직 서버 요청 없음 (프론트 내부 상태 저장)
-
-    Client->>DC: (준비) POST /api/v1/calendar/diary\n{ emotion, factors, content }
-    DC->>DS: create(userId, req)
-    DS->>DS: req.getFactors() 유효성 검사 (null 또는 비어있으면 빈 리스트로 처리)
-    DS->>DS: req.getEmotion() Enum 유효성 검사
-
-    alt 중복 작성
-        DS-->>DC: CustomException(DIARY_ALREADY_EXISTS)
-        DC-->>Client: 409 Conflict
-    else 정상 입력
-        note over DS,DC: Emotion + Factors + Content 함께 Diary 생성
-        DS-->>DC: DiaryResDto 반환
-        DC-->>Client: 일기 작성 완료 응답
-    end
-```
-사용자가 감정 선택 이후, 그 감정의 **원인(Factor)** 을 선택하는 단계이다.  
-이 단계는 **프론트엔드에서만 일어나는 중간 입력 과정**이며, 서버로는 아직 요청이 전송되지 않는다.  
-선택된 요인은 `DiaryCreateReqDto`의 `factors` 필드(`List<Factor>`)에 포함되어  
-최종 `/api/v1/calendar/diary` 요청 시 함께 전달된다.  
-
-`DiaryService.create()` 내부에서는 `safeFactors()` 메서드를 통해  
-`null` 또는 비어 있는 리스트를 안전하게 처리하고,  
-감정(`emotion`), 요인(`factors`), 메모(`content`)를 함께 받아 `Diary` 및 `Star`를 생성한다.  
-요인 선택만으로는 DB 저장이 이루어지지 않는다.  
-
-**흐름요약**  
-1. **Client** : 감정 선택 후, 여러 요인(`Factor`)을 선택 (아직 서버 요청 없음)  
-2. **Client → DiaryController** : `/api/v1/calendar/diary` 요청 준비 (`emotion + factors + content` 포함)  
-3. **DiaryController → DiaryService** : `create(userId, req)` 호출  
-4. **DiaryService** : `req.getFactors()` → `safeFactors()` 로 변환 (`null` 방지)  
-5. **DiaryService** : `req.getEmotion()` Enum 유효성 검증  
-6. **정상 입력 시** : Emotion + Factors + Content 기반 `Diary` 및 `Star` 생성  
-7. **중복 작성 시** : `CustomException(ErrorCode.DIARY_ALREADY_EXISTS)` 발생  
-8. **요인 선택 단계 자체에서는 DB 저장 없음**  
-
-<br>
-
-### SD-4.4.3 메모 입력 단계  
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as Client
-    participant DC as DiaryController
-    participant DS as DiaryService
+    participant MR as ModerationService
     participant DR as DiaryRepository
     participant SR as StarRepository
 
-    Client->>Client: Emotion, Factor 선택 완료 후 Content 입력
-    note over Client: 모든 입력값 검증 완료 후 서버에 요청 전송
-
-    Client->>DC: POST /api/v1/calendar/diary\n{ emotion, factors, content }
+    Client->>DC: POST /api/v1/calendar/diary\n{emotion, factors, content, date?}
     DC->>DS: create(userId, req)
-    DS->>DS: 날짜 중복 검사 (existsByUser_IdAndCreateAt)
-    alt 중복된 일기 존재
-        DS-->>DC: CustomException(DIARY_ALREADY_EXISTS)
-        DC-->>Client: 409 Conflict
-    else 신규 작성
-        DS->>DR: Diary 저장 (emotion, factors, content, date)
-        DS->>SR: Star 저장 (emotion.color, x, y, user)
-        DS-->>DC: DiaryResDto 반환
-        DC-->>Client: 201 Created + DiaryResDto
-    end
-```
-사용자가 감정과 요인 선택을 완료한 뒤, **메모(content)** 를 작성하여 서버에 최종 요청을 전송하는 단계이다.  
-이 시점에서 `/api/v1/calendar/diary` 요청이 실제로 발생하며, 서버는  
-감정(`emotion`), 요인(`factors`), 메모(`content`)를 모두 포함한 `DiaryCreateReqDto`를 전달받는다.  
 
-`DiaryService.create()` 내부에서는 동일 사용자·날짜의 일기가 이미 존재하는지  
-`existsByUser_IdAndCreateAt()`으로 검사하고, 중복 시 `CustomException(ErrorCode.DIARY_ALREADY_EXISTS)`를 발생시킨다.  
+    DS->>DS: 날짜 기본값 설정(req.date == null ? today)
+    DS->>DR: existsByUser_IdAndCreateAt(userId, date)
 
-정상 요청일 경우,  
-- `DiaryRepository.save()` 를 통해 Diary가 저장되고,  
-- 동시에 `StarRepository.save()` 를 통해 Emotion에 해당하는 색상의 별이 생성된다.  
-
-결과로 `DiaryResDto`가 반환되어 클라이언트는 **작성 완료 화면**으로 이동한다.  
-
-**흐름요약**  
-1. **Client** : Emotion, Factor 선택 완료 후 Content 입력  
-2. **Client → DiaryController** : `/api/v1/calendar/diary` 요청 (emotion + factors + content 포함)  
-3. **DiaryController → DiaryService** : `create(userId, req)` 호출  
-4. **DiaryService** : `existsByUser_IdAndCreateAt()` 중복 검사  
-5. **중복 시** : `CustomException(ErrorCode.DIARY_ALREADY_EXISTS)` 발생 → 409 응답  
-6. **정상 시** : `DiaryRepository.save()` 로 Diary 저장  
-7. **StarRepository.save()** : Emotion 기반 Star 생성  
-8. **Controller → Client** : `DiaryResDto` 반환 (201 Created)  
-
-<br>
-
-### SD-4.4.4 일기 저장 단계  
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as Client
-    participant DC as DiaryController
-    participant DS as DiaryService
-    participant DR as DiaryRepository
-    participant SR as StarRepository
-
-    Client->>DC: POST /api/v1/calendar/diary\n{ emotion, factors, content }
-    DC->>DS: create(userId, req)
-    DS->>DS: 날짜 확인 (req.date == null ? LocalDate.now())
-    DS->>DS: 중복 검사 (existsByUser_IdAndCreateAt)
     alt 이미 작성된 일기 존재
         DS-->>DC: CustomException(DIARY_ALREADY_EXISTS)
         DC-->>Client: 409 Conflict
     else 신규 작성
-        DS->>DR: Diary 저장 (emotion, factors, content, date)
-        DS->>SR: Star 저장 (emotion.color, x, y, user)
-        DS-->>DC: DiaryResDto 반환
-        DC-->>Client: 201 Created + DiaryResDto
+        DS->>MR: moderationService.moderate(content)
+        alt 부적절한 표현 존재
+            DS-->>DC: CustomException(INAPPROPRIATE_CONTENT)
+            DC-->>Client: 400 Bad Request
+        else 정상 content
+            DS->>DR: Diary 저장 (emotion, factors, content, date)
+            DS->>SR: Star 저장 (emotion.color, x, y, user)
+            DS-->>DC: DiaryResDto 반환
+            DC-->>Client: 201 Created + DiaryResDto
+        end
     end
 ```
-이 단계는 사용자가 입력한 감정(`emotion`), 요인(`factors`), 메모(`content`)를 서버로 전송하고,  
-서버에서 실제로 **Diary와 Star를 DB에 저장하는 핵심 단계**이다.  
+이 단계는 사용자가 새로운 감정 일기를 생성하는 단계이다.
+사용자는 감정(emotion), 요인 리스트(factors), 메모(content), 날짜(date)를 포함하여
+POST /api/v1/calendar/diary 로 요청을 보낸다.
 
-요청은 `POST /api/v1/calendar/diary` 엔드포인트로 전달되며,  
-`DiaryCreateReqDto`에는 감정, 요인, 메모, 날짜 정보가 포함된다.  
-`DiaryService.create()`는 내부적으로 다음 과정을 수행한다.
+DiaryService.create() 내부에서는
+1. findByUser_IdAndCreateAt(userId, date) 로 해당 날짜의 일기 존재 여부를 조회하고
+2. 이미 존재한다면 CustomException(ErrorCode.DIARY_ALREADY_EXISTS) 를 발생시키며
+3. 존재하지 않는 경우 새로운 Diary 엔티티를 생성하고 필요한 값들을 설정한 뒤
+4. JPA save() 를 통해 DB에 저장한다.
+5. 이후 저장된 Diary를 DiaryResDto 로 변환하여 응답한다.
 
-1. 요청의 `date` 값이 없을 경우 `LocalDate.now()`로 자동 설정  
-2. 동일 사용자·날짜의 일기 존재 여부를 `existsByUser_IdAndCreateAt()`로 검사  
-3. 이미 존재한다면 `CustomException(ErrorCode.DIARY_ALREADY_EXISTS)` 발생  
-4. 존재하지 않을 경우 `DiaryRepository.save()`로 Diary 저장  
-5. 저장된 Diary를 기반으로 `StarRepository.save()` 호출 (Emotion 색상 기반 Star 생성)  
-6. 최종적으로 `DiaryResDto`를 반환하여 작성 완료 응답 전송  
+**흐름요약** <br>
+해당 시퀀스는 감정 일기 생성의 실제 실행 흐름을 나타낸다.
+1. Client → DiaryController : POST /api/v1/calendar/diary 요청 (emotion, factors, content, date)
+2. DiaryController → DiaryService : create(userId, req) 호출
+3. DiaryService → DiaryRepository :  findByUser_IdAndCreateAt(userId, date) 조회
+4. 일기 이미 존재 시 : CustomException(ErrorCode.DIARY_ALREADY_EXISTS) → 409 CONFLICT
+5. 일기 미존재 시 : Diary 생성 후 저장
+6. Controller → Client : DiaryResDto 반환 (201 Created)00
 
-**흐름요약**  
-1. **Client → DiaryController** : `/api/v1/calendar/diary` 요청 (`emotion`, `factors`, `content`, `date`)  
-2. **DiaryController → DiaryService** : `create(userId, req)` 호출  
-3. **DiaryService** : 날짜 기본값 설정 및 중복 검사  
-4. **중복 존재 시** : `CustomException(ErrorCode.DIARY_ALREADY_EXISTS)` → 409 응답  
-5. **정상 생성 시** : Diary 저장 → Star 생성  
-6. **Controller → Client** : `DiaryResDto` 반환 (201 Created)  
-
-<br>
-
-### SD-4.4.5 일기 수정 단계  
-```mermaid
-sequenceDiagram
-autonumber
-actor Client as Client
-participant DC as DiaryController
-participant DS as DiaryService
-participant DR as DiaryRepository
-
-Client->>DC: PATCH /api/v1/calendar/diary\n{ date, content }
-DC->>DS: update(userId, req)
-DS->>DR: findByUser_IdAndCreateAt(userId, date)
-alt 일기 존재하지 않음
-    DS-->>DC: CustomException(DIARY_NOT_FOUND)
-    DC-->>Client: 404 Not Found
-else 일기 존재
-    DS->>DS: diary.updateContent(req.getContent())
-    note over DS: content 필드만 수정 가능 (emotion, factors 변경 불가)
-    DS-->>DC: DiaryResDto 반환
-    DC-->>Client: 200 OK + DiaryResDto
-end
-```
-이 단계는 이미 작성된 감정 일기를 **수정**하는 단계이다.  
-수정 가능한 항목은 `content`(메모)이며, 감정(`emotion`)과 요인(`factors`)은 변경되지 않는다.  
-프론트엔드에서는 수정할 일기의 날짜와 새 내용을 포함한 요청을  
-`PATCH /api/v1/calendar/diary` 로 전송한다.  
-
-`DiaryService.update()` 내부에서는  
-1. `findByUser_IdAndCreateAt(userId, date)` 로 해당 사용자의 일기를 조회하고  
-2. 존재하지 않으면 `CustomException(ErrorCode.DIARY_NOT_FOUND)` 발생  
-3. 존재할 경우 `diary.updateContent(req.getContent())` 호출로 내용 수정  
-4. 수정된 Diary는 JPA dirty checking으로 자동 반영된다.  
-
-**흐름요약**  
-1. **Client → DiaryController** : `/api/v1/calendar/diary` PATCH 요청 (`date`, `content`)  
-2. **DiaryController → DiaryService** : `update(userId, req)` 호출  
-3. **DiaryService → DiaryRepository** : `findByUser_IdAndCreateAt()` 조회  
-4. **일기 미존재 시** : `CustomException(ErrorCode.DIARY_NOT_FOUND)` → 404 응답  
-5. **일기 존재 시** : `updateContent()` 수행  
-6. **Controller → Client** : `DiaryResDto` 반환 (200 OK)  
-
-<br>
-
-### SD-4.4.6 일기 조회(특정 날짜)
+### SD-4.4.2 일기 수정 단계  
 ```mermaid
 sequenceDiagram
 autonumber
@@ -667,38 +490,97 @@ participant DS as DiaryService
 participant DR as DiaryRepository
 
 Client->>DC: GET /api/v1/calendar/diary?date=YYYY-MM-DD
-note over DC: date 필수 파라미터 파싱/검증
+note over DC: date 쿼리 파라미터 파싱/검증
 
 DC->>DS: getByDate(userId, date)
 DS->>DR: findByUser_IdAndCreateAt(userId, date)
-alt 일기 존재하지 않음
-    DS-->>DC: CustomException(DIARY_NOT_FOUND)
-    DC-->>Client: 404 Not Found
-else 일기 존재
-    DS-->>DC: DiaryResDto 반환
-    DC-->>Client: 200 OK + DiaryResDto
+DR-->>DS: Optional<Diary>
+
+alt 일기 존재
+    DS-->>DC: DiaryByDateResDto(hasDiary=true, date, diary)
+    DC-->>Client: 200 OK + DiaryByDateResDto
+else 일기 없음
+    DS-->>DC: DiaryByDateResDto(hasDiary=false, date, null)
+    DC-->>Client: 200 OK + DiaryByDateResDto
+end
+
+```
+이 단계는 이미 작성된 감정 일기를 수정하는 단계이다.
+수정 가능한 항목은 content(메모)이며, 감정(emotion)과 요인(factors)은 변경되지 않는다.
+프론트엔드에서는 수정할 일기의 날짜와 새 내용을 포함한 요청을
+PATCH /api/v1/calendar/diary 로 전송한다.
+
+DiaryService.update() 내부에서는
+
+1. findByUser_IdAndCreateAt(userId, date) 로 해당 사용자의 일기를 조회하고
+2. 존재하지 않으면 CustomException(ErrorCode.DIARY_NOT_FOUND) 발생
+3. content가 null이 아닌 경우에만 수정 로직을 수행하며
+4. 수정 요청한 content 내용이 있을 경우, 먼저 ModerationService 를 통해 부적절한 표현이 있는지 검사한다
+5. 부적절한 표현이 발견되면 CustomException(ErrorCode.INAPPROPRIATE_CONTENT) 예외 발생
+6. 문제가 없으면 diary.updateContent(req.getContent()) 호출로 내용 수정
+7. 수정된 Diary는 JPA dirty checking으로 자동 반영된다
+
+**흐름요약** <br>
+흐름요약
+1. Client → DiaryController : PATCH /api/v1/calendar/diary 요청 (date, content)
+2. DiaryController → DiaryService : update(userId, req) 호출
+3. DiaryService → DiaryRepository : findByUser_IdAndCreateAt() 조회
+4. 일기 미존재 시 : CustomException(ErrorCode.DIARY_NOT_FOUND) → 404 응답
+5. content 존재 시 : ModerationService 로 부적절 표현 검사, 정상일 경우 updateContent() 수행, 부적절 표현 발견 시 CustomException(INAPPROPRIATE_CONTENT) → 400 응답
+6. content가 null인 경우 : 수정 없이 기존 내용 유지
+7. Controller → Client : DiaryResDto 반환 (200 OK)
+
+<br>
+
+### SD-4.4.3 일기 조회(특정 날짜)
+```mermaid
+sequenceDiagram
+autonumber
+actor Client as Client
+participant DC as DiaryController
+participant DS as DiaryService
+participant DR as DiaryRepository
+
+Client->>DC: GET /api/v1/calendar/diary?date=YYYY-MM-DD
+note over DC: date 쿼리 파라미터 파싱 및 검증
+
+DC->>DS: getByDate(userId, date)
+DS->>DR: findByUser_IdAndCreateAt(userId, date)
+DR-->>DS: Optional<Diary>
+
+alt 일기 존재
+    DS-->>DC: DiaryByDateResDto(hasDiary=true, date, diary)
+    DC-->>Client: 200 OK + DiaryByDateResDto
+else 일기 없음
+    DS-->>DC: DiaryByDateResDto(hasDiary=false, date, null)
+    DC-->>Client: 200 OK + DiaryByDateResDto
 end
 ```
 
 사용자가 특정 날짜의 감정 일기를 **조회**하는 단계이다.  
-클라이언트는 `date(YYYY-MM-DD)` 쿼리 파라미터를 포함해 `GET /api/v1/calendar/diary` 를 호출한다.  
+클라이언트는 date(YYYY-MM-DD) 쿼리 파라미터를 포함해
+GET /api/v1/calendar/diary API를 호출한다.
+DiaryService.getByDate()는 내부적으로
+findByUser_IdAndCreateAt(userId, date) 메서드를 통해 해당 날짜의 일기를 조회한다.
 
-서버 측 흐름은 다음과 같다.
-- **Controller → Service** : `getByDate(userId, date)` 호출  
-- **Service → Repository** : `findByUser_IdAndCreateAt(userId, date)` 조회  
-- **미존재 시** : `CustomException(ErrorCode.DIARY_NOT_FOUND)` → 404 응답  
-- **존재 시** : `DiaryResDto` 로 매핑하여 200 OK 응답  
+- 일기 존재 시
+서비스는 DiaryByDateResDto.of(diary) 를 반환하며 hasDiary = true 와 함께 일기 내용을 포함한다.
+
+- 일기 미존재 시
+DiaryByDateResDto.empty(date) 를 생성하여 hasDiary = false 와 함께 diary = null 을 반환한다.
+
+일기 존재 여부와 관계없이 HTTP 응답 코드는 200 OK 이며, 클라이언트는 응답의 hasDiary 필드를 확인하여 일기 존재 여부를 판단한다.
 
 **흐름요약**  
 1. **Client → DiaryController** : `GET /api/v1/calendar/diary?date=YYYY-MM-DD`  
 2. **DiaryController → DiaryService** : `getByDate(userId, date)`  
 3. **DiaryService → DiaryRepository** : `findByUser_IdAndCreateAt(userId, date)`  
-4. **일기 미존재 시** : `CustomException(DIARY_NOT_FOUND)` → 404  
-5. **일기 존재 시** : `DiaryResDto` 반환 → 200 OK  
+4. **일기 미존재 시** : `DiaryByDateResDto(hasDiary=false, date, null)` 생성
+5. **일기 존재 시** : `DiaryByDateResDto(hasDiary=true, date, diary)` 생성
 
 <br>
 
-### SD-4.4.7 월별 별 조회 단계  
+### SD-4.4.4 월별 별 조회 단계  
 
 ```mermaid
 sequenceDiagram
@@ -768,7 +650,9 @@ DC-->>Client: 201 Created + DiaryResDto
 서버는 다음 과정을 거친다:
 1. 일기(`Diary`)가 `DiaryRepository.save()`로 저장된다.  
 2. 저장된 Diary의 감정(`Emotion`)을 기반으로 색상(`Color`) 결정.  
-3. 무작위 좌표(`Math.random()`)를 생성하여 `Star` 빌더에 전달.  
+3. 별의 좌표는 0.05 ~ 0.95 범위 안에서만 랜덤하게 생성되도록 <br>
+- x = (0.95 - 0.05) * Math.random() + 0.05,
+- y = (0.95 - 0.05) * Math.random() + 0.05 형태로 계산한다. 
 4. `StarRepository.save()`로 Star 엔티티를 저장.  
 5. 별과 일기가 연결(`@OneToOne`)되며, 결과로 `DiaryResDto` 반환.  
 
@@ -838,24 +722,28 @@ participant UR as UserRepository
 participant SR as StarRepository
 
 Client->>SC: GET /api/v1/star?year=YYYY&month=MM
+note over SC: year, month 쿼리 파라미터 및 인증 정보 파싱
+
 SC->>SS: getStarryNightStar(userDetails, year, month)
+
 SS->>UR: findByEmailAddress(userDetails.getUsername())
 alt 사용자 없음
-    UR-->>SS: null
     SS-->>SC: CustomException(USER_NOT_FOUND)
     SC-->>Client: 404 Not Found
 else 사용자 존재
     UR-->>SS: User 엔티티 반환
-    SS->>SS: 월 유효성 검증 (1 ≤ month ≤ 12)
-    SS->>SS: 날짜 계산 (startDate, endDate)
+
+    SS->>SS: if (month < 1 or month > 12)\n    throw DIARY_INVALID_MONTH
+    SS->>SS: if (month % 2 == 0) month--
+    SS->>SS: startDate = LocalDate.of(year, month, 1)\nendDate = startDate.plusMonths(2).minusDays(1)
+
     SS->>SR: findByUserAndDiary_CreateAtBetweenAndConstellationIsNull(user, startDate, endDate)
-    SR-->>SS: Star 리스트 반환
+    SR-->>SS: List<Star>
+
     SS->>SS: 각 Star → StarryNightStarDto 변환
-    SS-->>SC: List<StarryNightStarDto> 반환
+    SS-->>SC: List<StarryNightStarDto>
     SC-->>Client: 200 OK + 별 리스트
 end
-
-
 ```
 이 단계는 **밤하늘 페이지** 진입 시 사용자의 별 데이터를 불러오는 단계이다.  
 별자리에 속하지 않은 별들 중, 요청된 **2개월 범위 내의 별**을 조회한다.  
@@ -868,7 +756,8 @@ StarController → StarService → StarRepository 순으로 처리된다.
    - 존재하지 않으면 `USER_NOT_FOUND` 예외  
 - 월(month) 유효성 검사 (`1 ≤ month ≤ 12`)  
    - 범위 초과 시 `DIARY_INVALID_MONTH` 발생  
-- `startDate`, `endDate` 계산 (해당 월부터 2개월 범위)  
+- `startDate`, `endDate` 계산 (해당 월부터 2개월 범위)
+- 짝수 달(MM % 2 == 0)인 경우 내부적으로 month-- 하여 앞 달부터 조회
 - `findByUserAndDiary_CreateAtBetweenAndConstellationIsNull()` 호출  
    - 별자리에 속하지 않은 Star만 조회  
 - 결과를 `StarryNightStarDto` 리스트로 변환 후 반환  
@@ -951,45 +840,71 @@ sequenceDiagram
     participant AF as AuthFilter
     participant CC as ConstellationController
     participant CS as ConstellationService
-    participant SR as StarRepository
+    participant UR as UserRepository
     participant CR as ConstellationRepository
+    participant SR as StarRepository
+    participant CoR as ConnectionRepository
 
-    Client->>AF: GET /api/v1/constellation/starry-night (JWT 포함)
+    Client->>AF: GET /api/v1/constellation/starry-night?year=YYYY&month=MM (JWT 포함)
     AF->>AF: JWT AccessToken 검증
     alt 토큰 유효하지 않음
         AF-->>Client: 401 Unauthorized
     else 유효함
-        AF-->>CC: userId 주입
-        CC->>CS: loadStarryNight(userId)
-        CS->>SR: findByUserAndDiary_CreateAtBetweenAndConstellationIsNull(user, 기간)
-        SR-->>CS: Star 리스트 반환
-        CS->>CR: findAllByUser(user)
-        CR-->>CS: Constellation 리스트 반환
-        CS-->>CC: 별 + 별자리 데이터 병합 결과
-        CC-->>Client: 200 OK + { stars, constellations }
+        AF-->>CC: 인증된 사용자 정보(UserDetails) 전달
+        CC->>CS: getStarryNightConstellation(userDetails, year, month)
+
+        CS->>UR: findByEmailAddress(userDetails.getUsername())
+        alt 사용자 없음
+            CS-->>CC: CustomException(USER_NOT_FOUND)
+            CC-->>Client: 404 Not Found
+        else 사용자 존재
+            UR-->>CS: User 엔티티 반환
+
+            CS->>CS: if (month < 1 or month > 12)\n    throw DIARY_INVALID_MONTH
+            CS->>CS: if (month % 2 == 0) month--
+            CS->>CS: startDate = LocalDate.of(year, month, 1)\nendDate = startDate.plusMonths(2).minusDays(1)
+
+            CS->>CR: findByUserAndBelongDateBetween(user, startDate, endDate)
+            CR-->>CS: List<Constellation>
+
+            loop 각 Constellation con
+                CS->>SR: findByConstellation(con)
+                SR-->>CS: List<Star>
+
+                CS->>CoR: findByConstellation(con)
+                CoR-->>CS: List<Connection>
+
+                CS->>CS: con + stars + connections → StarryNightConstellationDto
+            end
+
+            CS-->>CC: List<StarryNightConstellationDto>
+            CC-->>Client: 200 OK + 별자리 리스트
+        end
     end
+
 ```
 
-이 단계는 사용자가 **밤하늘 페이지에 진입**했을 때 수행되는 초기 데이터 로딩 과정이다.  
-요청은 `GET /api/v1/constellation/starry-night` 이며,  
-JWT 인증을 통해 사용자를 확인한 뒤, 해당 사용자의 **별 데이터와 별자리 데이터**를 함께 조회한다.  
+이 단계는 사용자가 밤하늘 페이지에 진입했을 때,
+화면에 표시할 별자리 목록과 각 별자리의 구성 정보를 조회하는 과정이다.
+요청은 GET /api/v1/constellation/starry-night?year={YYYY}&month={MM} 이며,
+JWT 인증을 통해 사용자를 확인한 뒤, 해당 사용자의 **요청 분기(2개월 단위)**에 속하는 별자리들을 조회한다.
 
 서버의 처리 순서:  
 1. `AuthFilter` 에서 JWT AccessToken 검증  
    - 유효하지 않으면 `401 Unauthorized` 반환  
    - 유효하면 `userId` 주입  
-2. `ConstellationController.loadStarryNight(userId)` 호출  
-3. `StarRepository.findByUserAndDiary_CreateAtBetweenAndConstellationIsNull()` 호출로 사용자의 별 데이터 조회  
-4. `ConstellationRepository.findAllByUser(user)` 호출로 사용자의 별자리 목록 조회  
+2. `ConstellationController.getStarryNightConstellation(userDetails, year, month)` 호출  
+3. `ConstellationRepository.findByUserAndBelongDateBetween(user, startDate, endDate)` 호출로 요청 분기(2개월) 내 별자리 목록 조회  
+4. 각 별자리에 대해 Star / Connection 정보를 조회하여 `StarryNightConstellationDto` 리스트로 변환 
 5. 결과 병합 후 Client로 반환  
 
 **흐름요약**  
 1. **Client → AuthFilter** : JWT 검증  
 2. **AuthFilter → ConstellationController** : userId 주입  
-3. **ConstellationController → ConstellationService** : `loadStarryNight(userId)` 호출  
-4. **ConstellationService → StarRepository** : 사용자의 별 데이터 조회  
-5. **ConstellationService → ConstellationRepository** : 별자리 목록 조회  
-6. **Controller → Client** : 200 OK + `{ stars, constellations }` 반환  
+3. **ConstellationController → ConstellationService** : `getStarryNightConstellation(userDetails, year, month)` 호출  
+4. **ConstellationService → ConstellationRepository** : 요청 분기(2개월) 내 별자리 목록 조회   
+5. **Service 내부** : 각 별자리에 대해 Star / Connection 조회 → `StarryNightConstellationDto` 리스트로 변환  
+6. **Controller → Client** : 200 OK + **`StarryNightConstellationDto` 리스트** 응답  
 
 <br>
 
@@ -1014,10 +929,17 @@ sequenceDiagram
         UR-->>CS: Exception(USER_NOT_FOUND)
         CS-->>CC: CustomException(USER_NOT_FOUND)
         CC-->>Client: 404 Not Found
-    else 정상 사용자
+    else 사용자 존재
         UR-->>CS: User 반환
-        CS->>CR: Constellation 생성 및 save()
-        loop 별 저장
+
+        CS->>CS: moderationService.moderate(name, description)
+        CS->>CR: countByUser(user)
+        CR-->>CS: count
+        CS->>CS: isRepresentative = (count == 0)
+
+        CS->>CR: save(Constellation)
+
+        loop 각 별 저장
             CS->>SR: findById(starDto.starId)
             alt 별 없음
                 SR-->>CS: Exception(STAR_NOT_FOUND)
@@ -1030,13 +952,14 @@ sequenceDiagram
         end
 
         loop 연결 저장
-            CS->>CN: save(Connection.builder()\n.constellation(constellation)\n.start(startStar)\n.end(endStar)\n.build())
+            CS->>CN: save(Connection)
         end
 
         CS->>SR: findByConstellation(constellation)
         SR-->>CS: Star 리스트 반환
-        CS->>CS: constellation.setBelongDate(첫 Star의 diary.createAt)
+        CS->>CS: constellation.setBelongDate(firstStar.diary.createAt)
         CS->>CR: save(constellation)
+
         CS-->>CC: void
         CC-->>Client: 200 OK (본문 없음)
     end
@@ -1049,7 +972,9 @@ sequenceDiagram
 
 서버의 처리 순서는 다음과 같다:  
 - `UserRepository.findByEmailAddress()` 로 사용자 검증  
-   - 없으면 `USER_NOT_FOUND` 예외  
+   - 없으면 `USER_NOT_FOUND` 예외
+- ModerationService.moderate() 로 name, description에 대한 유해성 검사 수행. 부적절한 내용이 감지되면 INAPPROPRIATE_CONTENT 예외
+- 해당 사용자가 생성한 별자리가 하나도 없으면 isRepresentative = true 로 설정하여 최초 별자리를 대표별자리로 지정
 - 새 `Constellation` 엔티티 생성 및 `save()`  
 - `StarRepository.findById()` 로 각 별 검증 및 소속 설정 (`joinConstellation`)  
    - 이미 별자리에 속해 있다면 `ALREADY_BELONG_TO_CONSTELLATION` 예외  
@@ -1061,19 +986,20 @@ sequenceDiagram
 
 **흐름요약**  
 1. **Client → ConstellationController** : `POST /api/v1/constellation` 요청  
-2. **Controller → Service** : `createConstellation(userDetails, dto)` 호출  
+2. **Controller → ConstellationService** : `createConstellation(userDetails, dto)` 호출  
 3. **Service → UserRepository** : 사용자 검증 (`USER_NOT_FOUND`)  
-4. **Service → ConstellationRepository** : 새 별자리 생성  
-5. **Service → StarRepository** : 별 존재 및 소속 검증 (`STAR_NOT_FOUND`, `ALREADY_BELONG_TO_CONSTELLATION`)  
-6. **Service → ConnectionRepository** : 별 간 연결 저장  
-7. **Service → ConstellationRepository** : `belongDate` 설정 후 저장  
-8. **Controller → Client** : 200 OK 응답  
+4. **Service 내부** : name, description에 대한 유해성 검사 → 부적절 시 INAPPROPRIATE_CONTENT 예외 발생  
+5. **Service → ConstellationRepository** : 최초 별자리인 경우 isRepresentative = true 로 설정하여 새 별자리 생성 및 저장
+6. **Service → StarRepository** : 별 존재 및 소속 검증 (STAR_NOT_FOUND, ALREADY_BELONG_TO_CONSTELLATION)
+7. **Service → ConnectionRepository** : 별 간 연결 저장
+8. **Service → ConstellationRepository** : `belongDate` 설정 후 저장  
+9. **Controller → Client** : 200 OK 응답  
 
 <br>
 
 ### SD-4.6.3 별자리 저장  
 
-\```mermaid
+```mermaid
 sequenceDiagram
     autonumber
     actor Client as Client
@@ -1084,18 +1010,24 @@ sequenceDiagram
 
     Client->>CC: POST /api/v1/constellation\n{ name, description, stars[], connections[] }
     CC->>CS: createConstellation(userDetails, dto)
-    CS->>CR: Constellation 저장
+
+    CS->>CR: save(constellation)  <!-- 임시 저장 -->
     CS->>SR: findByConstellation(constellation)
     SR-->>CS: Star 리스트 반환
+
     CS->>CS: constellation.setBelongDate(첫 Star의 diary.createAt)
-    CS->>CR: save(constellation)
+
+    CS->>CR: save(constellation)  <!-- belongDate 포함한 최종 저장 -->
+
     CS-->>CC: void
     CC-->>Client: 200 OK (본문 없음)
-\```
+
+```
 
 사용자가 새로 만든 별자리를 **DB에 저장**하는 단계이다.  
 이 과정은 `createConstellation()` 내부의 마지막 부분으로,  
-생성된 `Constellation` 객체에 **소속 날짜(`belongDate`)를 설정하고 최종 저장**하는 흐름이다.  
+첫 번째 save() 는 Constellation 엔티티를 먼저 생성·등록하기 위한 임시 저장이며
+마지막 save() 는 별자리의 belongDate(첫 Star의 diary.createAt) 를 세팅한 뒤 수행하는 최종 저장이다. 
 요청은 `POST /api/v1/constellation` 로 수행되며, `CreateConstellationDto` 의 데이터를 기반으로 한다.  
 
 **서버 측 흐름은 다음과 같다.**  
@@ -1133,22 +1065,23 @@ sequenceDiagram
         CS-->>CC: CustomException(CONSTELLATION_NOT_FOUND)
         CC-->>Client: 404 Not Found
     else 별자리 있음
-        CS->>CS: con.updateInfo(name, description)\n(널/빈문자열만 제외하여 갱신)
+        CS->>CS: con.updateInfo(name, description)
         CS-->>CC: void
         CC-->>Client: 200 OK (본문 없음)
     end
+
 ```
 
 사용자가 **아카이브 화면에서 별자리의 이름과 설명을 수정**하는 단계이다.  
 요청은 `PATCH /api/v1/constellation/{id}` 이며, `UpdateConstellationInfo { name, description }` 를 전달한다.  
 서비스는 대상 별자리를 조회하고(`findById`), 없으면 `CustomException(CONSTELLATION_NOT_FOUND)` 를 던진다.  
-있다면 `con.updateInfo(name, description)` 로 **널 또는 공백 문자열이 아닌 값만** 반영하고, 본문 없이 200 OK 를 반환한다.
+존재할 경우 전달된 name과 description 값을 그대로 적용한다.
 
 서버 측 흐름은 다음과 같다:
 - **Controller → Service** : `updateConstellationInfo(id, dto)` 호출  
 - **Service → Repository** : `findById(id)` 조회  
 - **미존재 시** : `CustomException(CONSTELLATION_NOT_FOUND)` → 404 응답  
-- **존재 시** : `con.updateInfo(name, description)` (널/공백 제외 적용)  
+- **존재 시** : `con.updateInfo(name, description)` 
 - **Controller → Client** : 200 OK (본문 없음)  
 
 **흐름요약**  
@@ -1156,7 +1089,7 @@ sequenceDiagram
 2. **ConstellationController → ConstellationService** : `updateConstellationInfo(id, dto)`  
 3. **ConstellationService → ConstellationRepository** : `findById(id)`  
 4. **미존재 시** : `CONSTELLATION_NOT_FOUND` → 404  
-5. **존재 시** : `updateInfo(name, description)` 적용(널/공백 무시)  
+5. **존재 시** : `updateInfo(name, description)` 적용
 6. **Controller → Client** : 200 OK (본문 없음)  
 
 <br>
@@ -1192,18 +1125,19 @@ sequenceDiagram
             SR-->>CS: Star 리스트 반환
             CS->>CN: findByConstellation(con)
             CN-->>CS: Connection 리스트 반환
-            CS->>CS: ArchiveDto.builder()\n(별자리, 별, 연결 정보)\n.build()
+            CS->>CS: ArchiveDto.builder()\n(별자리 + 별 + 연결 정보 생성)\n.build()
         end
 
         CS-->>CC: List<ArchiveDto> 반환
         CC-->>Client: 200 OK + 아카이브 리스트
     end
+
 ```
 
 사용자가 자신의 **별자리 아카이브 목록을 조회**하는 단계이다.  
 요청은 `GET /api/v1/constellation/archive` 로,  
 로그인된 사용자의 모든 별자리(`Constellation`)와 해당 별(`Star`), 연결(`Connection`) 정보를 함께 반환한다.  
-응답은 `List<ArchiveDto>` 형태로 구성되며, 페이징이나 정렬 기능은 현재 코드상 존재하지 않는다.  
+응답은 `List<ArchiveDto>` 형태로 구성되며, 페이징 API는 별도로 존재하고, 본 API는 전체 목록을 반환한다.  
 
 서버 측 흐름은 다음과 같다:
 - **Service → UserRepository** : 사용자 검증 (`USER_NOT_FOUND` 예외 가능)  
@@ -1245,19 +1179,26 @@ sequenceDiagram
     else 별자리 있음
         CS->>SR: findByConstellation(con)
         SR-->>CS: Star 리스트 반환
+
         CS->>CN: findByConstellation(con)
         CN-->>CS: Connection 리스트 반환
-        CS->>SR: countByConstellationAndColor(con, Color.*) → 감정별 개수 계산
+
+        loop 감정별 개수 계산 (6회)
+            CS->>SR: countByConstellationAndColor(con, Color.*)
+            SR-->>CS: count
+        end
+
         CS->>CS: ArchiveDetailDto.builder()\n(별자리, 별, 연결, 감정별 개수)\n.build()
         CS-->>CC: ArchiveDetailDto 반환
         CC-->>Client: 200 OK + 상세 데이터
     end
+
 ```
 
 사용자가 **아카이브 목록에서 특정 별자리를 클릭했을 때**,  
 해당 별자리의 세부 정보를 조회하는 단계이다.  
 요청은 `GET /api/v1/constellation/archive/{id}` 이며,  
-응답은 `ArchiveDetailDto` 로 반환되어 **별자리 기본정보, 연결 정보, 감정별 별 개수** 등을 포함한다.  
+응답은 `ArchiveDetailDto` 로 반환되어 **별자리 정보, 포함된 별, 연결 정보, 감정별 별 개수** 등을 포함한다.  
 
 서버 측 흐름은 다음과 같다:
 - **Controller → Service** : `getArchiveDetail(id)` 호출  
@@ -1265,7 +1206,7 @@ sequenceDiagram
 - **미존재 시** : `CustomException(CONSTELLATION_NOT_FOUND)` → 404 응답  
 - **Service → StarRepository** : `findByConstellation(con)` 으로 별 리스트 조회  
 - **Service → ConnectionRepository** : `findByConstellation(con)` 으로 연결 리스트 조회  
-- **Service → StarRepository** : `countByConstellationAndColor()` 로 감정별 별 개수 계산  
+- **Service → StarRepository** : Color 6종(YELLOW, ORANGE, GREEN, PURPLE, RED, BLUE)에 대해 각각 countByConstellationAndColor 호출  
 - **Service 내부** : `ArchiveDetailDto` 생성 및 빌드  
 - **Controller → Client** : 200 OK + `ArchiveDetailDto` 반환  
 
@@ -1275,7 +1216,7 @@ sequenceDiagram
 3. **Service → ConstellationRepository** : `findById(id)` 조회  
 4. **미존재 시** : `CONSTELLATION_NOT_FOUND` → 404  
 5. **존재 시** : `StarRepository` & `ConnectionRepository` 로 관련 데이터 조회  
-6. **Service 내부** : `countByConstellationAndColor()` 로 감정별 통계 계산  
+6. **Service 내부** : `countByConstellationAndColor()` 로 감정별 통계 계산. 색상별 count 6회 호출출
 7. **Controller → Client** : 200 OK + `ArchiveDetailDto` 응답  
 
 <br>
@@ -1385,9 +1326,8 @@ sequenceDiagram
 - Controller → Service : `repositionConstellation(id, dto)` 호출  
 - Service → ConstellationRepository : `findById(id)` 로 별자리 존재 확인  
 - 존재하지 않으면 : `CustomException(CONSTELLATION_NOT_FOUND)` → 404 응답  
-- 좌표 범위 검증 (0 ≤ x, y ≤ 1)  
-- 범위 밖 좌표일 경우 : `CustomException(CONSTELLATION_POSITION_OUT_OF_SCOPE)` → 400 응답  
-- 정상 범위라면 : `constellation.changePosition(x, y)` 실행 후 저장  
+- 좌표 범위 검증 (0 ≤ x, y ≤ 1), 이 범위를 벗어나면 CONSTELLATION_POSITION_OUT_OF_SCOPE 예외 발생
+- 정상 범위라면, 실제 저장은 0.25 < x < 0.75 및 0.25 < y < 0.75 범위 안에 있을 때만 수행됨. 이 추가 조건을 만족하지 못하면 예외 없이 단순히 저장하지 않고 종료됨
 - Controller → Client : 200 OK (본문 없음)  
 
 **흐름요약**  
@@ -1396,7 +1336,7 @@ sequenceDiagram
 3. **ConstellationService → ConstellationRepository** : `findById(id)`  
 4. **미존재 시** : `CONSTELLATION_NOT_FOUND` → 404  
 5. **좌표 유효성 검사 실패 시** : `CONSTELLATION_POSITION_OUT_OF_SCOPE` → 400  
-6. **정상 시** : `changePosition()` 후 `save()`  
+6. **정상 시** : 좌표가 0 ≤ x,y ≤ 1 이고, 추가로 0.25 < x < 0.75 및 0.25 < y < 0.75 인 경우에만 changePosition() 후 save()  
 7. **Controller → Client** : 200 OK (본문 없음)  
 
 <br>
@@ -1512,7 +1452,7 @@ sequenceDiagram
     SC->>UR: findByEmailAddress(userDetails.getUsername())
     alt 사용자 없음
         UR-->>SC: empty
-        SC-->>Client: 500 Internal Server Error\n(존재하지 않는 사용자)
+        SC-->>Client: 404 Not Found\n(USER_NOT_FOUND)
     else 사용자 있음
         UR-->>SC: User(id)
         SC->>SC: key = "uploads/users/{userId}/{uuid}.png"
@@ -1532,7 +1472,7 @@ sequenceDiagram
 
 서버 측 흐름은 다음과 같다:  
 - Controller → UserRepository : `findByEmailAddress()` 로 사용자 조회  
-- Controller 내부 : 업로드 경로(`tempKey`) 생성  
+- Controller → S3StorageService : publishProfile(userId, tempKey) 호출
 - Controller → S3StorageService : `createUploadUrl(key, contentType)` 호출  
 - Service 내부 : contentType 검증 (`image/` 로 시작하지 않으면 IllegalArgumentException 발생)  
 - Service → S3Presigner : `presignPutObject` 실행 (10분 유효)  
@@ -1582,15 +1522,18 @@ sequenceDiagram
 서버 측 흐름은 다음과 같다:
 - Controller → UserRepository : `findByEmailAddress()` 로 사용자 조회 (없으면 404)
 - Controller → S3StorageService : `publishProfile(userId, tempKey)` 호출
-- Service 내부 : tempKey Prefix 검증(`uploads/users/{userId}/`) 후 `copyObject`
-- Service → Controller : 최종 공개 URL 반환
+- Service 내부 : 
+     - tempKey == "defaults" 인 경우 기본 프로필 키(public/defaults/profileDefault.png)에 대한 URL만 생성하여 반환
+     - 그 외에는 tempKey 널/공백 및 Prefix(uploads/users/{userId}/) 검증 실패 시 IllegalArgumentException → 400 Bad Request
+     - 검증 통과 시 copyObject 를 통해 uploads/... → public/users/{userId}/profile.png 복사
+- Service → Controller : PublishedObject(publicKey, url) 반환
 - Controller → Client : 200 OK + `S3uploadResDto{ imageUrl }`
 
 **흐름요약**  
 1. **Client → UserController** : `POST /api/v1/mypage/profile-image/publish` (`tempKey`)  
 2. **UserController → UserRepository** : 사용자 조회 (`USER_NOT_FOUND` 시 404)  
 3. **UserController → S3StorageService** : `publishProfile(userId, tempKey)`  
-4. **S3StorageService 내부** : tempKey 검증 → `copyObject` 수행  
+4. **S3StorageService 내부** : tempKey == "defaults" → 기본 프로필 키로 URL 반환 (copy 없음), 그 외에는 tempKey 널/공백 및 Prefix 검증 후, 통과 시 copyObject 수행
 5. **UserController → Client** : 200 OK + `S3uploadResDto`(최종 URL)  
 
 <br>
@@ -1609,67 +1552,84 @@ sequenceDiagram
     participant MPC as MyPageController
     participant MPS as MyPageService
     participant UR as UserRepository
-    participant DR as DiaryRepository
+    participant SR as StarRepository
     participant CR as ConstellationRepository
+    participant DR as DiaryRepository
+    participant FR as FriendRepository
+    participant S3 as S3StorageService
 
-    Client->>AF: GET /api/v1/mypage/summary?year=YYYY&month=MM (JWT 포함, yearMonth 선택)
+    Client->>AF: GET /api/v1/mypage/summary?year=YYYY&month=MM (JWT 포함)
     AF->>AF: AccessToken 검증
     alt 토큰 유효하지 않음
         AF-->>Client: 401 Unauthorized
     else 유효함
         AF-->>MPC: userId 주입
-        MPC->>MPS: getSummary(userId, yearMonth?)
-        par 사용자 정보
+        MPC->>MPS: getSummary(userId, year, month)
+        MPS->>MPS: now = LocalDate.now()\n y = (year == null ? now.year : year)\n m = (month == null ? now.month : month)
+        note over MPS: 내부에서 5개의 하위 조회 메서드 호출\n(getUserSummary, getLevel, getRepresentativeConstellation,\n getMonthlyCount, getEmotionCount)
+
+        par 사용자 요약 정보 조회 (getUserSummary)
             MPS->>UR: findById(userId)
             UR-->>MPS: User
-        and 기간별 일기 조회 (별=일기 1:1)
-            alt yearMonth 존재
-                MPS->>DR: findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId, from, to)
-            else 전체 기간
-                MPS->>DR: findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId, MIN_DATE, NOW)
-            end
-            DR-->>MPS: Diary 리스트
-            MPS->>MPS: totalStars = diaries.size()
-            MPS->>MPS: Emotion 분포 집계(비율)
-        and 전체 별자리 수
-            MPS->>CR: findByUser(User)
-            CR-->>MPS: Constellation 리스트
-            MPS->>MPS: totalConstellations = constellations.size()
-        and 대표 별자리
+            MPS->>SR: countByUser(user)        # totalStars
+            MPS->>CR: countByUser(user)        # totalConstellations
+            MPS->>FR: countAcceptedFriendsByUserId(userId)
+            MPS->>S3: convertToUrl(user.profilePhotoUrl)
+            MPS-->>MPS: UserSummaryResDto 생성
+        and 레벨 정보 조회 (getLevel)
+            MPS->>UR: findById(userId)
+            UR-->>MPS: User
+            MPS->>SR: countByUser(user)
+            MPS-->>MPS: LevelResDto 생성 (LevelPolicy.resolve)
+        and 대표 별자리 조회 (getRepresentativeConstellation)
+            MPS->>UR: findById(userId)
+            UR-->>MPS: User
             MPS->>CR: findByUserAndIsRepresentative(user, true)
             CR-->>MPS: Optional<Constellation>
+            MPS-->>MPS: StarryNightConstellationDto 또는 null
+        and 연간 월별 별자리 수 조회 (getMonthlyCount)
+            MPS->>UR: findById(userId)
+            UR-->>MPS: User
+            MPS->>CR: findAllByUserAndCreateAtBetween(user, {year}-01-01, {year}-12-31)
+            CR-->>MPS: Constellation 리스트
+            MPS-->>MPS: List<MonthlyCountResDto> 생성
+        and 해당 월 감정 통계 조회 (getEmotionCount)
+            MPS->>UR: findById(userId)
+            UR-->>MPS: User
+            MPS->>DR: findAllByUserAndCreateAtBetween(user, startOfMonth(y,m), endOfMonth(y,m))
+            DR-->>MPS: Diary 리스트
+            MPS-->>MPS: List<EmotionCountResDto> 생성
         end
-        MPS-->>MPC: MyPageSummaryDto(user, stats{totalStars, emotionRatio, totalConstellations}, representative, scope)
-        MPC-->>Client: 200 OK + MyPageSummaryDto
+
+        MPS-->>MPC: MyPageSummaryResDto.of(profile, level, repConstellation, monthlyCount, emotionCount)
+        MPC-->>Client: 200 OK + MyPageSummaryResDto
     end
 ```
 
-이 단계는 사용자가 **마이페이지에 진입**할 때,  
-사용자 정보 + 감정/별 통계 + **전체 별 개수(totalStars)** + **전체 별자리 수(totalConstellations)** + 대표 별자리를 **한 번에** 전달하는 요약 API 흐름이다.  
-
-- **totalStars**: `Diary` 리스트 개수로 계산(도메인 규칙상 *1 Diary = 1 Star*).  
-- **totalConstellations**: 사용자의 `Constellation` 리스트 개수로 계산.  
-- `yearMonth`가 주어지면 해당 월 통계, 없으면 전체 기간 통계를 반환.  
+이 단계는 사용자가 **마이페이지에 진입**했을 때,
+**프로필 정보 + 레벨 정보 + 대표 별자리 + 연간 별자리 통계 + 해당 월 감정 통계**를
+**한 번에 조회**하는 요약 API 흐름이다.
+요청은 `GET /api/v1/mypage/summary?year=YYYY&month=MM` 이며, `year`, `month` 둘 다 `null`이면
+**현재 날짜 기준 연도/월**로 조회한다.
 
 서버 측 흐름은 다음과 같다:  
-- Controller → Service : `getSummary(userId, yearMonth?)` 호출  
-- Service → UserRepository : `findById(userId)`  
-- Service → DiaryRepository : `findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(...)`  
-- Service 내부 : `totalStars = diaries.size()`, Emotion 분포 계산  
-- Service → ConstellationRepository : `findByUser(user)` → `totalConstellations = size()`  
-- Service → ConstellationRepository : `findByUserAndIsRepresentative(user, true)`  
-- Controller → Client : `MyPageSummaryDto` 반환 (200 OK)  
-
-**흐름요약**  
-1. **Client → AuthFilter** : JWT 검증  
-2. **AuthFilter → MyPageController** : userId 주입  
-3. **MyPageController → MyPageService** : `getSummary(userId, yearMonth?)`  
-4. **MyPageService → UserRepository** : 사용자 조회  
-5. **MyPageService → DiaryRepository** : 기간별 일기 조회 → **totalStars** 계산  
-6. **MyPageService → ConstellationRepository** : 사용자 별자리 조회 → **totalConstellations** 계산  
-7. **MyPageService → ConstellationRepository** : 대표 별자리 조회  
-8. **MyPageController → Client** : 200 OK + MyPageSummaryDto
-
+1. **Controller → Service**
+getSummary(userId, year, month)
+2. **Service 내부 처리**
+- getUserSummary(userId)
+     → 프로필, totalStars, totalConstellations, 친구 수
+- getLevel(userId)
+     → 별 개수 기반 레벨 계산
+- getRepresentativeConstellation(userId)
+     → 대표 별자리 조회
+- getMonthlyCount(userId, year)
+     → 연간 월별 별자리 생성 수 통계
+- getEmotionCount(userId, year, month)
+    → 해당 월 감정별 일기 개수 통계
+3. **Service → Controller**
+MyPageSummaryResDto 생성하여 반환
+4. **Controller → Client**
+200 OK + summary 응답
 <br>
 
 
@@ -1684,49 +1644,47 @@ sequenceDiagram
     participant US as UserService
     participant UR as UserRepository
 
-    Client->>AF: GET /api/v1/users/me (JWT 포함)
-    AF->>AF: AccessToken 검증
-    alt 토큰 유효하지 않음
+    Client->>AF: GET /api/v1/users/me (JWT)
+    AF->>AF: 토큰 검증
+    alt 실패
         AF-->>Client: 401 Unauthorized
-    else 유효함
-        AF-->>UC: userId 주입
+    else 성공
+        AF-->>UC: userId 전달
         UC->>US: getUserProfile(userId)
         US->>UR: findById(userId)
-        alt 사용자 없음
-            UR-->>US: Optional.empty()
+        alt 없음
             US-->>UC: CustomException(USER_NOT_FOUND)
             UC-->>Client: 404 Not Found
-        else 사용자 존재
+        else 있음
             UR-->>US: User
-            US-->>UC: UserProfileResponseDto(id, nickname, email, level, joinDate)
-            UC-->>Client: 200 OK + UserProfileResponseDto
+            US-->>UC: UserProfileResponseDto
+            UC-->>Client: 200 OK + DTO
         end
     end
+
 ```
 
-이 단계는 사용자가 **마이페이지 내 프로필 섹션**에서 자신의 정보를 조회할 때 실행되는 흐름이다.  
-JWT AccessToken을 검증하여 인증된 사용자만 접근할 수 있으며,  
-`UserRepository`를 통해 사용자 정보를 조회하고 `UserProfileResponseDto`로 응답한다.  
+사용자가 마이페이지의 프로필 정보를 조회할 때 실행되는 흐름이다.
+JWT가 먼저 필터에서 검증되고, 유효한 경우 userId가 컨트롤러에 전달된다.
+컨트롤러는 서비스 레이어의 getUserProfile()을 호출하여 사용자 정보를 조회하며,
+DB에 사용자가 존재하지 않으면 USER_NOT_FOUND 예외를 발생시켜 404를 반환한다.
+정상적으로 조회되면 사용자 엔티티를 DTO로 변환하여 클라이언트에게 200 OK로 응답한다.
 
-조회 대상에는 닉네임, 이메일, 가입일, 레벨(또는 점수 기반 등급)이 포함될 수 있다.  
-존재하지 않는 사용자일 경우 `CustomException(USER_NOT_FOUND)`를 발생시켜 404 응답을 반환한다.  
-
-서버 측 흐름은 다음과 같다:  
-- Controller → Service : `getUserProfile(userId)` 호출  
-- Service → Repository : `findById(userId)` 로 사용자 조회  
-- 미존재 시 : `CustomException(USER_NOT_FOUND)` → 404  
-- 존재 시 : `UserProfileResponseDto` 로 매핑 후 반환  
-- Controller → Client : 200 OK + 프로필 정보  
-
-**흐름요약**  
-1. **Client → AuthFilter** : JWT 검증  
-2. **AuthFilter → UserController** : userId 주입  
-3. **UserController → UserService** : `getUserProfile(userId)` 호출  
-4. **UserService → UserRepository** : 사용자 조회  
-5. **미존재 시** : `CustomException(USER_NOT_FOUND)` → 404  
-6. **존재 시** : `UserProfileResponseDto` 반환  
-7. **UserController → Client** : 200 OK + 사용자 정보  
-
+**흐름 요약** <br>
+1. **Client → AuthFilter** : JWT 포함하여 /api/v1/users/me 요청
+2. **AuthFilter** :
+- AccessToken 유효성 검증
+- 실패 시 즉시 401 반환
+3. **AuthFilter → UserController** : 검증 성공 시 userId를 컨트롤러에 전달
+4. **UserController → UserService**: getUserProfile(userId) 호출
+5. **UserService → UserRepository** : findById(userId)
+6. **UserRepository** :
+- 사용자가 없으면 Optional.empty() 반환
+- 존재하면 User 엔티티 반환
+7. **UserService** :
+- 없으면 CustomException(USER_NOT_FOUND)
+- 있으면 User 정보를 기반으로 UserProfileResponseDto 생성
+8. **UserController → Client** : 200 OK + 사용자 정보 DTO 반환
 <br>
 
 ### SD-4.8.3 감정 통계 조회  
@@ -1740,45 +1698,40 @@ sequenceDiagram
     participant DS as DiaryService
     participant DR as DiaryRepository
 
-    Client->>AF: GET /api/v1/calendar/diary/statistics?year=YYYY&month=MM (JWT 포함)
-    AF->>AF: AccessToken 검증
-    alt 토큰 유효하지 않음
+    Client->>AF: GET /api/v1/calendar/diary/statistics?year=YYYY&month=MM (JWT)
+    AF->>AF: 토큰 검증
+    alt 실패
         AF-->>Client: 401 Unauthorized
-    else 유효함
-        AF-->>DC: userId 주입
+    else 성공
+        AF-->>DC: userId 전달
         DC->>DS: getEmotionStatistics(userId, year, month)
-        DS->>DS: from = YearMonth.of(year, month).atDay(1)
-        DS->>DS: to = from.atEndOfMonth()
-        DS->>DR: findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc(userId, from, to)
-        DR-->>DS: Diary 리스트 반환
-        DS->>DS: Emotion 그룹화 및 비율 계산
-        DS-->>DC: EmotionStatisticDto(Map<Emotion, Double>)
-        DC-->>Client: 200 OK + EmotionStatisticDto
+        DS->>DS: from/to 기간 계산
+        DS->>DR: findAllByUser_IdAndCreateAtBetween(userId, from, to)
+        DR-->>DS: Diary 리스트
+        DS->>DS: 감정별 개수 및 비율 계산
+        DS-->>DC: EmotionStatisticDto
+        DC-->>Client: 200 OK + DTO
     end
+
 ```
 
-이 단계는 사용자가 **마이페이지 내 통계 섹션**에서 월별 감정 비율을 확인할 때 호출되는 API의 흐름이다.  
-요청 시 연도(`year`)와 월(`month`)을 쿼리 파라미터로 전달하며,  
-`DiaryRepository`에서 해당 기간의 모든 일기를 조회해 감정(`Emotion`) 필드를 기준으로 집계한다.  
-
-감정별 카운트를 계산한 뒤 전체 일기 수로 나누어 비율을 산출하며,  
-감정 데이터가 없는 경우 `0.0` 비율로 반환된다.  
-
-서버 측 흐름은 다음과 같다:  
-- Controller → Service : `getEmotionStatistics(userId, year, month)` 호출  
-- Service 내부 : `YearMonth` 기반 날짜 계산 (from ~ to)  
-- Service → Repository : `findAllByUser_IdAndCreateAtBetweenOrderByCreateAtAsc()` 호출  
-- Service 내부 : Emotion 그룹화 및 비율 계산  
-- Controller → Client : 200 OK + EmotionStatisticDto 반환  
+사용자가 특정 연도·월의 감정 통계를 조회할 때 호출된다.  
+JWT 인증을 통과한 사용자만 접근할 수 있다.
+서비스 레이어에서는 전달받은 year/month 값을 기반으로 해당 월의 시작일과 마지막 날짜를 계산한 후,
+해당 기간의 일기 데이터를 모두 조회한다.  
+조회된 Diary 목록을 Emotion 값 기준으로 그룹화하여 감정별 비율을 계산한다.
+일기가 한 건도 없거나 특정 감정이 없는 경우, 해당 감정의 비율은 0.0으로 반환된다.
+최종 응답은 EmotionStatisticDto 형태로 전달된다.
 
 **흐름요약**  
 1. **Client → AuthFilter** : JWT 검증  
 2. **AuthFilter → DiaryController** : userId 주입  
 3. **DiaryController → DiaryService** : `getEmotionStatistics(userId, year, month)` 호출  
-4. **DiaryService → DiaryRepository** : 해당 월의 일기 조회  
-5. **DiaryService 내부** : Emotion 비율 계산  
-6. **DiaryController → Client** : 200 OK + EmotionStatisticDto 반환  
-
+4. **DiaryService 내부** :
+- YearMonth 기반 from/to 계산
+- DiaryRepository로 해당 기간의 Diary 조회
+- 감정별 카운트 및 비율 계산
+5. **DiaryController → Client** : 200 OK + EmotionStatisticDto 반환  
 <br>
 
 ### SD-4.8.4 대표 별자리 표시  
@@ -1802,36 +1755,35 @@ sequenceDiagram
         MPS->>CR: findByUserAndIsRepresentative(user, true)
         alt 대표 별자리 없음
             CR-->>MPS: Optional.empty()
-            MPS-->>MPC: 기본값(DefaultConstellationDto)
-            MPC-->>Client: 200 OK + 기본값 (예: “대표 별자리가 없습니다.”)
+            MPS-->>MPC: null
+            MPC-->>Client: Client: 204 No Content
         else 대표 별자리 존재
             CR-->>MPS: Constellation 반환
-            MPS-->>MPC: RepresentativeConstellationDto(id, name, date)
-            MPC-->>Client: 200 OK + RepresentativeConstellationDto
+            MPS-->>MPC: StarryNightConstellationDto
+            MPC-->>Client: 200 OK + StarryNightConstellationDto
         end
     end
 ```
 
-이 단계는 사용자가 **마이페이지 내 대표 별자리 영역**을 조회할 때 수행되는 흐름이다.  
-JWT 인증 후 사용자를 식별하고,  
-`ConstellationRepository.findByUserAndIsRepresentative(user, true)` 를 통해 대표 별자리를 조회한다.  
-만약 설정된 대표 별자리가 없으면 “기본 문구 또는 기본 이미지”가 반환된다.  
+이 API는 마이페이지에서 대표 별자리 영역을 그릴 때 사용된다.
+JWT 인증이 완료되면, 서비스에서
+`findByUserAndIsRepresentative(user, true)`로 대표 별자리를 조회한다.
+- 대표 별자리가 있을 경우: `StarryNightConstellationDto`로 변환해 반환
+- 대표 별자리가 없을 경우: **204 No Content**하고,
+  "대표 별자리가 없습니다" 문구는 프론트엔드에서 처리한다.
 
-서버 측 흐름은 다음과 같다:  
-- Controller → Service : `getRepresentativeConstellation(userId)` 호출  
-- Service → Repository : `findByUserAndIsRepresentative(user, true)` 실행  
-- 대표 별자리 없을 시 기본 DTO 반환  
-- 존재할 경우 `RepresentativeConstellationDto` 로 변환 후 반환  
-- Controller → Client : 200 OK 응답  
 
 **흐름요약**  
-1. **Client → AuthFilter** : JWT 검증  
-2. **AuthFilter → MyPageController** : userId 주입  
-3. **MyPageController → MyPageService** : `getRepresentativeConstellation(userId)` 호출  
-4. **MyPageService → ConstellationRepository** : 대표 별자리 조회  
-5. **대표 없음** : 기본 DTO 반환  
-6. **대표 존재 시** : 대표 별자리 정보 DTO 반환  
-7. **MyPageController → Client** : 200 OK + 대표 별자리 정보  
+1. **Client → AuthFilter** : `GET /api/v1/mypage/representative` 요청, JWT 검증
+- 실패: 401 Unauthorized
+- 성공: userId 주입
+2. **MyPageController → MyPageService** : `getRepresentativeConstellation(userId)` 호출
+3. **MyPageService → ConstellationRepository** : `findByUserAndIsRepresentative(user, true)` 실행
+4. 대표 별자리 없음 : 204 No Content
+5. 대표 별자리 존재
+- Repository: Constellation 엔티티 반환
+- Service: StarryNightConstellationDto 로 매핑
+- Controller: 200 OK + DTO 응답
 
 <br>
 
@@ -1847,34 +1799,27 @@ sequenceDiagram
     participant UR as UserRepository
     participant CR as ConstellationRepository
 
-    Client->>AF: GET /api/v1/mypage/statistics/constellations?year=YYYY (JWT 포함)
+    Client->>AF: GET /api/v1/mypage/year?year=YYYY (JWT 포함)
     AF->>AF: AccessToken 검증
     alt 토큰 유효하지 않음
         AF-->>Client: 401 Unauthorized
     else 유효함
         AF-->>MPC: userId 주입
-        MPC->>MPS: getMonthlyConstellationCounts(userId, year)
+        MPC->>MPS: **getMonthlyCount(userId, year)**
         MPS->>UR: findById(userId)
         UR-->>MPS: User
-        MPS->>MPS: from=LocalDate.of(year,1,1), to=LocalDate.of(year,12,31)
-        MPS->>CR: findByUserAndBelongDateBetween(user, from, to)
+        MPS->>MPS: start = LocalDate.of(year, 1, 1), end = LocalDate.of(year, 12, 31)
+        MPS->>CR: **findAllByUserAndCreateAtBetween(user, start, end)**
         CR-->>MPS: Constellation 리스트
-        MPS->>MPS: 월별 그룹화(1..12) 및 누락 월 0으로 채움
-        MPS-->>MPC: List<MonthCountDto(month, count)>
-        MPC-->>Client: 200 OK + [{month:1,count:n},...{month:12,count:m}]
+        MPS->>MPS: 월별 그룹화 및 정렬 (1..12 중 존재하는 월만)
+        MPS-->>MPC: **List<MonthlyCountResDto>(month, count)**
+        MPC-->>Client: 200 OK + [{month:1,count:n}, ...]
     end
+
 ```
 
-이 단계는 사용자의 **한 해(1~12월) 동안 생성된 별자리 수를 월별 시리즈**로 조회해  
-마이페이지 라인차트에 사용하는 데이터 흐름이다. `belongDate`를 기준으로 집계한다.
-
-서버 측 흐름은 다음과 같다:
-- Controller → Service : `getMonthlyConstellationCounts(userId, year)` 호출  
-- Service → UserRepository : `findById(userId)`  
-- Service 내부 : `from=year-01-01`, `to=year-12-31` 계산  
-- Service → ConstellationRepository : `findByUserAndBelongDateBetween(user, from, to)`  
-- Service 내부 : 결과를 **월별 그룹화(1..12)**, 없는 월은 **0**으로 보정  
-- Controller → Client : `[{month, count}]` 형태로 200 OK 반환  
+이 단계는 사용자가 특정 연도에 생성한 별자리 개수를 월별로 집계해 마이페이지 통계(차트 등)에 사용하는 흐름이다.
+별자리의 기준 날짜는 belongDate가 아니라 createAt 이고, 실제로 존재하는 월만 응답 리스트에 포함된다(없는 달을 0으로 채우지 않음).
 
 **흐름요약**  
 1. **Client → AuthFilter** : JWT 검증  
@@ -1882,8 +1827,8 @@ sequenceDiagram
 3. **MyPageController → MyPageService** : `getMonthlyConstellationCounts(userId, year)`  
 4. **MyPageService → UserRepository** : 사용자 조회  
 5. **MyPageService → ConstellationRepository** : 연간 범위 내 별자리 조회  
-6. **MyPageService 내부** : 월별 그룹화 및 누락 월 0 채움  
-7. **MyPageController → Client** : 200 OK + 월별 카운트 시리즈  
+6. **MyPageService 내부** : createAt 기준으로 월별 그룹화 → List<MonthlyCountResDto> 생성(존재하는 월만 포함)
+7. **MyPageController → Client** : 200 OK + {month, count} 응답
 
 <br>
 
@@ -1895,43 +1840,46 @@ sequenceDiagram
     actor Client as Client
     participant AF as AuthFilter
     participant S3C as S3Controller
-    participant S3S as S3StorageService
     participant UR as UserRepository
+    participant S3S as S3StorageService
+    participant SP as S3Presigner
 
-    Client->>AF: POST /api/v1/s3/image/tempUrl?contentType=image/png (JWT 포함)
+    Client->>AF: POST /api/v1/s3/image/tempUrl (JWT, contentType 포함)
     AF->>AF: AccessToken 검증
     alt 토큰 유효하지 않음
         AF-->>Client: 401 Unauthorized
     else 유효함
-        AF-->>S3C: userId 주입
-        S3C->>UR: findByEmailAddress(userDetails.username)
-        UR-->>S3C: User(id)
-        S3C->>S3S: createUploadUrl(key="uploads/users/{id}/{uuid}.png", contentType)
-        S3S->>S3S: Presigned URL 생성 (10분 유효)
-        S3S-->>S3C: URL 반환
-        S3C-->>Client: 200 OK + {presignedUrl, tempKey}
+        AF-->>S3C: userDetails 주입
+        S3C->>UR: findByEmailAddress(userDetails.getUsername())
+        alt 사용자 없음
+            UR-->>S3C: Optional.empty()
+            S3C-->>Client: 404 Not Found (USER_NOT_FOUND)
+        else 사용자 있음
+            UR-->>S3C: User(id)
+            S3C->>S3C: tempKey = "uploads/users/{id}/{uuid}.png"
+            S3C->>S3S: createUploadUrl(tempKey, contentType)
+            S3S->>S3S: contentType.startsWith("image/") 검증<br/>(실패 시 IllegalArgumentException)
+            S3S->>SP: presignPutObject(bucket, tempKey, contentType, 10분 유효)
+            SP-->>S3S: Presigned URL
+            S3S-->>S3C: URL
+            S3C-->>Client: 200 OK + { presignedUrl, tempKey }
+        end
     end
+
 ```
 
-이 단계는 사용자가 **프로필 이미지를 업로드하기 전에**  
-S3에 직접 업로드할 수 있는 **Presigned URL**을 발급받는 과정이다.  
-JWT 인증 후 사용자 식별을 수행하고,  
-`S3StorageService.createUploadUrl()`에서 AWS SDK의 `S3Presigner`로 10분 유효의 업로드 URL을 생성한다.
-
-서버 측 흐름은 다음과 같다:
-- Controller → UserRepository : 사용자 이메일로 조회 (`findByEmailAddress`)  
-- Controller 내부 : key 생성 `"uploads/users/{userId}/{UUID}.png"`  
-- Controller → Service : `createUploadUrl(key, contentType)`  
-- Service 내부 : `S3Presigner.presignPutObject()` 호출로 URL 생성  
-- Controller → Client : `{presignedUrl, tempKey}` 반환  
+사용자가 마이페이지에서 **프로필 사진을 새로 올리기 전에**, S3에 직접 PUT 할 수 있는 **임시 업로드 URL(presigned URL)** 을 받는 단계다.
+JWT로 인증된 사용자의 userId를 기준으로 uploads/users/{userId}/{uuid}.png 형식의 tempKey를 만들고, S3StorageService.createUploadUrl(tempKey, contentType)에서 이미지 MIME 타입만 허용한 뒤 10분 유효한 Presigned URL을 생성해 반환한다.
 
 **흐름요약**  
 1. **Client → AuthFilter** : JWT 검증  
 2. **AuthFilter → S3Controller** : userId 주입  
-3. **S3Controller → UserRepository** : 사용자 조회  
-4. **S3Controller → S3StorageService** : `createUploadUrl(key, contentType)` 호출  
-5. **S3StorageService 내부** : Presigned URL 생성  
-6. **S3Controller → Client** : 200 OK + URL, tempKey 반환  
+3. **S3Controller → UserRepository** : `findByEmailAddress(userDetails.getUsername())`
+- 사용자 없음 → 404 USER_NOT_FOUND 응답
+- 사용자 있음 → tempKey = "uploads/users/{id}/{uuid}.png" 생성 
+4. **S3Controller → S3StorageService** : `createUploadUrl(tempKey, contentType)`
+5. **S3StorageService 내부** : `contentType.startsWith("image/")` 검증 후 `S3Presigner.presignPutObject(...)` 호출
+6. **S3Controller → Client** : 200 OK + URL, { presignedUrl, tempKey } 반환
 
 <br>
 
@@ -1942,112 +1890,630 @@ sequenceDiagram
     autonumber
     actor Client as Client
     participant AF as AuthFilter
-    participant UC as UserController
-    participant US as UserService
+    participant MPC as MyPageController
+    participant MPS as MyPageService
     participant UR as UserRepository
+    participant MS as ModerationService
 
-    Client->>AF: GET /api/v1/users/check-nickname?nickname={nickname} (JWT 포함 가능)
-    AF->>AF: AccessToken 검증 (필요 시)
-    alt 토큰 유효하지 않음 (보호된 경우)
+    Client->>AF: GET /api/v1/mypage/available?newNickname={nickname} (JWT 포함)
+    AF->>AF: AccessToken 검증
+    alt 토큰 유효하지 않음
         AF-->>Client: 401 Unauthorized
-    else 통과 또는 공개 엔드포인트
-        AF-->>UC: (옵션) userId 주입
-        UC->>US: checkNickname(nickname)
-        US->>UR: 닉네임 존재 여부 조회
-        alt 닉네임 존재
-            UR-->>US: true
-            US-->>UC: 중복(true)
-            UC-->>Client: 409 Conflict (닉네임 중복)
-        else 닉네임 미존재
-            UR-->>US: false
-            US-->>UC: 사용 가능(false)
-            UC-->>Client: 200 OK (사용 가능)
+    else 유효함
+        AF-->>MPC: userDetails 주입
+        MPC->>MPC: resolveUserId(userDetails) → userId
+        MPC->>MPS: checkNickname(userId, newNickname)
+
+        MPS->>UR: findById(userId)
+        alt 사용자 없음
+            UR-->>MPS: Optional.empty()
+            MPS-->>MPC: CustomException(USER_NOT_FOUND)
+            MPC-->>Client: 404 Not Found
+        else 사용자 존재
+            UR-->>MPS: User
+            MPS->>MPS: 닉네임 정규화 + 길이검증(2~10)
+            alt invalid nickname
+                MPS-->>MPC: CustomException(INVALID_NICKNAME)
+                MPC-->>Client: 400 Bad Request
+            else 유효한 닉네임
+                alt 본인 닉네임과 동일
+                    MPS-->>MPC: OK (검사만 통과)
+                    MPC-->>Client: 200 OK
+                else 새 닉네임
+                    MPS->>UR: existsByNicknameAndIdNot(nickname, userId)
+                    alt 중복 존재
+                        UR-->>MPS: true
+                        MPS-->>MPC: CustomException(NICKNAME_CONFLICT)
+                        MPC-->>Client: 409 Conflict
+                    else 사용 가능
+                        UR-->>MPS: false
+                        MPS->>MS: moderate(nickname)
+                        MS-->>MPS: Moderation 결과
+                        alt 모더레이션 응답 없음
+                            MPS-->>MPC: CustomException(OPENAI_SERVER_ERROR)
+                            MPC-->>Client: 500 Internal Server Error
+                        else 응답 정상
+                            alt 부적절한 닉네임
+                                MPS-->>MPC: CustomException(INAPPROPRIATE_CONTENT)
+                                MPC-->>Client: 400 Bad Request
+                            else 통과
+                                MPS-->>MPC: OK
+                                MPC-->>Client: 200 OK
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
+
 ```
 
-사용자가 **마이페이지 프로필 편집**에서 닉네임 입력 후 **중복 여부를 확인**할 때 사용하는 기존 API 흐름이다.  
-컨트롤러는 `UserService.checkNickname(nickname)`을 호출하고, 서비스는 `UserRepository`를 통해 **닉네임 존재 여부**를 조회한다.  
-중복이면 `409 Conflict`, 사용 가능하면 `200 OK` 를 반환한다.
-
-서버 측 흐름은 다음과 같다:  
-- Controller → Service : `checkNickname(nickname)` 호출  
-- Service → Repository : 닉네임 존재 여부 조회  
-- 중복 시 : 409 Conflict 반환  
-- 사용 가능 시 : 200 OK 반환  
+이 단계는 마이페이지에서 **새 닉네임을 입력했을 때, 저장 전에 사용 가능 여부를 검증하는 과정**이다.
+요청은 GET /api/v1/mypage/available?newNickname={nickname} 이고,
+서버는 로그인 사용자의 ID를 기준으로 **본인 제외 중복 여부 + 길이 검증(2~6자) + OpenAI 모더레이션 검사**를 수행한다.
+본인 닉네임과 동일하면 그대로 통과(200 OK),
+다른 사용자와 중복이면 NICKNAME_CONFLICT(409),
+형식 오류나 부적절한 표현이면 400 Bad Request,
+모더레이션 서버 오류 시 500 으로 응답한다.
 
 **흐름요약**  
-1. **Client → AuthFilter** : (필요 시) JWT 검증  
-2. **AuthFilter → UserController** : (옵션) userId 주입  
-3. **UserController → UserService** : `checkNickname(nickname)`  
-4. **UserService → UserRepository** : 닉네임 존재 여부 조회  
-5. **중복일 때** : 409 Conflict  
-6. **사용 가능일 때** : 200 OK  
+1. **Client → AuthFilter** : JWT 검증  
+2. **AuthFilter → UserController** : userId 주입  
+3. **UserController → UserService** : `checkNickname(userId, nickname)`  
+4. **UserService → UserRepository** : 사용자 존재 확인
+5. **MyPageService 내부** :
+- normalizeAndValidateNickname() 으로 공백 제거 + 길이(2~10) 검증 (INVALID_NICKNAME 시 400)
+- 현재 닉네임과 같으면 바로 통과 (200 OK)
+- existsByNicknameAndIdNot(nickname, userId) 로 타 사용자 중복 검사 (NICKNAME_CONFLICT 시 409)
+- moderate(nickname) 으로 모더레이션 검사
+     - 응답 없음 → OPENAI_SERVER_ERROR(500)
+     - 플래그됨 → INAPPROPRIATE_CONTENT(400)
+6. **MyPageController → Client** : 최종적으로 200 / 400 / 404 / 409 / 500 중 하나로 응답
 
 <br>
 
-### SD-4.8.8 프로필 저장 (닉네임 + 이미지 확정)  
+### SD-4.8.8 닉네임 저장
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Client as Client
     participant AF as AuthFilter
-    participant UC as UserController
-    participant US as UserService
+    participant MPC as MyPageController
+    participant MPS as MyPageService
     participant UR as UserRepository
-    participant S3S as S3StorageService
 
-    Client->>AF: PATCH /api/v1/users/profile\n{ nickname, tempKey } (JWT 포함)
+    Client->>AF: PATCH /api/v1/mypage/nickname\n{ nickname } (JWT 포함)
     AF->>AF: AccessToken 검증
     alt 토큰 유효하지 않음
         AF-->>Client: 401 Unauthorized
     else 유효함
-        AF-->>UC: userId 주입
-        UC->>US: updateProfile(userId, nickname, tempKey)
-        US->>UR: findById(userId)
-        UR-->>US: User 엔티티 반환
-        alt tempKey 존재
-            US->>S3S: publishProfile(userId, tempKey)
-            S3S->>S3S: tempKey 검증 ("uploads/users/{userId}/" prefix)
-            S3S->>S3S: S3 copyObject(tempKey → public/users/{userId}/profile.png)
-            S3S-->>US: public 이미지 URL 반환
-            US->>UR: 프로필 이미지 URL 및 닉네임 수정
-            UR-->>US: 저장 완료
-        else tempKey 없음 (닉네임만 수정)
-            US->>UR: 닉네임만 수정
-            UR-->>US: 저장 완료
+        AF-->>MPC: userDetails 주입
+        MPC->>MPC: resolveUserId(userDetails) → userId
+        MPC->>MPS: updateNickname(userId, nickname)
+
+        MPS->>UR: findById(userId)
+        alt 사용자 없음
+            UR-->>MPS: Optional.empty()
+            MPS-->>MPC: CustomException(USER_NOT_FOUND)
+            MPC-->>Client: 404 Not Found
+        else 사용자 존재
+            UR-->>MPS: User
+            MPS->>MPS: normalizeAndValidateNickname(rawNickname)\n(공백 제거, 길이 2~10자 검증)
+            alt 닉네임 형식 오류
+                MPS-->>MPC: CustomException(INVALID_NICKNAME)
+                MPC-->>Client: 400 Bad Request
+            else 형식 정상
+                alt 기존 닉네임과 동일
+                    MPS-->>MPC: UpdateNicknameResDto(기존 닉네임)
+                    MPC-->>Client: 200 OK + DTO
+                else 새 닉네임
+                    MPS->>MPS: checkNickname(userId, nickname)\n(본인 제외 중복 + 모더레이션 검사)
+                    alt 중복/부적절/오류
+                        MPS-->>MPC: CustomException(NICKNAME_CONFLICT/INAPPROPRIATE_CONTENT/OPENAI_SERVER_ERROR)
+                        MPC-->>Client: 적절한 에러 상태 코드 반환
+                    else 사용 가능 닉네임
+                        MPS->>MPS: user.changeNickname(nickname)
+                        MPS-->>MPC: UpdateNicknameResDto(변경된 닉네임)
+                        MPC-->>Client: 200 OK + DTO
+                    end
+                end
+            end
         end
-        US-->>UC: 업데이트 완료 응답
-        UC-->>Client: 200 OK + UserProfileResDto
     end
+
+
 ```
 
-이 단계는 사용자가 **마이페이지에서 닉네임 및 프로필 이미지를 수정 후 저장**할 때 수행되는 흐름이다.  
-JWT 인증을 통과하면, 서버는 `nickname`과 `tempKey`를 받아  
-`S3StorageService.publishProfile()`로 이미지를 확정 저장하고,  
-`UserRepository`를 통해 사용자 엔티티를 갱신한다.
-
-서버 측 흐름은 다음과 같다:  
-- Controller → Service : `updateProfile(userId, nickname, tempKey)` 호출  
-- Service → UserRepository : `findById(userId)`  
-- Service 내부 :  
-  - tempKey 존재 시 → `S3StorageService.publishProfile()` 실행 (S3 객체 복사 및 URL 반환)  
-  - tempKey 미존재 시 → 닉네임만 업데이트  
-- Service → Repository : 엔티티 갱신  
-- Controller → Client : 200 OK + UserProfileResDto 반환  
+이 단계는 마이페이지에서 “닉네임 저장” 버튼을 눌렀을 때,
+PATCH /api/v1/mypage/nickname 으로 닉네임만 변경하는 최종 저장 로직이다.
+이미지 저장은 POST /api/v1/mypage/photo/confirm에서 별도 API로 처리되며,
+여기서는 닉네임 검증 + 중복/모더레이션 검사 + 변경까지만 수행한다.
 
 **흐름요약**  
-1. **Client → AuthFilter** : JWT 검증  
-2. **AuthFilter → UserController** : userId 주입  
-3. **UserController → UserService** : `updateProfile(userId, nickname, tempKey)`  
-4. **UserService → UserRepository** : 사용자 조회  
-5. **tempKey 존재 시** :  
-   - `publishProfile()` 실행 → S3 객체 복사  
-   - URL 반환 → User 엔티티 업데이트  
-6. **tempKey 없음 시** : 닉네임만 수정  
-7. **UserService → UserRepository** : 저장  
-8. **UserController → Client** : 200 OK + UserProfileResDto  
+1. **Client → AuthFilter** : PATCH /api/v1/mypage/nickname { nickname } 요청, JWT 검증
+2. **AuthFilter → MyPageController** : userDetails 전달 → resolveUserId()로 userId 조회
+3. **MyPageController → MyPageService** : updateNickname(userId, nickname) 호출
+4. **MyPageService → UserRepository** : findById(userId) → 사용자 없으면 USER_NOT_FOUND(404)
+5. **MyPageService 내부**
+- normalizeAndValidateNickname()으로 공백 제거 + 길이 2~10자 검증 (INVALID_NICKNAME 시 400)
+- 기존 닉네임과 같으면 그대로 UpdateNicknameResDto 반환(변경 없음)
+- 다르면 checkNickname(userId, nickname)으로
+     - 본인 제외 중복 검사 (NICKNAME_CONFLICT 시 409)
+     - OpenAI 모더레이션 검사 (INAPPROPRIATE_CONTENT 시 400, 응답 오류 시 500)
+- 모든 검증 통과 시 user.changeNickname() 적용
+6. **MyPageService → MyPageController** : UpdateNicknameResDto(최종 닉네임) 반환
+7. **MyPageController → Client** : 200 OK + 변경된 닉네임 DTO 응답
 
 <br>
 
+## SD-4.9 Friends Sequence Diagram
+### SD-4.9.1 친구 검색
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+    participant S3 as S3StorageService
+
+    Client->>AF: GET /api/v1/friends/search?searchNickname=xxx (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: searchFriend(userId, nickname)
+
+        FS->>UR: findById(userId)
+        UR-->>FS: me(User)
+
+        FS->>UR: findByNickname(nickname)
+        alt 대상 없음
+            UR-->>FS: empty
+            FS-->>FC: CustomException(USER_NOT_FOUND)
+            FC-->>Client: 404 USER_NOT_FOUND
+        else 존재
+            UR-->>FS: target(User)
+        end
+
+        FS->>FS: me == target 검증
+        alt 동일 사용자
+            FS-->>FC: CustomException(CANNOT_SEARCH_SELF)
+            FC-->>Client: 400 CANNOT_SEARCH_SELF
+        end
+
+        FS->>FR: findLatestBetween(me, target)
+        FR-->>FS: Optional<Friend>
+
+        FS->>S3: convertToUrl(target.profilePhotoUrl)
+        S3-->>FS: fullProfileUrl
+
+        alt 관계 없음
+            FS-->>FC: FriendSearchResDto(NONE)
+        else ACCEPTED
+            FS-->>FC: FriendSearchResDto(ACCEPTED)
+        else PENDING + notExpired
+            FS-->>FC: FriendSearchResDto(PENDING, remainingSeconds)
+        else PENDING but expired
+            FS-->>FC: FriendSearchResDto(NONE)
+        end
+
+        FC-->>Client: 200 OK + FriendSearchResDto
+    end
+```
+사용자가 닉네임으로 다른 유저를 검색할 때 실행되는 흐름.
+서비스는 본인 검색 예외, 대상 사용자 조회, 가장 최근 친구 관계 조회(findLatestBetween) 로 상태를 결정한다.
+상태는 NONE / PENDING / ACCEPTED 중 하나이며, PENDING이면 남은 시간도 함께 포함한다.
+프로필 이미지 URL은 S3StorageService.convertToUrl() 로 처리된다.
+
+**흐름요약** <br>
+1. Client → AuthFilter : JWT 검증
+2. AuthFilter → FriendController : userId 주입
+3. FriendController → FriendService : searchFriend(userId, nickname)
+4. FriendService → UserRepository : 검색자 및 대상 사용자 조회
+5. 본인 검색 시 → CANNOT_SEARCH_SELF
+6. FriendService → FriendRepository : 최신 친구 관계 조회
+7. FriendService → S3StorageService : 프로필 URL 변환
+8. FriendService → Controller : FriendSearchResDto 반환
+9. Controller → Client : 200 OK
+
+### SD-4.9.2 친구 요청
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+    participant FE as FriendEmailService
+
+    Client->>AF: POST /api/v1/friends/request { receiverNickname } (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: requestFriend(userId, receiverNickname)
+
+        FS->>UR: findById(requesterId)
+        UR-->>FS: requester
+
+        FS->>UR: findByNickname(receiverNickname)
+        alt 대상 없음
+            UR-->>FS: empty
+            FS-->>FC: CustomException(USER_NOT_FOUND)
+            FC-->>Client: 404 USER_NOT_FOUND
+        else 존재
+            UR-->>FS: receiver
+        end
+
+        FS->>FS: self 요청 여부 검사
+        alt 자기 자신
+            FS-->>FC: CustomException(CANNOT_REQUEST_SELF)
+            FC-->>Client: 400 CANNOT_REQUEST_SELF
+        end
+
+        FS->>FR: findLatestBetween(requester, receiver)
+        FR-->>FS: Optional<Friend>
+
+        alt 이미 친구
+            FS-->>FC: CustomException(FRIEND_ALREADY_EXIST)
+            FC-->>Client: 400 FRIEND_ALREADY_EXIST
+        else PENDING + notExpired
+            FS-->>FC: CustomException(FRIEND_REQUEST_ALREADY_PENDING)
+            FC-->>Client: 400 FRIEND_REQUEST_ALREADY_PENDING
+        else 새 요청 가능
+            FS->>FS: expiredAt = now + 3 days
+            FS->>FR: save(Friend.createPending(..., expiredAt))
+            FR-->>FS: saved Friend
+            FS->>FE: sendFriendRequestMail(requester, receiver, request)
+            FE-->>FS: 완료
+            FS-->>FC: void
+            FC-->>Client: 200 OK + { "message": "친구 요청을 보냈습니다." }
+        end
+    end
+```
+요청자 / 수신자를 조회하고, 자기 자신, 이미 친구, PENDING 유효 요청을 모두 막는다.
+통과 시 Friend.createPending(...) + 유효기간 3일 설정 후 저장, 친구요청 메일 발송.
+
+**흐름요약** <br>
+1. Client → AuthFilter : JWT 검증
+2. FriendController → FriendService : requestFriend(requesterId, receiverNickname)
+3. FriendService → UserRepository : requester / receiver 조회 + self 체크
+4. FriendService → FriendRepository : findLatestBetween() 로 기존 관계 검사
+5. 이미 친구 / PENDING 유효 → 예외 발생
+6. 새 요청 생성(만료 3일) 저장 + 메일 전송
+7. Controller → Client : 200 OK + 메시지
+
+### SD-4.9.3 친구 요청 수락
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+    participant FE as FriendEmailService
+
+    Client->>AF: POST /api/v1/friends/accept { friendId } (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: acceptFriend(userId, friendId)
+
+        FS->>UR: findById(receiverId)
+        UR-->>FS: receiver
+
+        FS->>FR: findById(friendId)
+        alt 요청 없음
+            FR-->>FS: empty
+            FS-->>FC: CustomException(FRIEND_REQUEST_NOT_FOUND)
+            FC-->>Client: 404 FRIEND_REQUEST_NOT_FOUND
+        else 존재
+            FR-->>FS: request(Friend)
+        end
+
+        FS->>FS: 요청 수신자 == 현재 사용자 검증
+        alt 불일치
+            FS-->>FC: CustomException(FORBIDDEN)
+            FC-->>Client: 403 FORBIDDEN
+        end
+
+        FS->>FS: 상태 == PENDING 여부 확인
+        alt PENDING 아님
+            FS-->>FC: CustomException(FRIEND_REQUEST_NOT_FOUND)
+            FC-->>Client: 404 FRIEND_REQUEST_NOT_FOUND
+        end
+
+        FS->>FS: isPendingAndNotExpired()
+        alt 만료됨
+            FS-->>FC: CustomException(FRIEND_REQUEST_EXPIRED)
+            FC-->>Client: 400 FRIEND_REQUEST_EXPIRED
+        else 유효
+            FS->>FS: request.accept()
+            FS->>FE: sendFriendAcceptedMail(request.requester, receiver)
+            FE-->>FS: 완료
+            FS-->>FC: void
+            FC-->>Client: 200 OK + { "message": "친구 요청을 수락했습니다." }
+        end
+    end
+```
+수신자 본인인지, 상태가 PENDING인지, 유효기간이 지나지 않았는지 모두 체크 후 accept() 호출.
+성공 시 요청자에게 “친구 수락” 메일 발송.
+
+**흐름요약** <br>
+1. Controller → Service : acceptFriend(receiverId, friendId)
+2. Service → UserRepository / FriendRepository : receiver, request 조회
+3. receiver 일치 여부 / 상태 PENDING / 만료 여부 검증
+4. 통과 시 request.accept() + 메일 발송
+5. Controller → Client : 200 OK + 메시지
+
+### SD-4.9.4 친구 요청 거절
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+
+    Client->>AF: DELETE /api/v1/friends/reject { friendId } (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: rejectFriend(userId, friendId)
+
+        FS->>UR: findById(receiverId)
+        UR-->>FS: receiver
+
+        FS->>FR: findById(friendId)
+        alt 요청 없음
+            FR-->>FS: empty
+            FS-->>FC: CustomException(FRIEND_REQUEST_NOT_FOUND)
+            FC-->>Client: 404 FRIEND_REQUEST_NOT_FOUND
+        else 존재
+            FR-->>FS: request(Friend)
+        end
+
+        FS->>FS: 요청 수신자 == 현재 사용자 검증
+        alt 불일치
+            FS-->>FC: CustomException(FORBIDDEN)
+            FC-->>Client: 403 FORBIDDEN
+        end
+
+        FS->>FS: 상태 == PENDING 여부 확인
+        alt PENDING 아님
+            FS-->>FC: CustomException(FRIEND_REQUEST_NOT_FOUND)
+            FC-->>Client: 404 FRIEND_REQUEST_NOT_FOUND
+        end
+
+        FS->>FS: isPendingAndNotExpired()
+        alt 만료됨
+            FS-->>FC: CustomException(FRIEND_REQUEST_EXPIRED)
+            FC-->>Client: 400 FRIEND_REQUEST_EXPIRED
+        else 유효
+            FS->>FR: delete(request)
+            FR-->>FS: 완료
+            FS-->>FC: void
+            FC-->>Client: 200 OK + { "message": "친구 요청을 거절했습니다." }
+        end
+    end
+```
+수락과 거의 동일 로직 + 마지막에 delete 로 제거. 나에게 온 PENDING + 유효한 요청만 거절 가능.
+
+**흐름요약**<br>
+1. rejectFriend(userId, friendId) 호출
+2. receiver / request 조회 → 수신자·상태·만료 검증
+3. 통과 시 friendRepository.delete(request)
+4. 200 OK + "거절했습니다."
+
+### SD-4.9.5 친구 목록 조회
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+    participant SR as StarRepository
+    participant CR as ConstellationRepository
+    participant S3 as S3StorageService
+
+    Client->>AF: GET /api/v1/friends/list (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: getMyFriends(userId)
+
+        FS->>UR: findById(userId)
+        UR-->>FS: me(User)
+
+        FS->>FR: findAllByStatusAndRequesterOrStatusAndReceiver(ACCEPTED, me, ACCEPTED, me)
+        FR-->>FS: Friend 관계 리스트
+
+        loop 각 Friend 관계
+            FS->>FS: friend = (me가 requester면 receiver, 아니면 requester)
+
+            FS->>SR: countByUser(friend)
+            SR-->>FS: totalStars
+
+            FS->>CR: countByUser(friend)
+            CR-->>FS: totalConstellations
+
+            FS->>FS: LevelPolicy.resolve(totalStars) → levelName
+
+            FS->>S3: convertToUrl(friend.profilePhotoUrl)
+            S3-->>FS: profileUrl
+
+            FS->>FS: FriendListItemResDto.of(...)
+        end
+
+        FS-->>FC: List<FriendListItemResDto>
+        FC-->>Client: 200 OK + 친구 목록
+    end
+```
+ACCEPTED 상태인 모든 관계를 가져와서, 각 row마다
+친구 User, 별 개수, 별자리 개수, 레벨, 프로필 URL 계산해서 내려줌.
+
+**흐름요약** <br>
+
+1. Controller → Service : getMyFriends(userId)
+2. Service → UserRepository : me 조회
+3. Service → FriendRepository : 나 포함된 ACCEPTED 관계 전체 조회
+4. 각 관계에 대해 친구 User 판별 → 별/별자리 수 + 레벨 + 프로필 URL 계산
+5. FriendListItemResDto 리스트 반환
+
+### SD-4.9.6 받은 친구 요청 목록 조회
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+    participant S3 as S3StorageService
+
+    Client->>AF: GET /api/v1/friends/requests (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: getMyFriendRequests(userId)
+
+        FS->>UR: findById(userId)
+        UR-->>FS: me(User)
+
+        FS->>FR: findAllByReceiverAndStatusOrderByCreatedAtDesc(me, PENDING)
+        FR-->>FS: PENDING 요청 리스트
+
+        FS->>FS: now = LocalDateTime.now()
+
+        loop 각 요청
+            FS->>FS: f.isPendingAndNotExpired() 필터
+            alt 유효
+                FS->>FS: remainingSeconds = f.getRemainingSeconds()
+                FS->>FS: dDayLabel = toDDayLabel(now, f.expiredAt)
+
+                FS->>S3: convertToUrl(f.requester.profilePhotoUrl)
+                S3-->>FS: profileUrl
+
+                FS->>FS: FriendReqItemResDto.of(friendId, requesterNickname, profileUrl, remainingSeconds, dDayLabel)
+            else 만료 or 무효
+                FS->>FS: 제외
+            end
+        end
+
+        FS-->>FC: List<FriendReqItemResDto>
+        FC-->>Client: 200 OK + 요청 목록
+    end
+```
+나를 receiver로 하는 PENDING 요청들 중, 아직 만료되지 않은 것만 필터링해서
+남은 시간 / D-DAY 라벨 / 신청자 프로필 URL과 함께 내려줌.
+
+**흐름요약** <br>
+1. getMyFriendRequests(userId) 호출
+2. receiver(me) 조회 후, 나에게 온 PENDING 요청 목록 조회
+3. isPendingAndNotExpired() 로 필터
+4. remainingSeconds, D-Day, 프로필 URL 계산 → DTO 매핑
+5. 200 OK + FriendReqItemResDto 리스트
+
+### SD-4.9.7 친구 삭제
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Client
+    participant AF as AuthFilter
+    participant FC as FriendController
+    participant FS as FriendService
+    participant UR as UserRepository
+    participant FR as FriendRepository
+
+    Client->>AF: DELETE /api/v1/friends/{friendId} (JWT)
+    AF->>AF: AccessToken 검증
+    alt 토큰 불가
+        AF-->>Client: 401 Unauthorized
+    else 정상
+        AF-->>FC: userId 주입
+        FC->>FS: deleteFriend(userId, friendId)
+
+        FS->>UR: findById(userId)
+        UR-->>FS: me(User)
+
+        FS->>FR: findById(friendId)
+        alt 관계 없음
+            FR-->>FS: empty
+            FS-->>FC: CustomException(FRIEND_NOT_FOUND)
+            FC-->>Client: 404 FRIEND_NOT_FOUND
+        else 존재
+            FR-->>FS: relation(Friend)
+        end
+
+        FS->>FS: me가 requester 또는 receiver인지 확인
+        alt 참여자 아님
+            FS-->>FC: CustomException(FORBIDDEN)
+            FC-->>Client: 403 FORBIDDEN
+        end
+
+        FS->>FS: status == ACCEPTED 확인
+        alt ACCEPTED 아님
+            FS-->>FC: CustomException(FRIEND_NOT_FOUND)
+            FC-->>Client: 404 FRIEND_NOT_FOUND
+        else 정상
+            FS->>FR: delete(relation)
+            FR-->>FS: 완료
+            FS-->>FC: void
+            FC-->>Client: 200 OK + { "message": "친구를 삭제했습니다." }
+        end
+    end
+```
+나와 상관없는 Friend row / ACCEPTED 아닌 상태는 삭제 불가.
+나(요청자/수신자) + ACCEPTED 상태일 때만 삭제.
+
+**흐름요약** <br>
+1. Controller → Service : deleteFriend(userId, friendId)
+2. me, relation 조회
+3. relation이 나와 관련 있는지 + ACCEPTED 인지 확인
+4. 통과 시 friendRepository.delete(relation)
+5. 200 OK + "친구를 삭제했습니다."
+
+### SD-4.9.8 만료된 친구 요청 정리 배치
+```mermaid
+sequenceDiagram
+    autonumber
+    participant FCS as FriendCleanupService
+    participant FR as FriendRepository
+
+    FCS->>FCS: @Scheduled(cron = "0 0 3 * * *") 매일 새벽 3시 실행
+    FCS->>FR: deleteByStatusAndExpiredAtBefore(PENDING, now)
+    FR-->>FCS: 삭제된 row 수
+```
+
+매일 새벽 3시에 만료된 PENDING 친구 요청을 일괄 삭제하는 배치.
+서비스 로직에서 isPendingAndNotExpired()로 이미 필터링하지만,
+오래된 쓰레기 데이터를 DB에서 정리하는 역할.
+
+**흐름요약** <br>
+1. Spring Scheduler가 매일 03:00에 deleteExpiredPendingFriends() 호출
+2. FriendRepository에서 status=PENDING 이면서 expiredAt < now 인 row 삭제
