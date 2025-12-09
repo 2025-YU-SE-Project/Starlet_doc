@@ -3,7 +3,8 @@
 ## 5. State machine diagram (상태 머신 다이어그램)
 
 
-![state_machine_diagram](https://github.com/user-attachments/assets/58ab2d13-5ba7-4937-bd06-788f1132b6a7)
+
+![State_Machine_Diagram](https://github.com/user-attachments/assets/cb3890fd-754b-468d-9f83-c52fe6f9e032)
 
 
 
@@ -64,7 +65,7 @@ Starlet의 메인 페이지에서는 사용자가 이용할 수 있는 다양한
 - 사용자의 현재 레벨과 다음 레벨까지 남은 점수를 확인할 수 있다.
 - **감정별 일기 수**: 사용자가 작성한 감정 통계를 월별로 조회할 수 있다.
 - **생성된 별자리 수**: 사용자가 생성한 별자리를 연도별로 조회할 수 있다.
-- 계정 탈퇴 기능을 통해 STARLET 서비스를 탈퇴한다.
+- **계정 탈퇴** 기능을 통해 STARLET 서비스를 탈퇴한다.
 
 ### 5.7. 친구 페이지 (Friend Page)
 
