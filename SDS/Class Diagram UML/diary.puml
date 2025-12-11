@@ -145,7 +145,6 @@ package "com.example.starlet_be.domains.diary" {
         + update(userId: Long, req: DiaryUpdateReqDto): DiaryResDto
         + getByDate(userId: Long, date: LocalDate): DiaryByDateResDto
         + getMonthlyStars(userId: Long, ym: YearMonth): List<StarMonthlyResDto>
-        + delete(userId: Long, diaryId: Long): void
         + getDiaryMonthSummary(details: UserDetails, year: Integer, month: Integer): DiarySummaryResDto
         - safeFactors(in: List<Factor>): List<Factor>
     }
@@ -162,7 +161,6 @@ package "com.example.starlet_be.domains.diary" {
         + updateDiary(principal: UserDetails, req: DiaryUpdateReqDto): ResponseEntity<?>
         + getDiary(principal: UserDetails, date: LocalDate): ResponseEntity<DiaryByDateResDto>
         + getMonthlyStars(principal: UserDetails, year: int, month: int): ResponseEntity<List<StarMonthlyResDto>>
-        + removeDiary(principal: UserDetails, diaryId: Long): ResponseEntity<?>
         + getDiaryMonthSummary(details: UserDetails, year: Integer, month: Integer): ResponseEntity<?>
     }
 
@@ -174,7 +172,6 @@ package "com.example.starlet_be.domains.diary" {
         + updateDiary(principal: UserDetails, req: DiaryUpdateReqDto): ResponseEntity<DiaryResDto>
         + getDiary(principal: UserDetails, date: LocalDate): ResponseEntity<DiaryByDateResDto>
         + getMonthlyStars(principal: UserDetails, year: int, month: int): ResponseEntity<List<StarMonthlyResDto>>
-        + removeDiary(principal: UserDetails, diaryId: Long): ResponseEntity<Object>
         + getDiaryMonthSummary(details: UserDetails, year: Integer, month: Integer): ResponseEntity<?>
         - resolveUserId(principal: UserDetails): Long
     }
