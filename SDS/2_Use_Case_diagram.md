@@ -107,9 +107,8 @@
 |:---|:---|
 | **Summary** |  처음 해당 시스템을 접한 사용자가 시스템 기능을 이용하기 위한 절차이며, 해당 사용자는 기능을 이용하기 위해 회원가입을 해야한다.  |
 | **Scope** | STARLET System |
-| **Level** | Subfunction level |
-| **Scope** | STARLET System |
 | **Level** | User level |
+| **Scope** | STARLET System |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** | Analysis |
@@ -156,9 +155,8 @@
 |:---|:---|
 | **Summary** |  시스템 기능을 사용하고자 하는 사용자가 이메일 주소, 비밀번호를 입력하여 로그인을 한다.  |
 | **Scope** | STARLET System |
-| **Level** | Subfunction level |
-| **Scope** | STARLET System |
 | **Level** | User level |
+| **Scope** | STARLET System |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -201,7 +199,6 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -248,7 +245,6 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -287,9 +283,8 @@
 |:---|:---|
 | **Summary** |  로그인한 사용자는 캘린더 페이지로 진입하여 사용자 감정 일기를 작성 후 그 감정에 맞는 별을 받을 수 있다.  |
 | **Scope** | STARLET System |
-| **Level** | Subfunction level |
-| **Scope** | STARLET System |
 | **Level** | User level |
+| **Scope** | STARLET System |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -335,7 +330,6 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -379,7 +373,6 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -422,9 +415,8 @@
 |:---|:---|
 | **Summary** |  로그인한 사용자가 밤하늘 페이지에서 자신이 가진 별들을 선택해 별자리를 생성한다. 생성된 별자리게 밤하늘 페이지에 표시된다.   |
 | **Scope** | STARLET System |
-| **Level** | Subfunction level |
-| **Scope** | STARLET System |
 | **Level** | User level |
+| **Scope** | STARLET System |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -471,7 +463,6 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -512,7 +503,6 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -555,7 +545,6 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -598,7 +587,6 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -639,9 +627,8 @@
 |:---|:---|
 | **Summary** | 로그인한 사용자가 대표 별자리를 설정할 수 있다. |
 | **Scope** | STARLET System |
-| **Level** | Subfunction level |
+| **Level** | User levell |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -683,7 +670,6 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -727,7 +713,6 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Level** | User level |
 | **Author** |  |
 | **Last Update** |  |
 | **Status** |  |
@@ -751,6 +736,7 @@
 | 8 |  시스템은 사용자 닉네임 중복 여부를 검사한다. |
 | 8 |  사용자가 완료 버튼을 클릭한다. |
 | 9 |  사용자가 입력한 내용에 맞게 사용자 플필 정보(사진,닉네임)이 바뀐다. |
+
 #### EXTENSION SCENARIO
 | Step | Branching Action |
 |:---|:---|
@@ -762,6 +748,344 @@
 |  |  |
 |:---|:---|
 | Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #18 AI 별자리 이름 및 설명 제공
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 별자리 모형까지 만든 사용자가 별자리 이름 및 설명을 AI를 통해 추천받을 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 별자리 모형을 만든 상태여야한다. |
+| **Trigger** |  1. 사용자가 별자리 생성 모달창에서 추천받기 버튼을 클릭했을 때  |
+| **Success Post Condition** | 사용자는 별자리 이름 및 설명을 AI에게 추천받을 수 있다.  |
+| **Failed Post Condition** | 사용자는 별자리 이름 및 설명을 AI에게 추천받을 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 별자리 생성 모달창에서 별자리 이름 및 추천을 AI에게 추천받는다.   |
+| 1 |  사용자는 홈 화면 또는 사이드바에서 NIGHT SKY(밤하늘 별자리)를 클릭한다. |
+| 2 |  시스템은 별을 랜더링한다. |
+| 3 |  사용자는 별(7개~14개)를 선택하여 Generate을 클릭한다. |
+| 4 |  사용자는 별들을 이어 별자리 모형을 만든 후 다음을 클릭한다. |
+| 5 |  사용자는 추천받기를 클릭한다. |
+| 6 |  시스템은 별자리 이름 및 설명을 입력 필드에 자동으로 채운다. |
+| 7 |  사용자는 AI가 채운 별자리 이름 및 설명으로 별자리를 만든다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. |
+| 2 | 2a. 사용자 데이터 로딩 실패 2a1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 5 | 5a. (?) 아이콘에 에 커서를 둔 경우 5a1. 추천받기 기능이 어떠한 기능인지 알 수 있다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #19 친구 검색
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | STARLET 사용자를 검색할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
+| **Trigger** |  1. 사용자가 친구 추가 버튼을 클릭하여 STARLET 사용자 닉네임을 입력 후 Enter 혹은 돋보기 아이콘을 눌렀을 때 |
+| **Success Post Condition** | 사용자는 해당 닉네임 사용자를 검색할 수 있다.  |
+| **Failed Post Condition** | 사용자는 해당 닉네임 사용자를 검색할 수 없다.  |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 친구 목록 페이지에서 사용자 닉네임을 통해 다른 사용자를 검색할 수 있다.   |
+| 1 |  사용자는 마이페이지에서 닉네임 오른쪽 n명의 친구를 클릭한다. |
+| 2 |  사용자의 친구 목록 페이지로 이동한다. |
+| 3 |  사용자는 친구 추가 버튼을 클릭한다. |
+| 4 |  사용자는 검색하고자하는 사용자의 닉네임을 입력한다. |
+| 5 |  시스템은 해당 닉네임을 가진 사용자를 랜더링한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 5 | 5a. 해당 닉네임을 가진 사용자가 없는 경우 5a1. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #20 친구 신청
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | STARLET 사용자를 친구 신청할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
+| **Trigger** | 사용자가 친구 검색 모달창에서 닉네임 입력 후 친구 신청을 눌렀을 때. |
+| **Success Post Condition** | 사용자는 해당 닉네임 사용자에게 친구 신청을 할 수 있다. |
+| **Failed Post Condition** | 사용자는 해당 닉네임 사용자에게 친구 신청을 할 수 없다.  |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 친구 목록 페이지에서 친구 신청을 할 수 있다.   |
+| 1 |  사용자는 마이페이지에서 닉네임 오른쪽 n명의 친구를 클릭한다. |
+| 2 |  사용자의 친구 목록 페이지로 이동한다. |
+| 3 |  사용자는 친구 추가 버튼을 클릭한다. |
+| 4 |  사용자는 검색하고자하는 사용자의 닉네임을 입력한다. |
+| 5 |  시스템은 해당 닉네임을 가진 사용자를 랜더링한다. |
+| 6 |  사용자는 친구 신청을 누른다. |
+| 7 |  시스템은 사용자가 친구 신청한 버튼을 신청 완료로 바꾼다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 5 | 5a. 해당 닉네임을 가진 사용자가 없는 경우 5a1. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #21 친구 수락
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 사용자는 자신에게 온 친구 요청을 수락할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 친구 요청을 받은 상태여야한다. |
+| **Trigger** | 사용자가 수락 버튼을 클릭하였을 때. |
+| **Success Post Condition** | 사용자는 친구 요청을 수락할 수 있다. |
+| **Failed Post Condition** | 사용자는 친구 요청을 수락할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 친구 요청 확인 모달창에서 친구 요청을 수락할 수 있다.  |
+| 1 |  사용자는 마이페이지에서 닉네임 오른쪽 n명의 친구를 클릭한다. |
+| 2 |  사용자의 친구 목록 페이지로 이동한다. |
+| 3 |  사용자는 친구 요청 확인하기를 누른다. |
+| 4 |  사용자는 자신에게 온 친구 요청을 확인한다. |
+| 5 |  사용자는 수락하기를 누른다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #22 친구 거절
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 사용자는 자신에게 온 친구 요청을 거절할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 친구 요청을 받은 상태여야한다. |
+| **Trigger** | 사용자가 거절 버튼을 클릭하였을 때. |
+| **Success Post Condition** | 사용자는 친구 요청을 거절할 수 있다. |
+| **Failed Post Condition** | 사용자는 친구 요청을 거절할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 친구 요청 확인 모달창에서 친구 요청을 거절할 수 있다.  |
+| 1 |  사용자는 마이페이지에서 닉네임 오른쪽 n명의 친구를 클릭한다. |
+| 2 |  사용자의 친구 목록 페이지로 이동한다. |
+| 3 |  사용자는 친구 요청 확인하기를 누른다. |
+| 4 |  사용자는 자신에게 온 친구 요청을 확인한다. |
+| 5 |  사용자는 거절하기를 누른다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #23 친구 조회
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 사용자는 친구를 조회할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
+| **Trigger** | 사용자가 마이페이지 닉네임 오른쪽 n명의 친구를 눌렀을 때 |
+| **Success Post Condition** | 사용자는 친구 조회를 할 수 있다. |
+| **Failed Post Condition** | 사용자는 친구 조회를 할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 친구 목록 페이지에서 친구 정보(닉네임, 프로필, level, 별 개수, 별자리 개수)를 확인할 수 있다.  |
+| 1 |  사용자는 마이페이지에서 닉네임 오른쪽 n명의 친구를 클릭한다. |
+| 2 |  사용자의 친구 목록 페이지로 이동한다. |
+| 3 |- 시스템은 사용자와 연결된 친구를 랜더링한다. |
+
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a. 친구가 없는 경우 3a1. 친구가 없다는 것에 대한 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #24 친구 삭제
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 사용자는 친구를 삭제할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 1명 이상의 친구가 있는 상태여야한다. |
+| **Trigger** | 사용자가 친구 목록 페이지에서 삭제하고자하는 친구 행의 쓰레기통 아이콘을 클릭하였을때  |
+| **Success Post Condition** | 사용자는 친구 삭제를 할 수 있다. |
+| **Failed Post Condition** | 사용자는 친구 삭제를 할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 친구를 삭제할 수 있다.  |
+| 1 |  사용자는 마이페이지에서 닉네임 오른쪽 n명의 친구를 클릭한다. |
+| 2 |  사용자의 친구 목록 페이지로 이동한다. |
+| 3 | 시스템은 사용자와 연결된 친구를 랜더링한다. |
+| 4 | 사용자는 삭제하고자하는 친구 행의 쓰레기통 아이콘을 클릭한다. |
+| 5 | 시스템은 친구를 삭제할 것인지 확인하는 alert 창을 표시한다. |
+| 6 | 사용자가 확인을 누른다. |
+| 7 |  해당 친구가 삭제된다. |
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 3 | 3a. 친구가 없는 경우 3a1. 친구가 없다는 것에 대한 메시지를 제공한다. |
+| 6 | 6a. 취소를 누를 경우 6a1. 친구가 삭제되지 않는다. |
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 1 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #25 한달 일기 분석
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | 한 달 기준 작성한 일기 내용을 분석하여 한달 일기 요약을 제공한다. |
+| **Scope** | STARLET System |
+| **Level** | Subfunction level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** |  |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 분석하고자하는 달에 사용자는 1개 이상 일기를 작성한 상태여야한다.  |
+| **Success Post Condition** | 사용자는 한 달 일기 분석을 조회할 수 있다. |
+| **Failed Post Condition** | 사용자는 한 달 일기 분석을 조회할 수 없다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자는 한 달 일기 분석을 조회할 수 있다.  |
+| 1 |  사용자는 사이드 바 혹은 홈 화면에서 DIARY(나의 일기) 를 누른다. |
+| 2 |  사용자는 ```/calendar``` 페이지로 이동한다. |
+| 3 | 시스템은 사용자 데이터를 랜더링한다. |
+| 4 | 사용자는 상단 말풍선 아이콘을 누른다. |
+| 5 | 시스템은 해당 달 일기를 바탕으로 일기 요약을 제공한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
+| 4 | 4a. 해당 달의 일기가 없는 경우 4a1. 일기가 없다는 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
 | Frequency | 제한없음 |
 | Concurrency | 제한없음 |
 | Due Date | |
