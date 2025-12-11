@@ -1063,6 +1063,7 @@
 | **Status** |  |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 분석하고자하는 달에 사용자는 1개 이상 일기를 작성한 상태여야한다.  |
+| **Trigger** | 사용자가 ```calendar```페이지에서 말풍선 아이콘을 클릭했을 때  |
 | **Success Post Condition** | 사용자는 한 달 일기 분석을 조회할 수 있다. |
 | **Failed Post Condition** | 사용자는 한 달 일기 분석을 조회할 수 없다. |
 
@@ -1081,6 +1082,46 @@
 |:---|:---|
 | 1 | 1a. 로그인 하지않은 사용자일 경우 1a1. 해당 페이지에 접근이 불가능하다. <br/> 2b. 사용자 데이터 로딩 실패 2b1.  네트워크 및 서버 오류로 사용자 정보가 표시되지 않는다. 오류 메시지를 제공한다. |
 | 4 | 4a. 해당 달의 일기가 없는 경우 4a1. 일기가 없다는 메시지를 제공한다. |
+
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 제한없음 |
+| Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #26 로그아웃
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | STARLET 에서 로그아웃 할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** | Analysis |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여아한다.  |
+| **Trigger** | 사용자가 사이드바에서 LOGOUT(로그아웃)을 눌렀을 때 |
+| **Success Post Condition** | 로그아웃이 완료되고 로그인 전 홈 화면 페이지로 이동한다. |
+| **Failed Post Condition** | 로그아웃이 실패한다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자가 로그아웃을 한다. |
+| 1 |  사용자는 사이드 바에서 LOGOUT(로그아웃)을 누른다. |
+| 2 |  서버에 로그아웃을 요청한다. |
+| 3 |  로그아웃이 정상적으로 완료되고 로그인 전 홈 화면 페이지로 이동한다. |
+
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 서버와 연결되어 있지 않은 경우  3a1. 로그아웃 할 수 없다. |
 
 #### RELATED INFORMATION
 |  |  |
