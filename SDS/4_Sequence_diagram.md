@@ -485,48 +485,88 @@ sequenceDiagram
     participant MR as ModerationService
     participant DR as DiaryRepository
     participant SR as StarRepository
+    participant EM as EntityManager
 
     Client->>DC: POST /api/v1/calendar/diary\n{emotion, factors, content, date?}
     DC->>DS: create(userId, req)
 
-    DS->>DS: 날짜 기본값 설정(req.date == null ? today)
-    DS->>DR: existsByUser_IdAndCreateAt(userId, date)
+    DS->>DS: today = LocalDate.now(Asia/Seoul)
 
-    alt 이미 작성된 일기 존재
-        DS-->>DC: CustomException(DIARY_ALREADY_EXISTS)
-        DC-->>Client: 409 Conflict
-    else 신규 작성
-        DS->>MR: moderationService.moderate(content)
-        alt 부적절한 표현 존재
-            DS-->>DC: CustomException(INAPPROPRIATE_CONTENT)
-            DC-->>Client: 400 Bad Request
-        else 정상 content
-            DS->>DR: Diary 저장 (emotion, factors, content, date)
-            DS->>SR: Star 저장 (emotion.color, x, y, user)
-            DS-->>DC: DiaryResDto 반환
-            DC-->>Client: 201 Created + DiaryResDto
+    alt 요청 날짜가 오늘이 아님 (req.date != null && req.date != today)
+        DS-->>DC: throw CustomException(DIARY_NOT_CREATE)
+        DC-->>Client: 400 Bad Request
+    else 오늘 날짜로 작성
+        DS->>DR: existsByUser_IdAndCreateAt(userId, today)?
+        alt 이미 오늘 일기 존재
+            DS-->>DC: throw CustomException(DIARY_ALREADY_EXISTS)
+            DC-->>Client: 409 Conflict
+        else 신규 작성 플로우
+            DS->>MR: moderate(req.content)
+            MR-->>DS: moderationResult
+
+            alt 부적절한 표현 존재 (isFlagged == true)
+                DS-->>DC: throw CustomException(INAPPROPRIATE_CONTENT)
+                DC-->>Client: 400 Bad Request
+            else 정상 content
+                DS->>EM: getReference(User, userId)
+                EM-->>DS: userRef
+
+                DS->>DS: factors = safeFactors(req.factors)
+                DS->>DR: save(Diary{userRef, emotion, factors, content, today})
+
+                alt 저장 중 제약조건 위반 (DataIntegrityViolationException)
+                    DR-->>DS: DataIntegrityViolationException
+                    DS-->>DC: throw CustomException(DIARY_ALREADY_EXISTS)
+                    DC-->>Client: 409 Conflict
+                else 저장 성공
+                    DR-->>DS: diary
+                    DS->>SR: save(Star{color=diary.emotion.color,\n x=random(0.05~0.95), y=random(0.05~0.95),\n user=userRef, diary})
+                    SR-->>DS: star
+
+                    DS-->>DC: DiaryResDto.of(diary)
+                    DC-->>Client: 201 Created + DiaryResDto
+                end
+            end
         end
     end
+
 ```
-이 단계는 사용자가 새로운 감정 일기를 생성하는 단계이다.
-사용자는 감정(emotion), 요인 리스트(factors), 메모(content), 날짜(date)를 포함하여
+이 단계는 사용자가 새로운 감정 일기를 생성하는 과정이다.
+사용자는 당일(Date = 오늘) 일기만 작성할 수 있다.
+사용자는 emotion, factors, content, date 를 포함하여
 POST /api/v1/calendar/diary 로 요청을 보낸다.
+DiaryService.create() 내부에서는 다음 과정을 수행한다.
 
-DiaryService.create() 내부에서는
-1. findByUser_IdAndCreateAt(userId, date) 로 해당 날짜의 일기 존재 여부를 조회하고
-2. 이미 존재한다면 CustomException(ErrorCode.DIARY_ALREADY_EXISTS) 를 발생시키며
-3. 존재하지 않는 경우 새로운 Diary 엔티티를 생성하고 필요한 값들을 설정한 뒤
-4. JPA save() 를 통해 DB에 저장한다.
-5. 이후 저장된 Diary를 DiaryResDto 로 변환하여 응답한다.
+1. 요청 날짜 검증
+- date가 오늘이 아니면 DIARY_NOT_CREATE 예외 발생
 
-**흐름요약** <br>
-해당 시퀀스는 감정 일기 생성의 실제 실행 흐름을 나타낸다.
-1. Client → DiaryController : POST /api/v1/calendar/diary 요청 (emotion, factors, content, date)
-2. DiaryController → DiaryService : create(userId, req) 호출
-3. DiaryService → DiaryRepository :  findByUser_IdAndCreateAt(userId, date) 조회
-4. 일기 이미 존재 시 : CustomException(ErrorCode.DIARY_ALREADY_EXISTS) → 409 CONFLICT
-5. 일기 미존재 시 : Diary 생성 후 저장
-6. Controller → Client : DiaryResDto 반환 (201 Created)00
+2. 중복 일기 여부 조회
+
+- existsByUser_IdAndCreateAt(userId, today)
+- 이미 존재하면 DIARY_ALREADY_EXISTS (409)
+
+3. 부적절한 표현 검사
+- moderationService로 content 검사
+- flagged 시 INAPPROPRIATE_CONTENT (400)
+
+4. 일기(Diary) 생성 및 저장
+- User 프록시 조회(getReference)
+- Diary 엔티티 생성 후 JPA save()
+
+5. 별(Star) 생성 및 저장
+- emotion 기반 색상
+- x, y 좌표 random
+- starRepository.save()
+6. DiaryResDto 반환
+- Controller에서 201 Created 응답
+
+**흐름 요약**
+1. Client → Controller: POST /diary
+2. Controller → Service: create(userId, req)
+3. Service → Repository: existsByUser_IdAndCreateAt 조회
+4. 이미 존재 시: 예외 → 409 Conflict
+5. 미존재 시: moderation 체크 → Diary + Star 저장
+6. Controller → Client: 201 Created + DiaryResDto
 
 ### SD-4.4.2 일기 수정 단계  
 ```mermaid
