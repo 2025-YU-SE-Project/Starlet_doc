@@ -27,12 +27,15 @@
 
 ## Subfunction level
 - 상위 User level Use Case의 일부 과정으로 수행되는 하위 기능이다.
-- 예를 들어, 별자리 위치 및 크기조정은 ```별자리 생성```의 확장 Use Case로 생성 후 배치 조정 세부 기능을 수행한다. <br> ```별자리 정보 수정```은 ```별자리 상세 조회```의 확장 Use Case로, 별자리 조회 후 수정 기능을 포함한다. <br> ```대표 별자리 설정```은 ```별자리 아카이브 조회```의 확장 Use Case로, 아카이브 내 특정 별자리를 대표 별자리로 진행한다.
+- 예를 들어, 별자리 위치 및 크기조정은 ```별자리 생성```의 확장 Use Case로 생성 후 배치 조정 세부 기능을 수행한다. <br> ```별자리 정보 수정```은 ```별자리 상세 조회```의 확장 Use Case로, 별자리 조회 후 수정 기능을 포함한다. <br> ```대표 별자리 설정```은 ```별자리 아카이브 조회```의 확장 Use Case로, 아카이브 내 특정 별자리를 대표 별자리로 진행한다. <br> ```AI 이름 및 설명 추천 기능```은 ```별자리 생성``` 의 확장  Use Case로,  별자리 생성 후 자동으로 이름 및 설명을 부여하는 기능을 수행한다. <br> ```친구 검색, 신청, 수락, 거절 상세 ```은 ```친구 조회```의 확장 Use Case로 STARLET 사용자간의 친구관계 역할을 수행한다.
+- 
 - 이와 같은 Subfunction들은 주기적으로 호출되며, 메인 시나리오를 보조한다.
 
 ## Use case Diagram
 
-<img width="898" height="1264" alt="image" src="https://github.com/user-attachments/assets/99505388-8c0e-4f02-9323-97a0c0e4176e" />
+<img width="1193" height="1220" alt="image" src="https://github.com/user-attachments/assets/dc50959e-7de1-41b4-8ee9-d433d81a168e" />
+<img width="1196" height="713" alt="image" src="https://github.com/user-attachments/assets/c490e5be-cb20-41aa-b4ba-c1bec02158a8" />
+
 
 ``` [그림] use case diagram ```
 
@@ -972,7 +975,7 @@
 |:---|:---|
 | **Summary** | 사용자는 친구를 조회할 수 있다. |
 | **Scope** | STARLET System |
-| **Level** | Subfunction level |
+| **Level** | User level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
 | **Last Update** | 2025-12-11 |
