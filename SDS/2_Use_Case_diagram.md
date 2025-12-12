@@ -1,4 +1,4 @@
-<img width="462" height="145" alt="image" src="https://github.com/user-attachments/assets/7536cc19-e189-46cf-aa1e-d972c65f9a46" /># Starlet: 소프트웨어 설계 명세서 (SDS)
+# Starlet: 소프트웨어 설계 명세서 (SDS)
 
 ---
 
