@@ -22,7 +22,6 @@
 |          13          | 특정 날짜 감정 일기 조회        |  GET   | `/api/v1/calendar/diary/{date}`                     |     O      |
 |          14          | 월별 별 목록 조회 (하이라이트)    |  GET   | `/api/v1/calendar/star`                             |     O      |
 |          15          | 한 달 일기 분석 요약          |  GET   | `/api/v1/calendar/diary/summary`                    |     O      |
-|          16          | 감정 일기 삭제 (개발용)        | DELETE | `/api/v1/calendar/{diaryId}`                        |     O      |
 |      **[Star]**      |                       |        |                                                     |            |
 |          17          | 별 정보 조회 (별/일기 ID)     |  GET   | `/api/v1/star/detail/{id}`                          |     O      |
 |          18          | 별 위치 최신화              | PATCH  | `/api/v1/star/reposition/{id}`                      |     O      |
