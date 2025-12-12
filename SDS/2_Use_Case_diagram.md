@@ -1,4 +1,4 @@
-# Starlet: 소프트웨어 설계 명세서 (SDS)
+<img width="462" height="145" alt="image" src="https://github.com/user-attachments/assets/7536cc19-e189-46cf-aa1e-d972c65f9a46" /># Starlet: 소프트웨어 설계 명세서 (SDS)
 
 ---
 
@@ -70,8 +70,8 @@
 | **Summary** |  사용자는 시스템을 접속하여 홈 화면을 통해 서비스 주요 기능(Night Sky Page, My Diary, Constellation Archive)을 확인하고 선택할 수 있다. <br> 단, 로그인하지 않은 사용자가 해당 기능을 선택할 경우 로그인 페이지로 이동되며, 로그인 후에만 해당 기능에 접근 가능하다.  |
 | **Scope** | STARLET System |
 | **Level** | Summary level |
-| **Author** |  |
-| **Last Update** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
 | **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 사용자는 시스템에 접속된 상태여야 한다. |
@@ -112,8 +112,8 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
 | **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 사용자는 시스템에 접속된 상태여야 한다. |
@@ -160,9 +160,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 사용자는 회원가입이 되어있어야 한다. <br> 사용자는 현재 로그인되지 않은 상태여야 한다. |
 | **Trigger** | 1. 사용자가 홈 화면에서 로그인(Sign in)을 누를 때 <br> 2. 사용자가 회원가입 페이지에서 SIGN IN을 누를 때  |
@@ -202,9 +202,9 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 사용자는 회원가입이 되어있어야 한다. <br> 사용자는 현재 로그인되지 않은 상태여야 한다. |
 | **Trigger** | 사용자가 로그인 화면에서 비밀번호 찾기를 누를 때  |
@@ -248,9 +248,9 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 사용자는 홈 화면에 진입한 상태여야한다. |
 | **Trigger** | 사용자가 홈 화면에서 Select Language 를 누를 때  |
@@ -288,9 +288,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2.사용자는 calendar 페이지에 진입한 상태여야한다. |
 | **Trigger** | 사용자에서 홈 화면 또는 네브바에서 My Diary(나의 일기)를 누를 때  |
@@ -333,9 +333,9 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 감정 일기를 작성한 상태여야한다. |
 | **Trigger** | 1. 사용자가 캘린더 페이지에서 감정 일기를 작성한 달로 진입했을 때 <br> 2. 사용자가 캘린더에서 감정일기를 작성한 날짜를 선택했을 때 |
@@ -376,9 +376,9 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 감정 일기를 작성한 상태여야한다. |
 | **Trigger** | 1. 사용자가 캘린더 페이지에서 감정 일기를 작성한 달로 진입했을 때 <br> 2. 사용자가 캘린더에서 감정일기를 작성한 날짜를 선택했을 때 |
@@ -420,9 +420,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 7개 이상의 별을 가진 상태여아한다. <br> 3. 밤하늘 페이지에 진입한 상태여한다. |
 | **Trigger** | 1. 사용자가 홈화면 또는 사이드바에서 Night Sky Page(밤하늘 페이지)를 눌렀을 때 <br> 2. 사용자가 My Diary(나의 일기)에서 일기 작성후 밤하늘 페이지로 이동하는 모달창에서 예를 눌렀을 때  |
@@ -466,9 +466,9 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별 또는 별자리를 보유하고 있어야한다. |
 | **Trigger** | 1. 사용자가 홈화면 또는 사이드바에서 Night Sky Page(밤하늘 페이지)를 눌렀을 때 <br> 2. 사용자가 My Diary(나의 일기)에서 일기 작성후 밤하늘 페이지로 이동하는 모달창에서 예를 눌렀을 때   |
@@ -506,9 +506,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다. |
 | **Trigger** | 사용자가 홈 화면 또는 사이드바에서 Constellation Archive(별자리 아카이브)를 눌렀을 때   |
@@ -548,9 +548,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다.  |
 | **Trigger** | Constellation Archive(별자리 아카이브)에서 특정 별자리를 클릭할 때   |
@@ -590,9 +590,9 @@
 | **Scope** | STARLET System |
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다.  |
 | **Trigger** | 별자리 상세 페이지에서 수정 버튼을 클릭했을 때   |
@@ -632,9 +632,9 @@
 | **Scope** | STARLET System |
 | **Level** | User levell |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br> 2. 사용자는 최소 1개 이상의 별자리를 생성하고 있어야 한다.  |
 | **Trigger** | Constellation Archive(별자리 아카이브)에서 별자리 옆 즐겨찾기 버튼을 클릭했을때    |
@@ -673,9 +673,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
 | **Trigger** |  사용자가 사이드바에서 My Page(마이페이지)를 클릭했을 때   |
@@ -716,9 +716,9 @@
 | **Scope** | STARLET System |
 | **Level** | User level |
 | **Scope** | STARLET System |
-| **Author** |  |
-| **Last Update** |  |
-| **Status** |  |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
 | **Trigger** |  사용자가 사이드바에서 My Page(마이페이지)를 클릭했을 때   |
@@ -765,8 +765,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 별자리 모형을 만든 상태여야한다. |
 | **Trigger** |  1. 사용자가 별자리 생성 모달창에서 추천받기 버튼을 클릭했을 때  |
@@ -810,8 +810,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
 | **Trigger** |  1. 사용자가 친구 추가 버튼을 클릭하여 STARLET 사용자 닉네임을 입력 후 Enter 혹은 돋보기 아이콘을 눌렀을 때 |
@@ -852,8 +852,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
 | **Trigger** | 사용자가 친구 검색 모달창에서 닉네임 입력 후 친구 신청을 눌렀을 때. |
@@ -896,8 +896,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 친구 요청을 받은 상태여야한다. |
 | **Trigger** | 사용자가 수락 버튼을 클릭하였을 때. |
@@ -937,8 +937,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 친구 요청을 받은 상태여야한다. |
 | **Trigger** | 사용자가 거절 버튼을 클릭하였을 때. |
@@ -978,8 +978,8 @@
 | **Level** | User level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. |
 | **Trigger** | 사용자가 마이페이지 닉네임 오른쪽 n명의 친구를 눌렀을 때 |
@@ -1019,8 +1019,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 사용자는 1명 이상의 친구가 있는 상태여야한다. |
 | **Trigger** | 사용자가 친구 목록 페이지에서 삭제하고자하는 친구 행의 쓰레기통 아이콘을 클릭하였을때  |
@@ -1062,8 +1062,8 @@
 | **Level** | Subfunction level |
 | **Scope** | STARLET System |
 | **Author** | 조민서 |
-| **Last Update** | 2025-12-11 |
-| **Status** |  |
+| **Last Update** | 2025-12-12 |
+| **Status** | Analysis |
 | **Primary Actor** | User |
 | **Preconditions** | 1. 사용자는 로그인된 상태여야한다. <br/> 2. 분석하고자하는 달에 사용자는 1개 이상 일기를 작성한 상태여야한다.  |
 | **Trigger** | 사용자가 ```calendar```페이지에서 말풍선 아이콘을 클릭했을 때  |
@@ -1132,4 +1132,46 @@
 | Performance | ≤ 2 seconds |
 | Frequency | 제한없음 |
 | Concurrency | 제한없음 |
+| Due Date | |
+
+###  Use Case #27 계정 탈퇴
+#### GENERAL CHARACTERISTICS
+
+|  |  |
+|:---|:---|
+| **Summary** | STARLET에서 탈퇴할 수 있다. |
+| **Scope** | STARLET System |
+| **Level** | User level |
+| **Scope** | STARLET System |
+| **Author** | 조민서 |
+| **Last Update** | 2025-12-11 |
+| **Status** | Analysis |
+| **Primary Actor** | User |
+| **Preconditions** | 1. 사용자는 로그인된 상태여아한다.  |
+| **Trigger** | 사용자가 마이페이지에서 계정 탈퇴를 눌렀을 때 |
+| **Success Post Condition** | STARLET 계정이 사라지고 비회원 홈화면으로 이동한다. |
+| **Failed Post Condition** | STARLET 계정 탈퇴가 불가능하다. |
+
+#### MAIN SUCCESS SCENARIO
+| Step | Action |
+|:---|:---|
+| S | 사용자가 STARLET에서 계정 탈퇴한다. |
+| 1 |  사용자는 My Page에 들어간다. |
+| 2 |  사용자가 계정 탈퇴를 누른다. |
+| 3 |  시스템은 계정 탈퇴를 한 번 더 확인하는 모달창을 표시한다. |
+| 4 |  사용자는 확인을 누른다. |
+| 5 |  시스템은 해당 계정을 영구적으로 지우며 비회원 메인 화면으로 이동한다. |
+
+#### EXTENSION SCENARIO
+| Step | Branching Action |
+|:---|:---|
+| 2 | 2a. 로그인 되지 않은 경우  2a1. 해당 페이지에 접속할 수 없다. |
+| 4 | 4a. 취소를 누른다  4a1. 마이페이지로 돌아간다. |
+| 5 | 5a. 시스템 오류  5a1. 오류 메시지를 보여준다. |
+#### RELATED INFORMATION
+|  |  |
+|:---|:---|
+| Performance | ≤ 2 seconds |
+| Frequency | 1|
+| Concurrency | 1|
 | Due Date | |
